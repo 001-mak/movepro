@@ -1,0 +1,1035 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model all_aggrement {
+  id                     Int          @id @default(autoincrement())
+  company_id             Int?
+  moving_policy          String       @db.Text
+  deposit_disclaimer     String       @db.Text
+  final_payment          String       @db.Text
+  claim                  String       @db.Text
+  waiver                 String       @db.Text
+  final_inspection       String       @db.Text
+  wavier_release_abiltiy String?      @db.Text
+  wavier_risky_task      String?      @db.Text
+  wavier_damage          String?      @db.Text
+  wavier_absent          String?      @db.Text
+  wavier_disclaimer      String?      @db.Text
+  service_relase_comp    String?      @db.Text
+  service_cus_sign       String?      @db.Text
+  claim_damage_rep       String?      @db.Text
+  tbl_company            tbl_company? @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_aggrement_company")
+
+  @@index([company_id], map: "fk_aggrement_company")
+}
+
+model chat_system {
+  id          Int      @id @default(autoincrement())
+  merchant_id Int
+  customer_id Int
+  message     String   @db.VarChar(255)
+  chat_type   String   @db.VarChar(255)
+  read_status Int
+  created_at  DateTime @db.DateTime(0)
+}
+
+model email_template {
+  id         Int      @id @default(autoincrement())
+  template   String   @db.VarChar(255)
+  subject    String   @db.VarChar(255)
+  content    String   @db.LongText
+  created_at DateTime @db.Date
+  code       String   @unique(map: "code") @db.VarChar(255)
+}
+
+model lead_square_transaction {
+  id                    Int         @id @default(autoincrement())
+  payment_id            String?     @db.VarChar(55)
+  payment_status        String?     @db.VarChar(55)
+  delay_duration        String?     @db.VarChar(55)
+  source_type           String?     @db.VarChar(55)
+  amount                String?     @db.VarChar(55)
+  currency              String?     @db.VarChar(55)
+  card_status           String?     @db.VarChar(55)
+  card_brand            String?     @db.VarChar(55)
+  last_4                String?     @db.VarChar(55)
+  exp_month             String?     @db.VarChar(55)
+  exp_year              String?     @db.VarChar(55)
+  fingerprint           String?     @db.VarChar(55)
+  card_type             String?     @db.VarChar(55)
+  bin                   String?     @db.VarChar(55)
+  entry_method          String?     @db.VarChar(55)
+  cvv_status            String?     @db.VarChar(55)
+  avs_status            String?     @db.VarChar(55)
+  statement_description String?     @db.VarChar(55)
+  location_id           String?     @db.VarChar(55)
+  order_id              String?     @db.VarChar(55)
+  total_amount          String?     @db.VarChar(55)
+  receipt_number        String?     @db.VarChar(55)
+  receipt_url           String?     @db.VarChar(255)
+  delay_action          String?     @db.VarChar(55)
+  delayed_until         String?     @db.VarChar(55)
+  created_at            String?     @db.VarChar(55)
+  updated_at            String?     @db.VarChar(55)
+  company_id            Int
+  tbl_company           tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_lead_square_transaction_company")
+
+  @@index([company_id], map: "fk_lead_square_transaction_company")
+}
+
+model square_payment {
+  id             Int      @id @default(autoincrement())
+  application_id String   @db.VarChar(255)
+  location_id    String   @db.VarChar(255)
+  access_token   String   @db.VarChar(255)
+  status         Int
+  created_at     DateTime @db.Date
+}
+
+model square_transaction {
+  id                    Int         @id @default(autoincrement())
+  package_price         String?     @db.VarChar(55)
+  package               String?     @db.VarChar(55)
+  package_id            String?     @db.VarChar(55)
+  payment_id            String?     @db.VarChar(55)
+  payment_status        String?     @db.VarChar(55)
+  delay_duration        String?     @db.VarChar(55)
+  source_type           String?     @db.VarChar(55)
+  amount                String?     @db.VarChar(55)
+  currency              String?     @db.VarChar(55)
+  card_status           String?     @db.VarChar(55)
+  card_brand            String?     @db.VarChar(55)
+  last_4                String?     @db.VarChar(55)
+  exp_month             String?     @db.VarChar(55)
+  exp_year              String?     @db.VarChar(55)
+  fingerprint           String?     @db.VarChar(55)
+  card_type             String?     @db.VarChar(55)
+  bin                   String?     @db.VarChar(55)
+  entry_method          String?     @db.VarChar(55)
+  cvv_status            String?     @db.VarChar(55)
+  avs_status            String?     @db.VarChar(55)
+  statement_description String?     @db.VarChar(55)
+  location_id           String?     @db.VarChar(55)
+  order_id              String?     @db.VarChar(55) 
+  total_amount          String?     @db.VarChar(55)
+  receipt_number        String?     @db.VarChar(55)
+  receipt_url           String?     @db.VarChar(255)
+  delay_action          String?     @db.VarChar(55)
+  delayed_until         String?     @db.VarChar(55)
+  created_at            String?     @db.VarChar(55)
+  updated_at            String?     @db.VarChar(55)
+  company_id            Int
+  tbl_company           tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_square_transaction_company")
+
+  @@index([company_id], map: "fk_square_transaction_company")
+}
+
+model sub_admin_permission {
+  id         Int      @id @default(autoincrement())
+  menu_name  String   @db.VarChar(255)
+  menu_link  String   @db.VarChar(255)
+  permission String   @db.VarChar(55)
+  created_at DateTime @db.Date
+}
+
+model tbl_additional_services {
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(50)
+  cost        Float       @db.Float
+  company_id  Int
+  description String?     @db.VarChar(500)
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_additional_services_company")
+
+  @@index([company_id], map: "fk_tbl_additional_services_company")
+}
+
+model tbl_alerts {
+  id          Int         @id @default(autoincrement())
+  message     String      @db.MediumText
+  time        String      @db.VarChar(20)
+  status      String      @default("0") @db.VarChar(1)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_alerts_company")
+
+  @@index([company_id], map: "fk_tbl_alerts_company")
+}
+
+model tbl_card_details {
+  id         Int      @id
+  user_id    Int
+  card_no    String   @db.VarChar(20)
+  name       String   @db.VarChar(50)
+  year       String   @db.VarChar(20)
+  month      String   @db.VarChar(20)
+  cvv        String?  @db.VarChar(10)
+  card_type  String?  @db.VarChar(20)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @db.DateTime(0)
+}
+
+model tbl_claim_form {
+  id              Int               @id @default(autoincrement())
+  lead_id         Int
+  moving_date     String            @db.VarChar(20)
+  moving_time     String            @db.VarChar(10)
+  customer_name   String            @db.VarChar(50)
+  customer_phone  String            @db.VarChar(20)
+  customer_email  String            @db.VarChar(50)
+  damage_address  String            @db.Text
+  sign_name       String            @db.VarChar(50)
+  sign            String            @db.Text
+  signed_on       DateTime          @default(now()) @db.Timestamp(0)
+  disclaimer      String            @db.Text
+  info1           String            @db.VarChar(100)
+  customer_called String            @db.VarChar(20)
+  comment         String            @db.Text
+  repair_replace  String            @db.VarChar(50)
+  date            String            @db.VarChar(20)
+  cost            String            @db.VarChar(20)
+  status          String            @default("0") @db.VarChar(1)
+  tbl_leads       tbl_leads         @relation(fields: [lead_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_claim_form_lead")
+  tbl_claim_items tbl_claim_items[]
+
+  @@index([lead_id], map: "fk_claim_form_lead")
+}
+
+model tbl_claim_items {
+  id                       Int            @id @default(autoincrement())
+  claim_id                 Int
+  additionalinal_insurance String         @db.VarChar(5)
+  ins_co_nm                String         @db.VarChar(50)
+  ins_co_ph                String         @db.VarChar(20)
+  ins_po_num               String         @db.VarChar(50)
+  item_claimed             String         @db.VarChar(50)
+  item_weight              String         @db.VarChar(10)
+  item_desc                String         @db.Text
+  itempacked               String         @db.VarChar(20)
+  pictureincluded          String         @db.VarChar(5)
+  picture_url              String         @db.Text
+  make_model               String         @db.VarChar(30)
+  manuf                    String         @db.VarChar(30)
+  part_num                 String         @db.VarChar(30)
+  year_purchased           String         @db.VarChar(10)
+  store_purch              String         @db.VarChar(30)
+  item_color               String         @db.VarChar(20)
+  item_pattern             String         @db.VarChar(30)
+  tbl_claim_form           tbl_claim_form @relation(fields: [claim_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_claim_item_claim")
+
+  @@index([claim_id], map: "fk_claim_item_claim")
+}
+
+model tbl_company {
+  id                                     Int                          @id @default(autoincrement())
+  user_id                                Int
+  company_name                           String                       @db.VarChar(250)
+  company_email                          String                       @db.VarChar(250)
+  street                                 String?                      @db.VarChar(255)
+  city                                   String                       @db.VarChar(50)
+  state                                  String                       @db.VarChar(50)
+  zip                                    String                       @db.VarChar(10)
+  country                                String                       @db.VarChar(50)
+  company_logo                           String?                      @db.VarChar(255)
+  website                                String?                      @db.VarChar(255)
+  social_fb                              String?                      @db.VarChar(255)
+  social_tw                              String?                      @db.VarChar(255)
+  social_in                              String?                      @db.VarChar(255)
+  social_insta                           String?                      @db.VarChar(255)
+  social_tube                            String?                      @db.VarChar(255)
+  slogan                                 String?                      @db.VarChar(100)
+  tax_id                                 String?                      @db.VarChar(100)
+  us_dot                                 String?                      @db.VarChar(100)
+  company_mc                             String?                      @db.VarChar(100)
+  minimum_hour                           String?                      @db.VarChar(100)
+  social_pin                             String?                      @db.VarChar(255)
+  publish_key                            String                       @db.VarChar(200)
+  secret_key                             String                       @db.VarChar(200)
+  plan_purchased                         Int?
+  plan_purchased_status                  String                       @default("1") @db.VarChar(1)
+  all_aggrement                          all_aggrement[]
+  lead_square_transaction                lead_square_transaction[]
+  square_transaction                     square_transaction[]
+  tbl_additional_services                tbl_additional_services[]
+  tbl_alerts                             tbl_alerts[]
+  tbl_user_tbl_company_user_idTotbl_user tbl_user                     @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_user")
+  tbl_deposit                            tbl_deposit[]
+  tbl_discounts                          tbl_discounts[]
+  tbl_email_template_names               tbl_email_template_names[]
+  tbl_email_templates                    tbl_email_templates[]
+  tbl_embedded_forms                     tbl_embedded_forms[]
+  tbl_inventory_groups                   tbl_inventory_groups[]
+  tbl_lead_feed                          tbl_lead_feed[]
+  tbl_leads                              tbl_leads[]
+  tbl_logs                               tbl_logs[]
+  tbl_materials                          tbl_materials[]
+  tbl_moving_reminder_sent               tbl_moving_reminder_sent[]
+  tbl_notifications                      tbl_notifications[]
+  tbl_outgoing_email                     tbl_outgoing_email[]
+  tbl_payment                            tbl_payment[]
+  tbl_payment_processing_fee             tbl_payment_processing_fee[]
+  tbl_payment_setting                    tbl_payment_setting[]
+  tbl_plan_purchased                     tbl_plan_purchased[]
+  tbl_provider                           tbl_provider[]
+  tbl_services                           tbl_services[]
+  tbl_sms_templates                      tbl_sms_templates[]
+  tbl_subscription_history               tbl_subscription_history[]
+  tbl_tax                                tbl_tax[]
+  tbl_text_messaging                     tbl_text_messaging[]
+  tbl_user                               tbl_user[]
+  tbl_valuation                          tbl_valuation[]
+
+  @@index([plan_purchased], map: "fk_company_planid")
+  @@index([user_id], map: "fk_company_user")
+}
+
+model tbl_deposit {
+  id                  Int         @id @default(autoincrement())
+  deposit_name        String      @db.VarChar(100)
+  deposit_description String?     @db.VarChar(500)
+  deposit_price       Float       @db.Float
+  company_id          Int
+  tbl_company         tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_deposit_company")
+
+  @@index([company_id], map: "fk_tbl_deposit_company")
+}
+
+model tbl_discounts {
+  id                   Int         @id @default(autoincrement())
+  discount_name        String      @db.VarChar(100)
+  discount_price       Float       @db.Float
+  discount_type        Int         @default(1)
+  discount_description String?     @db.VarChar(500)
+  company_id           Int
+  tbl_company          tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_discounts_company")
+
+  @@index([company_id], map: "fk_tbl_discounts_company")
+}
+
+model tbl_email_open_track {
+  id      Int    @id @default(autoincrement())
+  lead_id Int
+  time    String @db.VarChar(20)
+
+  @@index([lead_id], map: "fk_email_open_track_lead")
+}
+
+model tbl_email_template_names {
+  id            Int         @id @default(autoincrement())
+  template_type String      @db.VarChar(50)
+  templateName  String      @db.VarChar(200)
+  company_id    Int
+  tbl_company   tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_email_template_names_company")
+
+  @@index([company_id], map: "fk_tbl_email_template_names_company")
+}
+
+model tbl_email_templates {
+  id                 Int         @id @default(autoincrement())
+  template           String      @db.VarChar(50)
+  greeting_text      String      @db.MediumText
+  middle_text        String      @db.MediumText
+  button_text        String      @db.MediumText
+  button_link        String      @db.MediumText
+  button_bottom_text String      @db.MediumText
+  header_color       String      @db.VarChar(20)
+  footer_color       String      @db.VarChar(20)
+  company_id         Int
+  tbl_company        tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_email_templates_company")
+
+  @@index([company_id], map: "fk_tbl_email_templates_company")
+}
+
+model tbl_embedded_forms {
+  id           Int         @id @default(autoincrement())
+  form_name    String      @db.VarChar(200)
+  form_phone   String      @db.VarChar(15)
+  form_email   String      @db.VarChar(200)
+  form_address String      @db.VarChar(500)
+  form_fb      String      @db.VarChar(250)
+  form_tw      String      @db.VarChar(250)
+  form_in      String      @db.VarChar(250)
+  company_id   Int
+  tbl_company  tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_embedded_forms_company")
+
+  @@index([company_id], map: "fk_tbl_embedded_forms_company")
+}
+
+model tbl_estimate_open_track {
+  id      Int    @id @default(autoincrement())
+  lead_id Int
+  time    String @db.VarChar(20)
+
+  @@index([lead_id], map: "fk_estimate_open_track_lead")
+}
+
+model tbl_faq {
+  id         Int      @id @default(autoincrement())
+  title      String?  @db.VarChar(255)
+  sub_title  String?  @db.VarChar(255)
+  question   String?  @db.VarChar(255)
+  answer     String?  @db.VarChar(255)
+  type       String?  @db.VarChar(55)
+  created_at DateTime @db.Date
+  updated_at DateTime @db.Date
+}
+
+model tbl_footer {
+  id                Int      @id @default(autoincrement())
+  first_heading     String?  @db.VarChar(255)
+  first_content     String?  @db.VarChar(255)
+  second_heading    String?  @db.VarChar(255)
+  second_content    String?  @db.VarChar(255)
+  third_heading     String?  @db.VarChar(255)
+  third_content     String?  @db.VarChar(255)
+  fourth_heading    String?  @db.VarChar(255)
+  fourth_content    String?  @db.VarChar(255)
+  facebook_link     String?  @db.VarChar(255)
+  twitter_link      String?  @db.VarChar(255)
+  instagram_link    String?  @db.VarChar(255)
+  linkedin_link     String   @db.VarChar(500)
+  copyright_content String   @db.VarChar(500)
+  copyright         String?  @db.VarChar(255)
+  created_at        DateTime @db.Date
+}
+
+model tbl_home {
+  id            Int       @id @default(autoincrement())
+  title         String?   @db.Char(255)
+  sub_title     String?   @db.VarChar(255)
+  content_title String?   @db.VarChar(255)
+  content_text  String?   @db.VarChar(1000)
+  content_image String?   @db.VarChar(255)
+  link          String?   @db.VarChar(255)
+  type          String?   @db.VarChar(255)
+  created_at    DateTime? @db.Date
+  updated_at    DateTime? @db.Date
+}
+
+model tbl_internal_chat {
+  id        Int     @id @default(autoincrement())
+  sender    String  @db.VarChar(10)
+  receiver  String  @db.VarChar(10)
+  message   String  @db.MediumText
+  send_time String  @db.VarChar(30)
+  status    String  @default("0") @db.VarChar(1)
+  chat_type String? @db.VarChar(55)
+}
+
+model tbl_invoice_sign {
+  id        Int       @id @default(autoincrement())
+  lead_id   Int
+  sign      String    @db.Text
+  tbl_leads tbl_leads @relation(fields: [lead_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_invoice_sign_lead")
+
+  @@index([lead_id], map: "fk_invoice_sign_lead")
+}
+
+model tbl_lead_feed {
+  id          Int         @id @default(autoincrement())
+  lead_id     Int
+  action      String      @db.VarChar(500)
+  timing      String      @db.VarChar(50)
+  status      String      @default("0") @db.VarChar(1)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_lead_feed_company")
+
+  @@index([lead_id], map: "fk_lead_feed_lead")
+  @@index([company_id], map: "fk_tbl_lead_feed_company")
+}
+
+model tbl_leads {
+  id                          Int                           @id @default(autoincrement())
+  provider_id                 Int
+  assigned_to                 Int                           @default(0)
+  lead_id                     String                        @db.VarChar(10)
+  first_name                  String                        @db.VarChar(100)
+  last_name                   String                        @db.VarChar(100)
+  phone                       String                        @db.VarChar(15)
+  email                       String                        @db.VarChar(150)
+  comments                    String                        @db.MediumText
+  JobDetail                   String                        @db.VarChar(1)
+  JobType                     String                        @db.VarChar(50)
+  ServiceType                 String                        @db.VarChar(50)
+  DesiredDate                 String                        @db.VarChar(20)
+  DesiredTime                 String                        @db.VarChar(20)
+  MoveDate                    String                        @db.VarChar(20)
+  MoveTime                    String                        @db.VarChar(20)
+  EstimatedDate               String                        @db.VarChar(20)
+  EstimatedTime               String                        @db.VarChar(20)
+  LoadingDwellingSize         String                        @db.VarChar(20)
+  LoadingPlaceName            String                        @db.VarChar(20)
+  LeadLoadingApartment        String                        @db.VarChar(200)
+  LeadLoadingNotes            String                        @db.MediumText
+  LoadingAddress              String                        @db.VarChar(50)
+  LoadingZip                  String                        @db.VarChar(10)
+  LoadingLat                  String                        @db.VarChar(10)
+  LoadingLong                 String                        @db.VarChar(10)
+  LoadingCity                 String                        @db.VarChar(20)
+  LoadingState                String                        @db.VarChar(20)
+  LoadingStairs               String                        @db.VarChar(5)
+  LoadingNeedHelpPacking      String                        @db.VarChar(1)
+  LoadingPackingDate          String                        @db.VarChar(20)
+  LoadingPackingTime          String                        @db.VarChar(20)
+  LoadingElevator             String                        @db.VarChar(1)
+  LoadingGarage               String                        @db.VarChar(1)
+  UnloadingDwellingSize       String                        @db.VarChar(20)
+  UnloadingPlaceName          String                        @db.VarChar(20)
+  UnloadingAddress            String                        @db.VarChar(50)
+  LeadUnloadingApartment      String                        @db.VarChar(200)
+  LeadUnloadingNotes          String                        @db.MediumText
+  UnloadingZip                String                        @db.VarChar(10)
+  UnloadingLat                String                        @db.VarChar(10)
+  UnloadingLong               String                        @db.VarChar(10)
+  UnloadingCity               String                        @db.VarChar(20)
+  UnloadingState              String                        @db.VarChar(20)
+  UnloadingStairs             String                        @db.VarChar(20)
+  UnloadingNeedHelpPacking    String                        @db.VarChar(1)
+  UnloadingElevator           String                        @db.VarChar(1)
+  secLoadingDwellingSize      String                        @db.VarChar(20)
+  secLoadingPlaceName         String                        @db.VarChar(100)
+  secLoadingApartment         String                        @db.VarChar(200)
+  secLoadingAddress           String                        @db.VarChar(50)
+  secLoadingZip               String                        @db.VarChar(10)
+  secLoadingLat               String                        @db.VarChar(10)
+  secLoadingLong              String                        @db.VarChar(10)
+  secLoadingCity              String                        @db.VarChar(10)
+  secLoadingState             String                        @db.VarChar(20)
+  secLoadingStairs            String                        @db.VarChar(5)
+  secLoadingNeedHelpPacking   String                        @db.VarChar(1)
+  secLoadingPackingDate       String                        @db.VarChar(20)
+  secLoadingPackingTime       String                        @db.VarChar(20)
+  secLoadingElevator          String                        @db.VarChar(1)
+  secLoadingGarage            String                        @db.VarChar(1)
+  secLoadingNotes             String                        @db.MediumText
+  secUnloadingDwellingSize    String                        @db.VarChar(20)
+  secUnloadingPlaceName       String                        @db.VarChar(20)
+  secUnloadingApartment       String                        @db.VarChar(100)
+  secUnloadingAddress         String                        @db.VarChar(50)
+  secUnloadingZip             String                        @db.VarChar(10)
+  secUnloadingLat             String                        @db.VarChar(10)
+  secUnloadingLong            String                        @db.VarChar(10)
+  secUnloadingCity            String                        @db.VarChar(10)
+  secUnloadingState           String                        @db.VarChar(20)
+  secUnloadingStairs          String                        @db.VarChar(5)
+  secUnloadingNeedHelpPacking String                        @db.VarChar(1)
+  secUnloadingElevator        String                        @db.VarChar(1)
+  secLeadUnloadingNotes       String                        @db.MediumText
+  LeadStop1                   String                        @db.MediumText
+  LeadStop2                   String                        @db.MediumText
+  LeadStop3                   String                        @db.MediumText
+  unique_id                   String                        @db.VarChar(10)
+  insert_time                 DateTime                      @default(now()) @db.Timestamp(0)
+  distance                    String                        @db.VarChar(250)
+  lead_status                 String                        @default("1") @db.VarChar(1)
+  book_date                   String?                       @db.VarChar(20)
+  complete_date               String?                       @db.VarChar(20)
+  accept_status               Int                           @default(0)
+  reject_reason               String                        @db.VarChar(50)
+  assigned_date               DateTime?                     @db.DateTime(0)
+  company_id                  Int
+  tbl_claim_form              tbl_claim_form[]
+  tbl_invoice_sign            tbl_invoice_sign[]
+  tbl_company                 tbl_company                   @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_leads_company")
+  tbl_quote_acceptance        tbl_quote_acceptance[]
+  tbl_service_completion_form tbl_service_completion_form[]
+  tbl_waiver_form             tbl_waiver_form[]
+
+  @@index([company_id], map: "fk_tbl_leads_company")
+}
+
+model tbl_logo {
+  id         Int      @id @default(autoincrement())
+  logo       String   @db.VarChar(255)
+  path       String   @db.VarChar(255)
+  created_at DateTime @db.Date
+  updated_at DateTime @db.Date
+}
+
+model tbl_logs {
+  id          Int         @id @default(autoincrement())
+  time        String      @db.VarChar(50)
+  IP          String      @db.VarChar(30)
+  browser     String      @db.Text
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_logs_company")
+
+  @@index([company_id], map: "fk_tbl_logs_company")
+}
+
+model tbl_materials {
+  id                   Int         @id @default(autoincrement())
+  material_name        String      @db.VarChar(100)
+  material_description String?     @db.VarChar(500)
+  material_price       Float       @db.Float
+  company_id           Int
+  tbl_company          tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_materials_company")
+
+  @@index([company_id], map: "fk_tbl_materials_company")
+}
+
+model tbl_menu {
+  id         Int      @id @default(autoincrement())
+  menu       String   @db.VarChar(255)
+  slug       String   @db.VarChar(255)
+  created_at DateTime @db.Date
+  updated_at DateTime @db.Date
+}
+
+model tbl_moving_reminder_sent {
+  id          Int         @id @default(autoincrement())
+  lead_id     Int
+  sent        String      @default("1") @db.VarChar(1)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_moving_reminder_sent_company")
+
+  @@index([lead_id], map: "fk_moving_reminder_sent_lead")
+  @@index([company_id], map: "fk_tbl_moving_reminder_sent_company")
+}
+
+model tbl_newsletter {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(250)
+  email     String   @db.VarChar(250)
+  create_dt DateTime @default(now()) @db.Timestamp(0)
+}
+
+model tbl_notifications {
+  id                    Int         @id @default(autoincrement())
+  phone                 String      @db.VarChar(20)
+  phone_active          String      @default("1") @db.VarChar(1)
+  email                 String      @db.VarChar(250)
+  email_active          String      @default("1") @db.VarChar(1)
+  movingreminder_active String      @db.VarChar(1)
+  time                  String      @default("24") @db.VarChar(5)
+  autoresponder_active  String      @db.VarChar(1)
+  autoresponder_time    String      @default("5") @db.VarChar(5)
+  review_active         String      @db.VarChar(1)
+  customer_notif        String      @default("1") @db.VarChar(1)
+  cust_sms_text         String      @default("Your moving Quote is ready please view and update your information and invetory. Click the link {link}") @db.VarChar(200)
+  company_id            Int
+  tbl_company           tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_notifications_company")
+
+  @@index([company_id], map: "fk_tbl_notifications_company")
+}
+
+model tbl_outgoing_email {
+  id          Int         @id @default(autoincrement())
+  lead_id     Int
+  mail_from   String      @db.VarChar(250)
+  mail_to     String      @db.VarChar(250)
+  subject     String      @db.MediumText
+  emailData   Bytes
+  date_sent   String      @db.VarChar(20)
+  opened      String      @db.VarChar(20)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_outgoing_email_company")
+
+  @@index([lead_id], map: "fk_outgoing_email_lead")
+  @@index([company_id], map: "fk_tbl_outgoing_email_company")
+}
+
+model tbl_package {
+  id          Int       @id @default(autoincrement())
+  title       String?   @db.VarChar(255)
+  sub_title   String?   @db.VarChar(255)
+  package     String?   @db.VarChar(255)
+  price       String?   @db.VarChar(255)
+  monthly     String?   @db.VarChar(255)
+  users_limit Int?
+  leads_limit Int?
+  text3       String?   @db.VarChar(255)
+  text4       String?   @db.VarChar(255)
+  sms_limit   Int?
+  email_limit String?   @db.VarChar(55)
+  text6       String?   @db.VarChar(255)
+  button      String?   @db.VarChar(255)
+  link        String?   @db.VarChar(255)
+  type        String?   @db.VarChar(255)
+  status      Int
+  created_at  DateTime? @db.Date
+  updated_at  DateTime? @db.Date
+  code        String?   @db.VarChar(25)
+}
+
+model tbl_pages {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(55)
+  title      String   @db.VarChar(255)
+  slug       String   @db.VarChar(55)
+  content    String   @db.LongText
+  created_at DateTime @db.DateTime(0)
+}
+
+model tbl_payment {
+  id               Int         @id @default(autoincrement())
+  item_number      String      @db.VarChar(255)
+  item_name        String      @db.VarChar(255)
+  payment_status   String      @db.VarChar(255)
+  actual_amount    Float
+  payment_amount   Float
+  payment_currency String      @db.VarChar(255)
+  txn_id           String      @db.VarChar(255)
+  create_at        DateTime    @default(now()) @db.Timestamp(0)
+  test_dump        String      @db.MediumText
+  payment_mode     String?     @db.VarChar(55)
+  signature        String      @db.Text
+  company_id       Int
+  tbl_company      tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_payment_company")
+
+  @@index([company_id], map: "fk_tbl_payment_company")
+}
+
+model tbl_payment_processing_fee {
+  id             Int         @id @default(autoincrement())
+  processing_fee String      @db.VarChar(10)
+  company_id     Int
+  tbl_company    tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_payment_processing_fee_company")
+
+  @@index([company_id], map: "fk_tbl_payment_processing_fee_company")
+}
+
+model tbl_payment_requests {
+  id                  Int     @id @default(autoincrement())
+  lead_id             Int
+  request_date        String  @db.VarChar(20)
+  request_amount      String  @db.VarChar(10)
+  status              String  @default("0") @db.VarChar(1)
+  type                String  @default("initial") @db.VarChar(20)
+  paid_on             String  @db.VarChar(20)
+  txn_id              String  @db.VarChar(100)
+  payment_description String? @db.VarChar(2500)
+
+  @@index([lead_id], map: "fk_payment_requests_lead")
+}
+
+model tbl_payment_setting {
+  id              Int         @id @default(autoincrement())
+  gateway         String      @db.VarChar(20)
+  email           String      @db.VarChar(250)
+  sandbox         String      @default("0") @db.VarChar(1)
+  app_id          String      @db.VarChar(200)
+  loc_id          String      @db.VarChar(200)
+  access_token    String      @db.VarChar(500)
+  publishable_key String      @db.VarChar(200)
+  secret_key      String      @db.VarChar(200)
+  active          String      @db.VarChar(1)
+  company_id      Int
+  tbl_company     tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_payment_setting_company")
+
+  @@index([company_id], map: "fk_tbl_payment_setting_company")
+}
+
+model tbl_plan_purchased {
+  id             Int         @id @default(autoincrement())
+  plan_id        Int
+  remaining_lead String?     @db.VarChar(11)
+  total_lead     String?     @db.VarChar(11)
+  purchased_on   String      @db.VarChar(20)
+  renew_on       String      @db.VarChar(20)
+  company_id     Int
+  tbl_company    tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_plan_purchased_company")
+
+  @@index([company_id], map: "fk_tbl_plan_purchased_company")
+}
+
+model tbl_plans {
+  id           Int    @id @default(autoincrement())
+  plan_name    String @db.VarChar(100)
+  plan_price   String @db.VarChar(10)
+  plan_details String @db.MediumText
+  job_limit    String @db.VarChar(5)
+  sms_limit    String @db.VarChar(5)
+  email_limit  String @db.VarChar(5)
+  status       String @default("1") @db.VarChar(1)
+}
+
+model tbl_provider {
+  id             Int         @id @default(autoincrement())
+  unique_id      String      @db.VarChar(6)
+  name           String      @db.VarChar(100)
+  email          String      @db.VarChar(200)
+  website        String      @db.VarChar(100)
+  address        String      @db.VarChar(500)
+  phone          String      @db.VarChar(20)
+  fax            String      @db.VarChar(20)
+  contact_name   String      @db.VarChar(100)
+  price_per_lead String      @db.VarChar(10)
+  status         String      @default("1") @db.VarChar(1)
+  company_id     Int
+  tbl_company    tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_provider_company")
+
+  @@index([company_id], map: "fk_tbl_provider_company")
+}
+
+model tbl_quotation {
+  id           Int     @id @default(autoincrement())
+  lead_id      Int
+  datas        String  @db.MediumText
+  inventoryArr String  @db.MediumText
+  materialsArr String  @db.MediumText
+  trucksArr    String  @db.MediumText
+  crewArr      String  @db.MediumText
+  start_time   String? @db.VarChar(55)
+  end_time     String? @db.VarChar(55)
+
+  @@index([lead_id], map: "fk_quotation_lead")
+}
+
+model tbl_quote_acceptance {
+  id                     Int       @id @default(autoincrement())
+  lead_id                Int
+  insurance_id           Int
+  additional_services_id String    @db.VarChar(20)
+  signature              String    @db.Text
+  tbl_leads              tbl_leads @relation(fields: [lead_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_quote_acceptance_lead")
+
+  @@index([lead_id], map: "fk_quote_acceptance_lead")
+}
+
+model tbl_roles {
+  id         Int    @id @default(autoincrement())
+  role_name  String @db.VarChar(50)
+  can_access String @db.VarChar(50)
+  role_order Int
+}
+
+model tbl_service_completion_form {
+  id            Int       @id @default(autoincrement())
+  lead_id       Int
+  release_text  String    @db.Text
+  review_text   String    @db.Text
+  customer_name String    @db.Text
+  customer_sign String    @db.Text
+  signed_on     DateTime  @default(now()) @db.Timestamp(0)
+  tbl_leads     tbl_leads @relation(fields: [lead_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_service_completion_form_lead")
+
+  @@index([lead_id], map: "fk_service_completion_form_lead")
+}
+
+model tbl_services {
+  id                  Int         @id @default(autoincrement())
+  service_name        String      @db.VarChar(100)
+  service_description String      @db.VarChar(100)
+  service_price       String      @db.VarChar(10)
+  company_id          Int
+  tbl_company         tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_services_company")
+
+  @@index([company_id], map: "fk_tbl_services_company")
+}
+
+model tbl_sms_templates {
+  id            Int         @id @default(autoincrement())
+  template_name String      @db.VarChar(200)
+  content       String      @db.VarChar(200)
+  company_id    Int
+  tbl_company   tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_sms_templates_company")
+
+  @@index([company_id], map: "fk_tbl_sms_templates_company")
+}
+
+model tbl_subscription_history {
+  id                Int         @id @default(autoincrement())
+  date              String      @db.VarChar(20)
+  plan_details      String      @db.VarChar(100)
+  amount            String      @db.VarChar(10)
+  extra_lead_charge String?     @db.VarChar(55)
+  total_amount      String?     @db.VarChar(55)
+  company_id        Int
+  tbl_company       tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_subscription_history_company")
+
+  @@index([company_id], map: "fk_tbl_subscription_history_company")
+}
+
+model tbl_support {
+  id                Int                 @id @default(autoincrement())
+  sender_id         Int
+  subject           String              @db.MediumText
+  issues            String              @db.MediumText
+  time_created      DateTime            @default(now()) @db.Timestamp(0)
+  status            String              @default("0") @db.VarChar(1)
+  tbl_user          tbl_user            @relation(fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_support_sender")
+  tbl_support_reply tbl_support_reply[]
+
+  @@index([sender_id], map: "fk_support_sender")
+}
+
+model tbl_support_reply {
+  id           Int         @id @default(autoincrement())
+  support_id   Int
+  sender_id    Int
+  reply        String      @db.MediumText
+  time_created DateTime    @default(now()) @db.Timestamp(0)
+  tbl_user     tbl_user    @relation(fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_support_reply_sender")
+  tbl_support  tbl_support @relation(fields: [support_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_support_reply_support")
+
+  @@index([sender_id], map: "fk_support_reply_sender")
+  @@index([support_id], map: "fk_support_reply_support")
+}
+
+model tbl_tax {
+  id          Int         @id @default(autoincrement())
+  tax_rate    String      @db.VarChar(10)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_tax_company")
+
+  @@index([company_id], map: "fk_tbl_tax_company")
+}
+
+model tbl_text_messaging {
+  id          Int         @id @default(autoincrement())
+  lead_id     Int
+  message     String      @db.VarChar(200)
+  date_sent   DateTime    @default(now()) @db.Timestamp(0)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_text_messaging_company")
+
+  @@index([lead_id], map: "fk_text_messaging_lead")
+  @@index([company_id], map: "fk_tbl_text_messaging_company")
+}
+
+model tbl_trucks {
+  id                          Int    @id @default(autoincrement())
+  truck_name                  String @db.VarChar(100)
+  rent_own                    String @db.VarChar(10)
+  make                        String @db.VarChar(50)
+  model                       String @db.VarChar(50)
+  year                        String @db.VarChar(4)
+  length                      String @db.VarChar(50)
+  cdl                         String @db.VarChar(50)
+  purchase_date               String @db.VarChar(50)
+  purchase_mileage            String @db.VarChar(50)
+  vehicle_class               String @db.VarChar(50)
+  lbs                         String @db.VarChar(50)
+  cu                          String @db.VarChar(50)
+  vin                         String @db.VarChar(50)
+  license_plate               String @db.VarChar(50)
+  dot_number                  String @db.VarChar(50)
+  insurance                   String @db.VarChar(250)
+  service_record1_date        String @db.MediumText
+  service_record1_whatwasdone String @db.MediumText
+  service_record1_servicedby  String @db.MediumText
+  service_record1_nextdate    String @db.MediumText
+  service_record1_nextmileage String @db.MediumText
+  service_record1_notes       String @db.MediumText
+  service_record2_date        String @db.MediumText
+  service_record2_whatwasdone String @db.MediumText
+  service_record2_servicedby  String @db.MediumText
+  service_record2_nextdate    String @db.MediumText
+  service_record2_nextmileage String @db.MediumText
+  service_record2_notes       String @db.MediumText
+  service_record3_date        String @db.MediumText
+  service_record3_whatwasdone String @db.MediumText
+  service_record3_servicedby  String @db.MediumText
+  service_record3_nextdate    String @db.MediumText
+  service_record3_nextmileage String @db.MediumText
+  service_record3_notes       String @db.MediumText
+  status                      String @default("1") @db.VarChar(1)
+  company_id                  Int
+
+  @@index([company_id], map: "fk_truck_company")
+}
+
+model tbl_user {
+  id                                        Int                 @id @default(autoincrement())
+  username                                  String              @unique(map: "unique_username") @db.VarChar(50)
+  password                                  String              @db.VarChar(250)
+  salt                                      String              @db.VarChar(20)
+  first_name                                String              @db.VarChar(100)
+  last_name                                 String              @db.VarChar(100)
+  email_id                                  String              @unique(map: "unique_email") @db.VarChar(250)
+  phone_no                                  String              @db.VarChar(15)
+  alter_phone_no                            String?             @db.VarChar(20)
+  picture                                   String?             @db.VarChar(500)
+  bio                                       String?             @db.MediumText
+  cover_photo                               String?             @db.VarChar(500)
+  street                                    String?             @db.VarChar(255)
+  city                                      String?             @db.VarChar(255)
+  state                                     String?             @db.VarChar(255)
+  zip                                       String?             @db.VarChar(255)
+  country                                   String?             @db.VarChar(255)
+  status                                    String              @default("1") @db.VarChar(1)
+  role                                      String              @db.VarChar(11)
+  added_by                                  Int?
+  validation_id                             String?             @db.VarChar(250)
+  reset_key                                 String?             @db.VarChar(250)
+  join_date                                 DateTime            @default(now()) @db.Timestamp(0)
+  ssn                                       String?             @db.VarChar(20)
+  hire_date                                 DateTime?           @db.DateTime(0)
+  starting_pay                              String?             @db.VarChar(10)
+  current_pay                               String?             @db.VarChar(10)
+  eligible_sales                            Int?
+  lead_commision                            String?             @db.VarChar(10)
+  annual_sale                               String?             @db.VarChar(10)
+  lifetime_sale                             String?             @db.VarChar(10)
+  lifetime_commision                        String?             @db.VarChar(10)
+  employee_type                             Int?
+  notes                                     String?             @db.MediumText
+  Agreement                                 String?             @db.MediumText
+  signature                                 String?             @db.VarChar(55)
+  company_id                                Int?
+  tbl_company_tbl_company_user_idTotbl_user tbl_company[]       @relation("tbl_company_user_idTotbl_user")
+  tbl_support                               tbl_support[]
+  tbl_support_reply                         tbl_support_reply[]
+  tbl_company                               tbl_company?        @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_company")
+
+  @@index([company_id], map: "fk_user_company")
+}
+
+model tbl_valuation {
+  id             Int         @id @default(autoincrement())
+  valuation_name String      @db.VarChar(500)
+  item_lb_kg     String      @db.VarChar(100)
+  storage        String?     @db.VarChar(250)
+  maximum_rate   Float       @db.Float
+  deductable     Float       @db.Float
+  cost           Float       @db.Float
+  company_id     Int
+  description    String?     @db.VarChar(500)
+  tbl_company    tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_valuation_company")
+
+  @@index([company_id], map: "fk_tbl_valuation_company")
+}
+
+model tbl_waiver_form {
+  id                   Int       @id @default(autoincrement())
+  lead_id              Int
+  initial_text         String    @db.Text
+  risky_text           String    @db.Text
+  risky_text_sign      String    @db.Text
+  damage_text          String    @db.Text
+  damage_text_sign     String    @db.Text
+  absent_customer      String    @db.Text
+  absent_customer_sign String    @db.Text
+  release_text         String    @db.Text
+  customer_name        String    @db.Text
+  customer_sign        String    @db.Text
+  signed_on            DateTime  @default(now()) @db.Timestamp(0)
+  tbl_leads            tbl_leads @relation(fields: [lead_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_waiver_form_lead")
+
+  @@index([lead_id], map: "fk_waiver_form_lead")
+}
+
+model tbl_inventory_groups {
+  id          Int         @id @default(autoincrement())
+  group_name  String      @db.VarChar(100)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_inventory_group_company")
+  group_items tbl_inventory_group_items[] @relation(map: "fk_inventory_group_item_group")
+
+  @@index([company_id], map: "fk_tbl_inventory_group_company")
+}  
+
+model tbl_inventory_group_items {
+  id        Int    @id @default(autoincrement())
+  group_id  Int
+  item_name String @db.VarChar(100)
+  item_size String @db.VarChar(100)
+  group     tbl_inventory_groups @relation(fields: [group_id], references: [id], map: "fk_inventory_group_item_group")
+  
+  @@index([group_id], map: "fk_inventory_group_item_group")
+}
