@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import config from './config/config';
 import path from 'path';
+import authRouter from './routes/auth.route';
+import authLimiter from './middleware/authLimiter';
 
 const app: Express = express();
 
@@ -25,6 +27,13 @@ app.use(
   })
 );
 
+if (config.node_env === 'production') {
+  app.use('/api/v1/auth', authLimiter);
+}
+
+
+app.use('/api/v1/auth', authRouter);
+
 // app.all('*', (req, res) => {
 //   res.status(404);
 //   if (req.accepts('html')) {
@@ -35,6 +44,8 @@ app.use(
 //     res.type('txt').send('404 Not Found');
 //   }
 // });
+
+
 
 
 export default app;
