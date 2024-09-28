@@ -5,6 +5,7 @@ import compression from 'compression';
 import config from './config/config';
 import path from 'path';
 import authRouter from './routes/auth.route';
+import leadRouter from './routes/lead.route';
 import authLimiter from './middleware/authLimiter';
 
 const app: Express = express();
@@ -33,6 +34,8 @@ if (config.node_env === 'production') {
 
 
 app.use('/api/v1/auth', authRouter);
+
+app.use('/api/v1/leads',leadRouter);
 
 // app.all('*', (req, res) => {
 //   res.status(404);
