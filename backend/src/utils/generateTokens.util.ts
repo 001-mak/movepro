@@ -2,9 +2,8 @@ import jwt from 'jsonwebtoken';
 import config from '../config/config';
 const { sign } = jwt;
 
-export const createAccessToken = (userId: number, username: string, first_name: string,
-   last_name: string, email_id: string, added_by: number, role: string, company_id: number): string => {
-  return sign({ userId: userId, username, first_name, last_name, email_id, added_by,role, company_id }, config.jwt.access_token.secret, {
+export const createAccessToken = (userData: any): string => {
+  return sign(userData, config.jwt.access_token.secret, {
     expiresIn: config.jwt.access_token.expire
   });
 };

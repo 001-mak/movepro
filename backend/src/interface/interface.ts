@@ -22,16 +22,23 @@ export interface IUserRegister {
     password: string;
     first_name: string;
     last_name: string;
-    username: string;
-    email: string;
-    phone: string;
-    company: string;
+    email_id: string;
+    phone_no: string;
     street: string;
     city: string;
     state: string;
     zip: string;
     country: string;
-    packageplan:number;
+    company_name:string;
+}
+
+export interface IUserLogin {
+  email_id: string;
+  password: string;
+}
+
+export interface AuthRequest extends Request {
+  user?: any; // You can define a more specific type if needed
 }
 
 export interface IUserSignUpCredentials {
