@@ -6,6 +6,7 @@ import config from './config/config';
 import path from 'path';
 import authRouter from './routes/auth.route';
 import authLimiter from './middleware/authLimiter';
+import userRouter from './routes/user.route';
 
 const app: Express = express();
 
@@ -33,6 +34,7 @@ if (config.node_env === 'production') {
 
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', userRouter);
 
 // app.all('*', (req, res) => {
 //   res.status(404);
