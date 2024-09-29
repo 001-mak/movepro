@@ -65,3 +65,25 @@ export const handleDeleteLead = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error deleting lead' });
     }
 };
+
+export const handleUpdateLead = async (
+    req: TypedRequest<Lead>,
+    res: Response
+) => {
+    try {
+        const id: string = req.params['id'] as string;
+
+        let c: any = { ...req.body };
+       
+
+        const newLead = await prismaClient.tbl_leads.update({
+            data: c,
+            where: {
+                id: parseInt(id)
+            }
+        });
+        res.json(newLead);
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating lead' });
+    }
+};

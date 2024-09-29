@@ -4,21 +4,11 @@ import * as leadController from '../controller/leads.controller'
 
 const leadRouter=Router()
 
-leadRouter.post(
-    '/',leadController.handleCreateLead
-);
-leadRouter.get(
-    '/',
-    leadController.handleGetAllLeads
-);
+leadRouter.post('/',leadController.handleCreateLead);
+leadRouter.get('/',leadController.handleGetAllLeads);
 
-leadRouter.get(
-    '/:id',
-    leadController.handleGetLead
-);
-leadRouter.delete(
-    '/:id',
-    leadController.handleDeleteLead
-);
+leadRouter.get('/:id',leadController.handleGetLead);
+leadRouter.delete('/:id', leadController.handleDeleteLead);
+leadRouter.put('/:id',leadController.handleUpdateLead)
 
 export default leadRouter;
