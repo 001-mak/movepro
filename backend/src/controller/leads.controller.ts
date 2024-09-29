@@ -37,3 +37,18 @@ export const handleGetAllLeads = async (
     }
 };
 
+export const handleGetLead = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const leadData = await prismaClient.tbl_leads.findUnique({
+            where: { id: parseInt(id as string) },
+        });
+        if (leadData) {
+            res.json(leadData);
+        } else {
+            res.status(404).json({ error: 'Lead not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching lead' });
+    }
+};

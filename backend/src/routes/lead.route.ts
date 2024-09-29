@@ -12,4 +12,9 @@ leadRouter.get(
     leadController.handleGetAllLeads
 );
 
+leadRouter.get(
+    '/:id',
+    leadController.handleGetLead
+);
+
 export default leadRouter;
