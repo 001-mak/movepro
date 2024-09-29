@@ -52,3 +52,16 @@ export const handleGetLead = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error fetching lead' });
     }
 };
+
+
+export const handleDeleteLead = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        await prismaClient.tbl_leads.delete({
+            where: { id: parseInt(id as string) },
+        });
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting lead' });
+    }
+};

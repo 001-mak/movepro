@@ -16,5 +16,9 @@ leadRouter.get(
     '/:id',
     leadController.handleGetLead
 );
+leadRouter.delete(
+    '/:id',
+    leadController.handleDeleteLead
+);
 
 export default leadRouter;
