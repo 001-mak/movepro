@@ -20,6 +20,20 @@ export const handleCreateLead = async (
     } catch (error) {
         res.status(500).json({ error: `Error creating lead: ${error}` });
     }
+
 };
 
+
+
+export const handleGetAllLeads = async (
+    _req: TypedRequest,
+    res: Response
+) => {
+    try {
+        const leads = await prismaClient.tbl_leads.findMany();
+        res.json(leads);
+    } catch (error) {
+        res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Error fetching leads' });
+    }
+};
 

@@ -7,6 +7,9 @@ const leadRouter=Router()
 leadRouter.post(
     '/',leadController.handleCreateLead
 );
-
+leadRouter.get(
+    '/',
+    leadController.handleGetAllLeads
+);
 
 export default leadRouter;
