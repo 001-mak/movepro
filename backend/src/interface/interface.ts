@@ -139,3 +139,10 @@ export interface CreateLead {
 export interface Lead extends CreateLead{
   id: number;
 }
+
+export interface PagedQuery{
+  pageIndex: string;
+  pageSize: string;
+  orderBy: string;
+  orderDirection: string;
+}
