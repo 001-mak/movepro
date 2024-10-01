@@ -145,7 +145,7 @@ export const handleUserLogin = async (
 
   try {
     // Check if user exists by email
-    const user = await prismaClient.tbl_user.findFirst({
+    const user = await prismaClient.tbl_user.findUnique({
       where: { email_id },
     });
 
