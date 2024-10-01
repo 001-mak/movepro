@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
 import prismaClient from "../config/prisma";
-import { TypedRequest, IUserRegister, IUserLogin } from "../interface/interface";
+import { TypedRequest, IUserRegister, IUserLogin, IUser } from "../interface/interface";
 import { createAccessToken } from "../utils/generateTokens.util";
 import bcrypt from "bcrypt";
 import { sendEmail } from "../utils/emailService";
@@ -22,6 +22,7 @@ export const handleUserRegister = async (
     zip,
     country,
     company_name,
+    ssn
   } = req.body;
 
   if (
@@ -35,10 +36,11 @@ export const handleUserRegister = async (
     state &&
     zip &&
     country &&
-    password
+    password &&
+    ssn
   ) {
     try {
-      const checkUserEmail = await prismaClient.tbl_user.findFirst({
+      const checkUserEmail = await prismaClient.tbl_user.findUnique({
         where: {
           email_id,
         },
@@ -59,14 +61,13 @@ export const handleUserRegister = async (
           phone_no,
           salt,
           password:hashedPassword,
-          ssn:"",
+          ssn:ssn,
           street,
           city,
           state,
           zip,
           country,
-          hire_date:"",
-          current_pay:"",
+          user_role:"tenant_admin"
         }
       })
       const user_id = user.id
@@ -100,13 +101,14 @@ export const handleUserRegister = async (
         first_name,
         last_name,
         email_id,
-        role_id: user.role_id,
+        user_role: user.user_role,
         phone_no,
         street,
         city,
         state,
         zip,
-        country
+        country,
+        company_name: companyObj.company_name
       };
 
       const tokenData = {
@@ -114,6 +116,8 @@ export const handleUserRegister = async (
         first_name,
         last_name,
         email_id,
+        user_role: user.user_role,
+        company_id: companyObj.id
       };
 
       const accessToken = createAccessToken(tokenData);
@@ -156,19 +160,14 @@ export const handleUserLogin = async (
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
-    const role = await prismaClient.tbl_role.findFirst({
-      where: { id: user.role_id },
-      select: { role: true },
-    });
-
     // Construct the userData object for response
     const userData = {
       id: user.id,
       first_name: user.first_name,
       last_name: user.last_name,
       email_id: user.email_id,
-      role_id: user.role_id,
-      role_name: role?.role, // Optional chaining to safely access the role name
+      user_role: user.user_role,
+      company_id:user.company_id,
       phone_no: user.phone_no,
       street: user.street,
       city: user.city,
@@ -182,7 +181,9 @@ export const handleUserLogin = async (
       id: user.id,
       first_name: user.first_name,
       last_name: user.last_name,
-      email_id: user.email_id
+      email_id: user.email_id,
+      user_role: user.user_role,
+      company_id:user.company_id,
     };
 
     // Generate JWT access token
@@ -235,7 +236,7 @@ export const handleForgotPassword = async (
     })
 
     // Create a password reset link (front-end URL that handles the reset)
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
 
     // Send password reset email
     await sendEmail(
