@@ -33,7 +33,6 @@ DROP COLUMN plan_purchased;
 ALTER TABLE tbl_user
 DROP COLUMN role;
 
-
 -- ------------------ ---
 -- CREATEING company TABLE 
 -- ------------------ ---
@@ -141,3 +140,148 @@ DROP COLUMN reset_key_expiry
 
 ALTER TABLE tbl_user 
 ADD COLUMN reset_key_expiry DATETIME DEFAULT NULL;
+
+alter table tbl_user
+drop foreign key fk_user_role
+
+alter table tbl_user
+drop column role_id
+
+ALTER TABLE tbl_role
+ADD CONSTRAINT unique_role UNIQUE (role);
+
+ALTER TABLE tbl_user
+ADD COLUMN user_role VARCHAR(50) NOT NULL;  -- Adjust the data type as needed
+
+ALTER TABLE tbl_user
+DROP COLUMN user_role 
+
+drop table tbl_role
+
+CREATE TABLE tbl_role (
+    role VARCHAR(50) PRIMARY KEY
+);
+
+INSERT INTO tbl_role (role) VALUES
+('super_admin'),
+('tenant_admin'),
+('driver'),
+('crew');
+
+
+ALTER TABLE tbl_user
+ADD COLUMN user_role VARCHAR(50);
+
+ALTER TABLE tbl_user
+ADD CONSTRAINT fk_user_role  -- Name of the foreign key constraint
+FOREIGN KEY (user_role) REFERENCES tbl_role(role)  -- Define the foreign key relationship
+ON DELETE CASCADE;  -- Optional: this means if a role is deleted, related users will also be deleted
+
+
+-- Step 1: Drop existing foreign key constraints
+ALTER TABLE tbl_user
+DROP FOREIGN KEY fk_company_user;
+
+ALTER TABLE tbl_company
+DROP FOREIGN KEY fk_user_company;
+
+-- Step 2: Add foreign key constraints with ON DELETE CASCADE
+ALTER TABLE tbl_user
+ADD CONSTRAINT fk_company_user 
+FOREIGN KEY (company_id) REFERENCES tbl_company(id) 
+ON DELETE CASCADE;
+
+ALTER TABLE tbl_company
+ADD CONSTRAINT fk_user_company 
+FOREIGN KEY (user_id) REFERENCES tbl_user(id) 
+ON DELETE CASCADE;
+
+
+CREATE TABLE `tbl_leads` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `first_name` VARCHAR(100) NOT NULL,
+  `last_name` VARCHAR(100) NOT NULL,
+  `phone` VARCHAR(15) NOT NULL,
+  `email` VARCHAR(150) NOT NULL,
+  `comments` MEDIUMTEXT DEFAULT NULL,
+  `JobType` VARCHAR(50) NOT NULL,
+  `ServiceType` VARCHAR(50) DEFAULT NULL,
+  `MoveDate` VARCHAR(20) NOT NULL,
+  `MoveTime` VARCHAR(20) NOT NULL,
+  `EstimatedDate` VARCHAR(20) DEFAULT NULL,
+  `EstimatedTime` VARCHAR(20) DEFAULT NULL,
+  `LoadingDwellingSize` VARCHAR(20) DEFAULT NULL,
+  `LoadingPlaceName` VARCHAR(20) DEFAULT NULL,
+  `LeadLoadingApartment` VARCHAR(200) DEFAULT NULL,
+  `LeadLoadingNotes` MEDIUMTEXT DEFAULT NULL,
+  `LoadingAddress` VARCHAR(50) DEFAULT NULL,
+  `LoadingZip` VARCHAR(10) DEFAULT NULL,
+  `LoadingLat` VARCHAR(10) DEFAULT NULL,
+  `LoadingLong` VARCHAR(10) DEFAULT NULL,
+  `LoadingCity` VARCHAR(20) NOT NULL,
+  `LoadingState` VARCHAR(20) DEFAULT NULL,
+  `LoadingStairs` VARCHAR(5) DEFAULT NULL,
+  `LoadingNeedHelpPacking` VARCHAR(1) DEFAULT NULL,
+  `LoadingPackingDate` VARCHAR(20) DEFAULT NULL,
+  `LoadingPackingTime` VARCHAR(20) DEFAULT NULL,
+  `LoadingElevator` VARCHAR(1) DEFAULT NULL,
+  `LoadingGarage` VARCHAR(1) DEFAULT NULL,
+  `UnloadingDwellingSize` VARCHAR(20) DEFAULT NULL,
+  `UnloadingPlaceName` VARCHAR(20) DEFAULT NULL,
+  `UnloadingAddress` VARCHAR(50) DEFAULT NULL,
+  `LeadUnloadingApartment` VARCHAR(200) DEFAULT NULL,
+  `LeadUnloadingNotes` MEDIUMTEXT DEFAULT NULL,
+  `UnloadingZip` VARCHAR(10) DEFAULT NULL,
+  `UnloadingLat` VARCHAR(10) DEFAULT NULL,
+  `UnloadingLong` VARCHAR(10) DEFAULT NULL,
+  `UnloadingCity` VARCHAR(20) DEFAULT NULL,
+  `UnloadingState` VARCHAR(20) DEFAULT NULL,
+  `UnloadingStairs` VARCHAR(20) DEFAULT NULL,
+  `UnloadingNeedHelpPacking` VARCHAR(1) DEFAULT NULL,
+  `UnloadingElevator` VARCHAR(1) DEFAULT NULL,
+  `2ndLoadingDwellingSize` VARCHAR(20) DEFAULT NULL,
+  `2ndLoadingPlaceName` VARCHAR(100) DEFAULT NULL,
+  `2ndLoadingApartment` VARCHAR(200) DEFAULT NULL,
+  `2ndLoadingAddress` VARCHAR(50) DEFAULT NULL,
+  `2ndLoadingZip` VARCHAR(10) DEFAULT NULL,
+  `2ndLoadingLat` VARCHAR(10) DEFAULT NULL,
+  `2ndLoadingLong` VARCHAR(10) DEFAULT NULL,
+  `2ndLoadingCity` VARCHAR(10) DEFAULT NULL,
+  `2ndLoadingState` VARCHAR(20) DEFAULT NULL,
+  `2ndLoadingStairs` VARCHAR(5) DEFAULT NULL,
+  `2ndLoadingNeedHelpPacking` VARCHAR(1) DEFAULT NULL,
+  `2ndLoadingPackingDate` VARCHAR(20) DEFAULT NULL,
+  `2ndLoadingPackingTime` VARCHAR(20) DEFAULT NULL,
+  `2ndLoadingElevator` VARCHAR(1) DEFAULT NULL,
+  `2ndLoadingGarage` VARCHAR(1) DEFAULT NULL,
+  `2ndLoadingNotes` MEDIUMTEXT DEFAULT NULL,
+  `2ndUnloadingDwellingSize` VARCHAR(20) DEFAULT NULL,
+  `2ndUnloadingPlaceName` VARCHAR(20) DEFAULT NULL,
+  `2ndUnloadingApartment` VARCHAR(100) DEFAULT NULL,
+  `2ndUnloadingAddress` VARCHAR(50) DEFAULT NULL,
+  `2ndUnloadingZip` VARCHAR(10) DEFAULT NULL,
+  `2ndUnloadingLat` VARCHAR(10) DEFAULT NULL,
+  `2ndUnloadingLong` VARCHAR(10) DEFAULT NULL,
+  `2ndUnloadingCity` VARCHAR(10) DEFAULT NULL,
+  `2ndUnloadingState` VARCHAR(20) DEFAULT NULL,
+  `2ndUnloadingStairs` VARCHAR(5) DEFAULT NULL,
+  `2ndUnloadingNeedHelpPacking` VARCHAR(1) DEFAULT NULL,
+  `2ndUnloadingElevator` VARCHAR(1) DEFAULT NULL,
+  `2ndLeadUnloadingNotes` MEDIUMTEXT DEFAULT NULL,
+  `insert_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `distance` VARCHAR(250) DEFAULT NULL,
+  `lead_status` VARCHAR(1) NOT NULL DEFAULT '1',
+  `book_date` VARCHAR(20) DEFAULT NULL,
+  `complete_date` VARCHAR(20) DEFAULT NULL,
+  `accept_status` INT(1) DEFAULT 0,
+  `reject_reason` VARCHAR(50) DEFAULT NULL
+)
+
+
+ALTER TABLE tbl_leads
+ADD COLUMN company_id INT;
+
+ALTER TABLE tbl_leads
+ADD CONSTRAINT fk_company_id 
+FOREIGN KEY (company_id) REFERENCES tbl_company(id)
+ON DELETE CASCADE;

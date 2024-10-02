@@ -7,7 +7,6 @@ export const createAccessToken = (userData: any): string => {
     expiresIn: config.jwt.access_token.expire
   });
 };
-
 /**
  * This functions generates a valid refresh token
  *
@@ -15,7 +14,7 @@ export const createAccessToken = (userData: any): string => {
  * @returns Returns a valid refresh token
  */
 export const createRefreshToken = (userId: number | string): string => {
-  return sign({ userId }, config.jwt.refresh_token.secret, {
+  return sign({userId }, config.jwt.refresh_token.secret, {
     expiresIn: config.jwt.refresh_token.expire
   });
 };
