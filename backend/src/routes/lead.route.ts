@@ -10,6 +10,7 @@ leadRouter.get('/',leadController.handleGetAllLeads);
 leadRouter.get('/:id',leadController.handleGetLead);
 leadRouter.delete('/:id', leadController.handleDeleteLead);
 leadRouter.put('/:id',leadController.handleUpdateLead)
+leadRouter.get('/company/:companyId', leadController.handleGetLeadsByCompany);
 
 
 export default leadRouter;

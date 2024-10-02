@@ -2,12 +2,12 @@ import {Request,Response} from 'express'
 import prismaClient from '../config/prisma'
 import httpStatus from 'http-status'
 import type {
-    Lead,CreateLead,TypedRequest,PagedQuery
+    Lead,TypedRequest,PagedQuery
 }from '../interface/interface'
 
 
 export const handleCreateLead = async (
-    req: TypedRequest<CreateLead>,
+    req: TypedRequest<Lead>,
     res: Response
 ) => {
     try {
@@ -53,6 +53,47 @@ export const handleGetLead = async (req: Request, res: Response) => {
     }
 };
 
+
+export const handleGetLeadsByCompany = async (req: Request, res: Response) => {
+    try {
+        const { companyId } = req.params;
+
+        const leads = await prismaClient.tbl_leads.findMany({
+            where: {
+                company_id: parseInt(companyId),
+            },
+            select: {
+                id: true,
+                company_id: true,
+                first_name: true,
+                last_name: true,
+                phone: true,
+                email: true,
+                JobType: true,
+                ServiceType: true,
+                MoveDate: true,
+                MoveTime: true,
+                EstimatedDate: true,
+                EstimatedTime: true,
+                insert_time: true,
+                distance: true,
+                lead_status: true,
+                book_date: true,
+                complete_date: true,
+                accept_status: true,
+                reject_reason: true,
+            },
+        });
+
+        if (leads.length > 0) {
+            res.json(leads);
+        } else {
+            res.status(404).json({ message: 'No leads found for the specified company.' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: `Error fetching leads for company: ${error}` });
+    }
+};
 
 export const handleDeleteLead = async (req: Request, res: Response) => {
     try {
@@ -141,18 +182,12 @@ export const handleGetPagedLead = async (
                 select: {
                     id: true,
                     company_id: true,
-                    provider_id: true,
-                    assigned_to: true,
-                    lead_id: true,
                     first_name: true,
                     last_name: true,
                     phone: true,
                     email: true,
-                    JobDetail: true,
                     JobType: true,
                     ServiceType: true,
-                    DesiredDate: true,
-                    DesiredTime: true,
                     MoveDate: true,
                     MoveTime: true,
                     EstimatedDate: true,
@@ -164,7 +199,6 @@ export const handleGetPagedLead = async (
                     complete_date: true,
                     accept_status: true,
                     reject_reason: true,
-                    assigned_date: true
                   },
             }),
             prismaClient.tbl_leads.count({
