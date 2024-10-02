@@ -79,21 +79,15 @@ export interface ITokenData {
 }
 
 
-export interface CreateLead {
-  user_id: number;
-  provider_id: number;
-  assigned_to: number;
-  lead_id: string;
+export interface Lead {
+  id: number;
   first_name: string;
   last_name: string;
   phone: string;
   email: string;
   comments: string;
-  JobDetail: string;
   JobType: string;
   ServiceType: string;
-  DesiredDate: string;
-  DesiredTime: string;
   MoveDate: string;
   MoveTime: string;
   EstimatedDate: string;
@@ -156,10 +150,6 @@ export interface CreateLead {
   secUnloadingNeedHelpPacking: string;
   secUnloadingElevator: string;
   secLeadUnloadingNotes: string;
-  LeadStop1: string;
-  LeadStop2: string;
-  LeadStop3: string;
-  unique_id: string;
   insert_time: Date;
   distance: string;
   lead_status: string;
@@ -167,12 +157,12 @@ export interface CreateLead {
   complete_date?: string;
   accept_status: number;
   reject_reason: string;
-  assigned_date?: Date;
+  company_id: number;
 }
 
-export interface Lead extends CreateLead{
-  id: number;
-}
+// export interface Lead extends CreateLead{
+//   id: number;
+// }
 
 export interface PagedQuery{
   pageIndex: string;

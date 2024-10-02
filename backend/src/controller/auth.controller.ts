@@ -5,6 +5,8 @@ import { createAccessToken } from "../utils/generateTokens.util";
 import bcrypt from "bcrypt";
 import { sendEmail } from "../utils/emailService";
 import { generateRandomString } from "../utils/common.util";
+
+
 export const handleUserRegister = async (
   req: TypedRequest<IUserRegister>,
   res: Response,
@@ -67,7 +69,7 @@ export const handleUserRegister = async (
           state,
           zip,
           country,
-          user_role:"tenant_admin"
+          user_role:"TENANT_ADMIN"
         }
       })
       const user_id = user.id
