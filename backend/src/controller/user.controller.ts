@@ -7,7 +7,8 @@ const selectUserData = {
   last_name:true,
   email_id:true,
   phone_no:true,
-  company_id:true,
+  user_role:true,
+  picture:true
 }
 
 export const handleGetUsers = async(req:Request,res:Response,next:NextFunction)=>{
@@ -15,7 +16,9 @@ export const handleGetUsers = async(req:Request,res:Response,next:NextFunction)=
     console.log(req.user)
     if(user.user_role === "super_admin"){
         try {
-            const users = prismaClient.tbl_user.findMany()
+            const users = prismaClient.tbl_user.findMany({
+              select:selectUserData
+            })
             res.sendStatus(200).json(users)
         } catch (error) {
             res.sendStatus(500).json({message:"Interval server error"})
@@ -26,7 +29,8 @@ export const handleGetUsers = async(req:Request,res:Response,next:NextFunction)=
         const users = prismaClient.tbl_user.findMany({
           where:{
             company_id:user.company_id
-          }
+          },
+          select:selectUserData
         })
         res.sendStatus(200).json(users)
     } catch (error) {
@@ -52,7 +56,6 @@ export const handleCreateUser = async (req:Request, res:Response)=>{
         state,
         zip,
         country,
-        current_pay,
       } = req.body as IUser;
 
       if (
@@ -60,16 +63,16 @@ export const handleCreateUser = async (req:Request, res:Response)=>{
         last_name &&
         email_id &&
         ssn &&
+        password&&
         phone_no &&
         street &&
         city &&
         state &&
         zip &&
-        country &&
-        password
+        country
       ){
         try {
-          const checkUserEmail = await prismaClient.tbl_user.findFirst({
+          const checkUserEmail = await prismaClient.tbl_user.findUnique({
             where: {
               email_id,
             },
