@@ -62,7 +62,6 @@ export interface IUser {
   user_role?: string;
   hire_date?: string;
   current_pay?: string;
-  company_id?: number;
 }
 
 export interface ITokenData {
