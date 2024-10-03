@@ -11,14 +11,10 @@ export type TypedRequest<
   DeepPartial<QueryString>
 >;
 
-// type Role = "SUPER_ADMIN" | "TENANT_ADMIN" | "DRIVER" | "CREW";
-
-// export interface IUserRole {
-//   1: Role;
-//   2: Role;
-//   3: Role;
-//   4: Role;
-// }
+export type RequireAtLeastOne<T> = {
+  [K in keyof T]-?: Required<Pick<T, K>> &
+    Partial<Pick<T, Exclude<keyof T, K>>>;
+}[keyof T];
 
 export interface IUserRegister {
   password: string;

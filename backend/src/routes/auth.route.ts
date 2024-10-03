@@ -1,18 +1,13 @@
 import { Router } from 'express';
 import * as authController from '../controller/auth.controller'
+import validate from '../middleware/validate';
+import { userRegisterSchema, userLoginSchema, forgotPassSchema, resetPassSchema } from '../validation/validationSchema';
 const authRouter = Router();
 
-authRouter.post('/register', authController.handleUserRegister);
-authRouter.post('/login', authController.handleUserLogin);
-authRouter.post('/forgot-password', authController.handleForgotPassword);
-authRouter.post('/reset-password', authController.handleResetPassword);
+authRouter.post('/register', validate({ body: userRegisterSchema }), authController.handleUserRegister);
+authRouter.post('/login', validate({ body: userLoginSchema }), authController.handleUserLogin);
+authRouter.post('/forgot-password',validate({ body: forgotPassSchema }), authController.handleForgotPassword);
+authRouter.post('/reset-password',validate({ body: resetPassSchema }), authController.handleResetPassword);
 
-// authRouter.post('/signup', validate(signupSchema), authController.handleSignUp);
-
-// authRouter.post('/login', authController.handleLogin);
-
-// authRouter.post('/logout', authController.handleLogout);
-
-// authRouter.post('/refresh', authController.handleRefresh);
 
 export default authRouter;
