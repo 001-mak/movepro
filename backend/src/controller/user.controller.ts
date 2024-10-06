@@ -13,7 +13,7 @@ const selectUserData = {
   picture: true,
 };
 
-const fetchUsers = async (user: ITokenData, page: number, limit: number) => {
+const fetchUsers = async (user: ITokenData, page: number, limit: number, query:any) => {
   const skip = (page - 1) * limit;
 
   const queryFilter =
@@ -25,7 +25,16 @@ const fetchUsers = async (user: ITokenData, page: number, limit: number) => {
     prismaClient.tbl_user.findMany({
       skip,
       take: limit,
-      where: queryFilter,
+      where: {
+        AND:[queryFilter],
+        OR:[
+          {
+            email_id: query?.email_id ? String(query.email_id) : query?.searchText ? String(query.searchText) : undefined,
+            first_name: query?.first_name ? String(query.first_name) : query?.first_name ? String(query.first_name) : undefined,
+            last_name: query?.last_name ? String(query.last_name) : query?.last_name ? String(query.last_name) : undefined,
+          }
+        ]
+      },
       select: selectUserData,
     }),
     prismaClient.tbl_user.count({ where: queryFilter }),
@@ -43,15 +52,16 @@ export const handleGetUsers = async (
 ) => {
   try {
     const user = req.user as ITokenData;
+    const query = req.query
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.pageSize as string) || 10;
 
     if (user.user_role === "super_admin" || user.user_role === "tenant_admin") {
-      const result = await fetchUsers(user, page, limit);
+      const result = await fetchUsers(user, page, limit,query);
       return res.status(HttpStatus.OK).json(result);
     }
 
-    return res.sendStatus(HttpStatus.FORBIDDEN); // 403 Forbidden
+    return res.status(HttpStatus.FORBIDDEN); // 403 Forbidden
   } catch (error) {
     console.error(error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -143,12 +153,12 @@ export const handleCreateUser = async (req: Request, res: Response) => {
 
 
 export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
-  const { user_id } = req.params; // Assuming the ID is passed as a URL parameter
+  const { id } = req.params; // Assuming the ID is passed as a URL parameter
 
   try {
     // Find user by ID
     const user = await prismaClient.tbl_user.findUnique({
-      where: { id: Number(user_id) }, // Convert the user_id to a number for comparison
+      where: { id: Number(id) }, // Convert the id to a number for comparison
     });
 
     if (!user) {
@@ -168,14 +178,14 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-  const { user_id } = req.params; // Extract user_id from the request parameters
-  const data = req.body; // Extract fields to be updated from the request body
+export const handleUpdateUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params; // Extract user_id from the request parameters
+  const data = req.body as Partial<Omit<IUser,'email_id' | 'ssn'>>; // Extract fields to be updated from the request body
 
   try {
     // Check if the user exists
     const existingUser = await prismaClient.tbl_user.findUnique({
-      where: { id: Number(user_id) },
+      where: { id: Number(id) },
     });
 
     if (!existingUser) {
@@ -184,20 +194,38 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 
     // Update the user data in the database
     const updatedUser = await prismaClient.tbl_user.update({
-      where: { id: Number(user_id) },
+      where: { id: Number(id) },
       data: data,
       select: selectUserData, // Return the selected fields after the update
     });
 
     // Send the updated user data in the response
     return res.status(HttpStatus.OK).json({
-      message: "User updated successfully",
-      user: updatedUser,
+      message: "User updated successfully"
     });
   } catch (error) {
     console.error("Error updating user:", error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       message: "Internal server error while updating user",
+    });
+  }
+};
+
+export const handleDeleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  try {
+    // Delete the user
+    await prismaClient.tbl_user.delete({
+      where: { id: Number(id) },
+    });
+
+    return res.status(HttpStatus.OK).json({
+      message: "User successfully deleted",
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: "Internal server error"
     });
   }
 };
