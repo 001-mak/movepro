@@ -6,12 +6,23 @@ import validate from "../middleware/validate";
 import {
   updateUserSchema,
   createUserSchema,
+  userSearchSchema,
 } from "../validation/userValidationSchema";
 import { paramsIdSchema } from "../validation/commonValidation";
 const userRouter = Router();
 
 userRouter.get(
-  "/",
+    "/",
+    validate({
+      query: userSearchSchema,
+    }),
+    isAuth,
+    isRoleAllowed(["super_admin", "tenant_admin"]),
+    userController.handleGetUsers
+  );
+
+userRouter.get(
+  "/:id",
   validate({
     params: paramsIdSchema,
   }),

@@ -5,6 +5,7 @@ import { ITokenData, IUser } from "../interface/interface";
 import HttpStatus from "http-status";
 
 const selectUserData = {
+  id: true,
   first_name: true,
   last_name: true,
   email_id: true,
@@ -13,7 +14,12 @@ const selectUserData = {
   picture: true,
 };
 
-const fetchUsers = async (user: ITokenData, page: number, limit: number, query:any) => {
+const fetchUsers = async (
+  user: ITokenData,
+  page: number,
+  limit: number,
+  query: any
+) => {
   const skip = (page - 1) * limit;
 
   const queryFilter =
@@ -26,14 +32,26 @@ const fetchUsers = async (user: ITokenData, page: number, limit: number, query:a
       skip,
       take: limit,
       where: {
-        AND:[queryFilter],
-        OR:[
+        AND: [queryFilter],
+        OR: [
           {
-            email_id: query?.email_id ? String(query.email_id) : query?.searchText ? String(query.searchText) : undefined,
-            first_name: query?.first_name ? String(query.first_name) : query?.first_name ? String(query.first_name) : undefined,
-            last_name: query?.last_name ? String(query.last_name) : query?.last_name ? String(query.last_name) : undefined,
-          }
-        ]
+            email_id: query?.email_id
+              ? String(query.email_id)
+              : query?.searchText
+              ? String(query.searchText)
+              : undefined,
+            first_name: query?.first_name
+              ? String(query.first_name)
+              : query?.first_name
+              ? String(query.first_name)
+              : undefined,
+            last_name: query?.last_name
+              ? String(query.last_name)
+              : query?.last_name
+              ? String(query.last_name)
+              : undefined,
+          },
+        ],
       },
       select: selectUserData,
     }),
@@ -52,12 +70,12 @@ export const handleGetUsers = async (
 ) => {
   try {
     const user = req.user as ITokenData;
-    const query = req.query
+    const query = req.query;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.pageSize as string) || 10;
 
     if (user.user_role === "super_admin" || user.user_role === "tenant_admin") {
-      const result = await fetchUsers(user, page, limit,query);
+      const result = await fetchUsers(user, page, limit, query);
       return res.status(HttpStatus.OK).json(result);
     }
 
@@ -84,6 +102,7 @@ export const handleCreateUser = async (req: Request, res: Response) => {
     state,
     zip,
     country,
+    user_role,
   }: IUser = req.body;
 
   if (
@@ -97,11 +116,21 @@ export const handleCreateUser = async (req: Request, res: Response) => {
     !city ||
     !state ||
     !zip ||
-    !country
+    !country ||
+    !user_role
   ) {
     return res.status(HttpStatus.BAD_REQUEST).json({
       message: "Missing required fields",
     });
+  }
+
+  if (user_role === "driver") {
+    const { license_number, license_expiry } = req.body;
+    if (!license_number || !license_expiry) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: "Missing required fields",
+      });
+    }
   }
 
   try {
@@ -118,31 +147,36 @@ export const handleCreateUser = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (["driver", "crew"].includes(req.body.user_role)) {
-      const newUser = await prismaClient.tbl_user.create({
-        data: {
-          email_id,
-          first_name,
-          last_name,
-          phone_no,
-          salt,
-          password: hashedPassword,
-          ssn,
-          street,
-          city,
-          state,
-          zip,
-          country,
-        },
-        select: selectUserData,
-      });
+    const newUser = await prismaClient.tbl_user.create({
+      data: {
+        email_id,
+        first_name,
+        last_name,
+        phone_no,
+        salt,
+        password: hashedPassword,
+        ssn,
+        street,
+        city,
+        state,
+        zip,
+        country,
+        user_role,
+      },
+      select: selectUserData,
+    });
 
-      return res.status(HttpStatus.CREATED).json(newUser);
+    if (user_role === "driver") {
+      await prismaClient.tbl_driver.create({
+        data: {
+          user_id: newUser.id,
+          license_number: req.body.license_number as string,
+          license_expiry: req.body.license_expiry as string
+        }
+      });
     }
 
-    return res.status(HttpStatus.NOT_FOUND).json({
-      message: "Role not found",
-    });
+    return res.status(HttpStatus.CREATED).json(newUser);
   } catch (error) {
     console.error(error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -151,23 +185,37 @@ export const handleCreateUser = async (req: Request, res: Response) => {
   }
 };
 
-
-export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params; // Assuming the ID is passed as a URL parameter
 
   try {
     // Find user by ID
     const user = await prismaClient.tbl_user.findUnique({
       where: { id: Number(id) }, // Convert the id to a number for comparison
+      select: {
+        ...selectUserData,
+        tbl_driver: {
+          select: {
+            license_number: true,
+            license_expiry: true,
+          },
+        },
+      },
     });
 
     if (!user) {
       // If the user does not exist, return a 404 Not Found error
-      return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: "User not found" });
     }
 
     // If the user is found, return the user data
-    return res.status(HttpStatus.OK).json({message:"User Deleted"});
+    return res.status(HttpStatus.OK).json(user);
   } catch (error) {
     console.error("Error fetching user by ID:", error);
 
@@ -178,9 +226,13 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export const handleUpdateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const handleUpdateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params; // Extract user_id from the request parameters
-  const data = req.body as Partial<Omit<IUser,'email_id' | 'ssn'>>; // Extract fields to be updated from the request body
+  const data = req.body as Partial<Omit<IUser, "email_id" | "ssn">>; // Extract fields to be updated from the request body
 
   try {
     // Check if the user exists
@@ -189,7 +241,9 @@ export const handleUpdateUser = async (req: Request, res: Response, next: NextFu
     });
 
     if (!existingUser) {
-      return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: "User not found" });
     }
 
     // Update the user data in the database
@@ -201,7 +255,7 @@ export const handleUpdateUser = async (req: Request, res: Response, next: NextFu
 
     // Send the updated user data in the response
     return res.status(HttpStatus.OK).json({
-      message: "User updated successfully"
+      message: "User updated successfully",
     });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -211,7 +265,11 @@ export const handleUpdateUser = async (req: Request, res: Response, next: NextFu
   }
 };
 
-export const handleDeleteUser = async (req: Request, res: Response, next: NextFunction) => {
+export const handleDeleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   try {
     // Delete the user
@@ -225,7 +283,7 @@ export const handleDeleteUser = async (req: Request, res: Response, next: NextFu
   } catch (error) {
     console.error("Error deleting user:", error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
