@@ -60,6 +60,7 @@ model tbl_user {
   user_role                                 String?       @db.VarChar(50)
   tbl_company_tbl_company_user_idTotbl_user tbl_company[] @relation("tbl_company_user_idTotbl_user")
   tbl_driver                                tbl_driver?
+  tbl_truck                                 tbl_truck[]
   tbl_company                               tbl_company?  @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_company")
   tbl_role                                  tbl_role?     @relation(fields: [user_role], references: [role], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_role")
 
@@ -174,7 +175,6 @@ model tbl_driver {
 }
 
 model tbl_truck {
-  truck_id                     Int         @id @default(autoincrement())
   company_id                   Int
   rented                       Boolean?    @db.Bit(1)
   make                         String      @db.VarChar(255)
@@ -200,7 +200,11 @@ model tbl_truck {
   cargo_restrictions           String?     @db.Text
   vehicle_notes                String?     @db.Text
   special_permits              String?     @db.Text
+  driver_id                    Int?
+  id                           Int         @id @default(autoincrement())
+  tbl_user                     tbl_user?   @relation(fields: [driver_id], references: [id], onUpdate: NoAction, map: "fk_truck_driver")
   tbl_company                  tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, map: "tbl_truck_ibfk_1")
 
   @@index([company_id], map: "company_id")
+  @@index([driver_id], map: "fk_truck_driver")
 }

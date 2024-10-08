@@ -68,3 +68,32 @@ export interface ITokenData {
   user_role: string;        // User's role (e.g., SUPER_ADMIN, TENANT_ADMIN, etc.)
   company_id?: number; // Optional company ID (can be null)
 }
+
+
+export interface ITruck {
+  company_id: number;
+  rented: boolean; 
+  make: string;
+  model: string;
+  year_of_manufacture: number;
+  vin: string; // Unique
+  license_plate_number: string;
+  license_plate_state_province: string;
+  truck_type: string;
+  truck_capacity?: string;
+  owner_name: string;
+  lease_details?: string;
+  insurance_provider?: string;
+  insurance_policy_number?: string;
+  fuel_efficiency?: string;
+  tare_weight?: string; // Empty truck weight
+  payload_capacity?: string;
+  volume: string;
+  last_maintenance_date?: Date;
+  next_maintenance_date?: Date;
+  dot_compliance_number?: string; // USA-specific
+  cvor_number?: string; // Canada-specific
+  cargo_restrictions?: string;
+  vehicle_notes?: string;
+  special_permits?: string;
+}
