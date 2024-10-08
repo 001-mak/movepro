@@ -169,3 +169,15 @@ export interface PagedQuery{
   orderDirection: string;
 
 }
+
+export interface InventoryGroup {
+  group_name: string;
+  company_id: number;
+}
+
+// export interface InventoryGroupItem {
+//   id: number;
+//   item_name: string;
+//   item_size: string;
+//   group_id: number;
+// }

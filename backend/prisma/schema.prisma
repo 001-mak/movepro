@@ -27,6 +27,7 @@ model tbl_company {
   subscription_plan_id                      Int?                   @default(1)
   tbl_subscription_plan                     tbl_subscription_plan? @relation(fields: [subscription_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subscription_plan")
   tbl_user_tbl_company_user_idTotbl_user    tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_user_company")
+  tbl_inventory_groups                      tbl_inventory_groups[]
   tbl_leads                                 tbl_leads[]
   tbl_user_tbl_user_company_idTotbl_company tbl_user[]             @relation("tbl_user_company_idTotbl_company")
 
@@ -161,4 +162,13 @@ model tbl_user {
 
   @@index([company_id], map: "fk_company_user")
   @@index([role_id], map: "fk_user_role")
+}
+
+model tbl_inventory_groups {
+  id          Int         @id @default(autoincrement())
+  group_name  String      @db.VarChar(100)
+  company_id  Int
+  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_inventory_group_company")
+
+  @@index([company_id], map: "fk_tbl_inventory_group_company")
 }
