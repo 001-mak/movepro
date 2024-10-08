@@ -80,84 +80,82 @@ export interface ITokenData {
 
 
 export interface Lead {
-  id: number;
-  first_name: string;
-  last_name: string;
-  phone: string;
-  email: string;
-  comments: string;
-  JobType: string;
-  ServiceType: string;
-  MoveDate: string;
-  MoveTime: string;
-  EstimatedDate: string;
-  EstimatedTime: string;
-  LoadingDwellingSize: string;
-  LoadingPlaceName: string;
-  LeadLoadingApartment: string;
-  LeadLoadingNotes: string;
-  LoadingAddress: string;
-  LoadingZip: string;
-  LoadingLat: string;
-  LoadingLong: string;
-  LoadingCity: string;
-  LoadingState: string;
-  LoadingStairs: string;
-  LoadingNeedHelpPacking: string;
-  LoadingPackingDate: string;
-  LoadingPackingTime: string;
-  LoadingElevator: string;
-  LoadingGarage: string;
-  UnloadingDwellingSize: string;
-  UnloadingPlaceName: string;
-  UnloadingAddress: string;
-  LeadUnloadingApartment: string;
-  LeadUnloadingNotes: string;
-  UnloadingZip: string;
-  UnloadingLat: string;
-  UnloadingLong: string;
-  UnloadingCity: string;
-  UnloadingState: string;
-  UnloadingStairs: string;
-  UnloadingNeedHelpPacking: string;
-  UnloadingElevator: string;
-  secLoadingDwellingSize: string;
-  secLoadingPlaceName: string;
-  secLoadingApartment: string;
-  secLoadingAddress: string;
-  secLoadingZip: string;
-  secLoadingLat: string;
-  secLoadingLong: string;
-  secLoadingCity: string;
-  secLoadingState: string;
-  secLoadingStairs: string;
-  secLoadingNeedHelpPacking: string;
-  secLoadingPackingDate: string;
-  secLoadingPackingTime: string;
-  secLoadingElevator: string;
-  secLoadingGarage: string;
-  secLoadingNotes: string;
-  secUnloadingDwellingSize: string;
-  secUnloadingPlaceName: string;
-  secUnloadingApartment: string;
-  secUnloadingAddress: string;
-  secUnloadingZip: string;
-  secUnoadingLat: string;
-  secUnoadingLong: string;
-  secUnloadingCity: string;
-  secUnloadingState: string;
-  secUnloadingStairs: string;
-  secUnloadingNeedHelpPacking: string;
-  secUnloadingElevator: string;
-  secLeadUnloadingNotes: string;
-  insert_time: Date;
-  distance: string;
-  lead_status: string;
-  book_date?: string;
-  complete_date?: string;
-  accept_status: number;
-  reject_reason: string;
-  company_id: number;
+  first_name: string; // Required
+  last_name: string;  // Required
+  phone: string;      // Required
+  email: string;      // Required
+  comments?: string;  // Optional
+  JobType: string;    // Required
+  ServiceType?: string; // Optional
+  MoveDate: string;   // Required
+  MoveTime: string;   // Required
+  LoadingCity: string; // Required
+  EstimatedDate?: string; // Optional
+  EstimatedTime?: string; // Optional
+  LoadingDwellingSize?: string; // Optional
+  LoadingPlaceName?: string; // Optional
+  LeadLoadingApartment?: string; // Optional
+  LeadLoadingNotes?: string; // Optional
+  LoadingAddress?: string; // Optional
+  LoadingZip?: string; // Optional
+  LoadingLat?: string; // Optional
+  LoadingLong?: string; // Optional
+  LoadingState?: string; // Optional
+  LoadingStairs?: string; // Optional
+  LoadingNeedHelpPacking?: string; // Optional
+  LoadingPackingDate?: string; // Optional
+  LoadingPackingTime?: string; // Optional
+  LoadingElevator?: string; // Optional
+  LoadingGarage?: string; // Optional
+  UnloadingDwellingSize?: string; // Optional
+  UnloadingPlaceName?: string; // Optional
+  UnloadingAddress?: string; // Optional
+  LeadUnloadingApartment?: string; // Optional
+  LeadUnloadingNotes?: string; // Optional
+  UnloadingZip?: string; // Optional
+  UnloadingLat?: string; // Optional
+  UnloadingLong?: string; // Optional
+  UnloadingCity?: string; // Optional
+  UnloadingState?: string; // Optional
+  UnloadingStairs?: string; // Optional
+  UnloadingNeedHelpPacking?: string; // Optional
+  UnloadingElevator?: string; // Optional
+  ndLoadingDwellingSize?: string; // Optional
+  ndLoadingPlaceName?: string; // Optional
+  ndLoadingApartment?: string; // Optional
+  ndLoadingAddress?: string; // Optional
+  ndLoadingZip?: string; // Optional
+  ndLoadingLat?: string; // Optional
+  ndLoadingLong?: string; // Optional
+  ndLoadingCity?: string; // Optional
+  ndLoadingState?: string; // Optional
+  ndLoadingStairs?: string; // Optional
+  ndLoadingNeedHelpPacking?: string; // Optional
+  ndLoadingPackingDate?: string; // Optional
+  ndLoadingPackingTime?: string; // Optional
+  ndLoadingElevator?: string; // Optional
+  ndLoadingGarage?: string; // Optional
+  ndLoadingNotes?: string; // Optional
+  ndUnloadingDwellingSize?: string; // Optional
+  ndUnloadingPlaceName?: string; // Optional
+  ndUnloadingApartment?: string; // Optional
+  ndUnloadingAddress?: string; // Optional
+  ndUnloadingZip?: string; // Optional
+  ndUnloadingLat?: string; // Optional
+  ndUnloadingLong?: string; // Optional
+  ndUnloadingCity?: string; // Optional
+  ndUnloadingState?: string; // Optional
+  ndUnloadingStairs?: string; // Optional
+  ndUnloadingNeedHelpPacking?: string; // Optional
+  ndUnloadingElevator?: string; // Optional
+  ndLeadUnloadingNotes?: string; // Optional
+  distance?: string; // Optional
+  lead_status?: string; // Optional
+  book_date?: string; // Optional
+  complete_date?: string; // Optional
+  accept_status?: number; // Optional
+  reject_reason?: string; // Optional
+  company_id?: number; // Optional
 }
 
 // export interface Lead extends CreateLead{
