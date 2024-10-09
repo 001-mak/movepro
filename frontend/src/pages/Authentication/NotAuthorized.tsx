@@ -17,7 +17,7 @@ const NotAuthorized: React.FC = () => {
                   You do not have the necessary permissions to access this page.
                 </p>
                 <Link
-                  to="/"
+                  to="/auth/signin"
                   className="mt-7.5 inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90"
                 >
                   <svg

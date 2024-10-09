@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import Logo from '../../images/logo/moventry-logo.png';
+import Logo from '../../images/logo/MOVEPRO-01.png';
 import { postApiCall } from '../../services/api-service';
 import { login } from './AuthSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 const SignIn: React.FC = () => {
   const loggedIn = useSelector((state: any) => state.auth.isLoggedIn);
-  const [username, setUsername] = useState<string>('');
+  const [email_id, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const dispatch = useDispatch();
 
@@ -16,7 +16,7 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await postApiCall('/auth/login', {
-        username:username,
+        email_id:email_id,
         password:password
     }).then(response=>{
       localStorage.setItem('user', JSON.stringify(response.data.userData));
@@ -25,7 +25,7 @@ const SignIn: React.FC = () => {
 
     }).catch (error=>{
       console.error('Error signing in:', error);
-      alert('Failed to sign in. Please check your email and password.');
+      // alert('Failed to sign in. Please check your email and password.');
     })
   };
   
@@ -41,8 +41,8 @@ const SignIn: React.FC = () => {
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="py-17.5 px-26 text-center">
               <Link className="mb-5.5 inline-block" to="/">
-                <img className="hidden dark:block" src={Logo} alt="Logo" style={{ height: '70px' }}/>
-                <img className="dark:hidden" src={Logo} alt="Logo" style={{ height: '70px' }} />
+                <img className="hidden dark:block" src={Logo} alt="Logo" style={{ height: '50px' }}/>
+                <img className="dark:hidden" src={Logo} alt="Logo" style={{ height: '50px' }} />
               </Link>
 
               <p className="2xl:px-20">
@@ -178,20 +178,20 @@ const SignIn: React.FC = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign In to Moventry
+                Sign In to Movepro
               </h2>
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                  Username
+                  Email
                   </label>
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Enter your Username"
-                      value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter your Email"
+                      value={email_id}
+                onChange={(e) => setEmail(e.target.value)}
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
