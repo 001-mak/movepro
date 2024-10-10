@@ -175,9 +175,8 @@ export interface InventoryGroup {
   company_id: number;
 }
 
-// export interface InventoryGroupItem {
-//   id: number;
-//   item_name: string;
-//   item_size: string;
-//   group_id: number;
-// }
+export interface InventoryGroupItem {
+  item_name: string;
+  item_size: string;
+  group_id?: number;
+}

@@ -165,10 +165,21 @@ model tbl_user {
 }
 
 model tbl_inventory_groups {
-  id          Int         @id @default(autoincrement())
-  group_name  String      @db.VarChar(100)
-  company_id  Int
-  tbl_company tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_inventory_group_company")
+  id                        Int                         @id @default(autoincrement())
+  group_name                String                      @db.VarChar(100)
+  company_id                Int
+  tbl_inventory_group_items tbl_inventory_group_items[]
+  tbl_company               tbl_company                 @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_inventory_group_company")
 
   @@index([company_id], map: "fk_tbl_inventory_group_company")
+}
+
+model tbl_inventory_group_items {
+  id                   Int                   @id @default(autoincrement())
+  group_id             Int?
+  item_name            String?               @db.VarChar(100)
+  item_size            String?               @db.VarChar(100)
+  tbl_inventory_groups tbl_inventory_groups? @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inventory_group_item_group")
+
+  @@index([group_id], map: "group_id")
 }

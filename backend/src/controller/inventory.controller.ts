@@ -3,8 +3,7 @@ import prismaClient from '../config/prisma'
 import httpStatus from 'http-status'
 import type {
     InventoryGroup,
-    PagedQuery,
-    TypedRequest,
+    InventoryGroupItem,
 }from '../interface/interface'
 
 export const handleCreateInventoryGroup = async (req: Request, res: Response) => {
@@ -21,13 +20,10 @@ export const handleCreateInventoryGroup = async (req: Request, res: Response) =>
       if (!company_id) {
         return res.status(403).json({ message: 'Unauthorized or company ID not found.' });
       }
-  
+  let inventoryGroupData:InventoryGroup={group_name,company_id}
       // Create the inventory group
       const inventoryGroup = await prismaClient.tbl_inventory_groups.create({
-        data: {
-          group_name,
-          company_id
-        }
+        data: inventoryGroupData,
       });
   
       // Send response
@@ -128,7 +124,7 @@ export const handleUpdateInventoryGroup = async (req: Request, res: Response) =>
       }
   
       // Check if the inventory group exists and belongs to the user's company
-      const existingGroup = await prismaClient.tbl_inventory_groups.findFirst({
+      const existingGroup= await prismaClient.tbl_inventory_groups.findFirst({
         where: {
           id: Number(id),
           company_id: company_id,  // Ensure it's linked to the user's company
@@ -257,3 +253,253 @@ export const handleDeleteInventoryGroup = async (req: Request, res: Response) =>
       return res.status(500).json({ message: 'Internal server error' });
     }
   };
+
+
+  export const handleCreateInventoryGroupItem = async (req: Request, res: Response) => {
+    try {
+        // Check if the user is authenticated
+        const user = req.user; // Assuming `req.user` is set by your authentication middleware
+        if (!user || !user.id) {
+            return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
+        }
+
+        // Extract data from the request body
+        const { item_name, item_size, group_id } = req.body;
+
+        // Validate required fields
+        if (!item_name || typeof item_name !== 'string') {
+            return res.status(400).json({ message: 'Item name is required and must be a string.' });
+        }
+        if (!item_size || typeof item_size !== 'string') {
+            return res.status(400).json({ message: 'Item size is required and must be a string.' });
+        }
+        if (typeof group_id !== 'number') {
+            return res.status(400).json({ message: 'Group ID is required and must be a number.' });
+        }
+
+        // Prepare the data for creation
+        const inventoryGroupItemData: InventoryGroupItem = { 
+            item_name, 
+            item_size, 
+            group_id 
+        };
+
+        // Create the inventory group item
+        const inventoryGroupItem = await prismaClient.tbl_inventory_group_items.create({
+            data: inventoryGroupItemData,
+        });
+
+        // Send a successful response
+        return res.status(201).json(inventoryGroupItem);
+    } catch (error: any) {
+        console.error('Error creating inventory group item:', error);
+        
+        // Check for specific error types (like Prisma errors)
+        if (error.code === 'P2003') { // Foreign key constraint failed
+            return res.status(400).json({ message: 'Invalid group ID. No matching group found.' });
+        }
+
+        return res.status(500).json({ message: 'Internal server error.', error: error.message });
+    }
+};
+
+
+
+export const handleGetItemsByGroupId = async (req: Request, res: Response) => {
+  try {
+      // Check if the user is authenticated
+      const user = req.user; // Assuming `req.user` is set by your authentication middleware
+      if (!user || !user.id) {
+          return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
+      }
+
+      // Extract group_id from the request parameters
+      const groupId = parseInt(req.params.group_id);
+      console.log(groupId)
+      // Validate group_id
+      if (!groupId || isNaN(groupId)) {
+          return res.status(400).json({ message: 'Invalid group ID provided.' });
+      }
+
+      // Fetch inventory group items by group_id
+      const items = await prismaClient.tbl_inventory_group_items.findMany({
+          where: {
+              group_id: groupId,
+          },
+      });
+
+      // Check if any items were found
+      if (items.length === 0) {
+          return res.status(404).json({ message: 'No items found for the specified group ID.' });
+      }
+
+      // Send successful response with items
+      return res.status(200).json(items);
+  } catch (error: any) {
+      console.error('Error fetching items by group ID:', error);
+      return res.status(500).json({ message: 'Internal server error.', error: error.message });
+  }
+};
+
+export const handleDeleteItemById = async (req: Request, res: Response) => {
+  try {
+      // Check if the user is authenticated
+      const user = req.user;// Assuming `req.user` is set by your authentication middleware
+      if (!user || !user.id) {
+          return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
+      }
+
+      // Extract item ID from the request parameters
+      const itemId = parseInt(req.params.id);
+      console.log(itemId);
+
+      // Validate item ID
+      if (!itemId || isNaN(itemId)) {
+          return res.status(400).json({ message: 'Invalid item ID provided.' });
+      }
+
+      // Check if the item exists
+      const existingItem = await prismaClient.tbl_inventory_group_items.findUnique({
+          where: {
+              id: itemId,
+          },
+      });
+
+      if (!existingItem) {
+          return res.status(404).json({ message: 'Item not found.' });
+      }
+
+      // Delete the item
+      await prismaClient.tbl_inventory_group_items.delete({
+          where: {
+              id: itemId,
+          },
+      });
+
+      // Send a successful response
+      return res.status(200).json({ message: 'Item deleted successfully.' });
+  } catch (error: any) {
+      console.error('Error deleting item:', error);
+      return res.status(500).json({ message: 'Internal server error.', error: error.message });
+  }
+};
+
+
+export const handleUpdateItemById = async (req: Request, res: Response) => {
+  try {
+      // Check if the user is authenticated
+      const user = req.user // Assuming `req.user` is set by your authentication middleware
+      if (!user || !user.id) {
+          return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
+      }
+
+      // Extract item ID from the request parameters
+      const itemId = parseInt(req.params.id);
+      console.log(itemId);
+
+      // Validate item ID
+      if (!itemId || isNaN(itemId)) {
+          return res.status(400).json({ message: 'Invalid item ID provided.' });
+      }
+
+      // Extract data from the request body
+      const { item_name, item_size} = req.body;
+
+      // Validate input data
+      if (!item_name || typeof item_name !== 'string') {
+          return res.status(400).json({ message: 'Item name is required and must be a string.' });
+      }
+      if (!item_size || typeof item_size !== 'string') {
+          return res.status(400).json({ message: 'Item size is required and must be a string.' });
+      }
+   
+      // Check if the item exists
+      const existingItem = await prismaClient.tbl_inventory_group_items.findUnique({
+          where: {
+              id: itemId,
+          },
+      });
+
+      if (!existingItem) {
+          return res.status(404).json({ message: 'Item not found.' });
+      }
+      const inventoryGroupItemData: InventoryGroupItem = { 
+        item_name, 
+        item_size, 
+       
+    };
+
+      // Update the item
+      const updatedItem = await prismaClient.tbl_inventory_group_items.update({
+          where: {
+              id: itemId,
+          },
+          data: inventoryGroupItemData,
+      });
+
+      // Send a successful response
+      return res.status(200).json(updatedItem);
+  } catch (error: any) {
+      console.error('Error updating item:', error);
+      return res.status(500).json({ message: 'Internal server error.', error: error.message });
+  }
+};
+
+
+export const handleGetAllItems = async (req: Request, res: Response) => {
+  try {
+      // Check if the user is authenticated
+      const user = req.user // Assuming `req.user` is set by your authentication middleware
+      if (!user || !user.id) {
+          return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
+      }
+
+      // Fetch all inventory group items
+      const items = await prismaClient.tbl_inventory_group_items.findMany();
+
+      // Check if any items were found
+      if (items.length === 0) {
+          return res.status(404).json({ message: 'No items found.' });
+      }
+
+      // Send successful response with items
+      return res.status(200).json(items);
+  } catch (error: any) {
+      console.error('Error fetching all items:', error);
+      return res.status(500).json({ message: 'Internal server error.', error: error.message });
+  }
+};
+
+export const handleGetItemById = async (req: Request, res: Response) => {
+  try {
+      // Check if the user is authenticated
+      const user = req.user  // Assuming `req.user` is set by your authentication middleware
+      if (!user || !user.id) {
+          return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
+      }
+
+      // Extract item ID from the request parameters
+      const itemId = parseInt(req.params.id, 10);
+      
+      // Validate item ID
+      if (isNaN(itemId) || itemId <= 0) {
+          return res.status(400).json({ message: 'Invalid item ID provided.' });
+      }
+
+      // Fetch the inventory item by ID
+      const item = await prismaClient.tbl_inventory_group_items.findUnique({
+          where: { id: itemId },
+      });
+
+      // Check if the item was found
+      if (!item) {
+          return res.status(404).json({ message: 'Item not found.' });
+      }
+
+      // Send successful response with the item
+      return res.status(200).json(item);
+  } catch (error: any) {
+      console.error('Error fetching item by ID:', error);
+      return res.status(500).json({ message: 'Internal server error.', error: error.message });
+  }
+};
