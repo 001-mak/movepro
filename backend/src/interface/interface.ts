@@ -180,3 +180,11 @@ export interface InventoryGroupItem {
   item_size: string;
   group_id?: number;
 }
+
+
+export interface Material {
+  material_name: string;
+  material_description?: string;
+  material_price: number;
+  company_id: number;
+}

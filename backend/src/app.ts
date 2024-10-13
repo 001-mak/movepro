@@ -9,6 +9,7 @@ import leadRouter from './routes/lead.route';
 import authLimiter from './middleware/authLimiter';
 import userRouter from './routes/user.route';
 import inventoryRouter from './routes/inventory.route'
+import materialsRouter from './routes/materials.route'
 
 const app: Express = express();
 
@@ -39,6 +40,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/leads',leadRouter);
 app.use('/api/v1/inventory',inventoryRouter);
+app.use('/api/v1/materials',materialsRouter);
 
 
 // app.all('*', (req, res) => {

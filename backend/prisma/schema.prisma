@@ -29,6 +29,7 @@ model tbl_company {
   tbl_user_tbl_company_user_idTotbl_user    tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_user_company")
   tbl_inventory_groups                      tbl_inventory_groups[]
   tbl_leads                                 tbl_leads[]
+  tbl_materials                             tbl_materials[]
   tbl_user_tbl_user_company_idTotbl_company tbl_user[]             @relation("tbl_user_company_idTotbl_company")
 
   @@index([subscription_plan_id], map: "fk_subscription_plan")
@@ -182,4 +183,15 @@ model tbl_inventory_group_items {
   tbl_inventory_groups tbl_inventory_groups? @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inventory_group_item_group")
 
   @@index([group_id], map: "group_id")
+}
+
+model tbl_materials {
+  id                   Int         @id @default(autoincrement())
+  material_name        String      @db.VarChar(100)
+  material_description String?     @db.VarChar(500)
+  material_price       Float       @db.Float
+  company_id           Int
+  tbl_company          tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_materials_company")
+
+  @@index([company_id], map: "fk_tbl_materials_company")
 }
