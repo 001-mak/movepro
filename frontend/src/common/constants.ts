@@ -182,7 +182,8 @@ export const routePermissions:any = {
 };
   
 
-export const checkPermission = (userRole: RoleEnum, allowedRoles: RoleEnum[]) => {
+export const checkPermission = (userRole: string) => {
+    const allowedRoles = ['super_admin', 'tenant_admin', 'driver']
     return allowedRoles.includes(userRole);
 };
 

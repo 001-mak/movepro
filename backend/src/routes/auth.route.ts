@@ -1,18 +1,20 @@
 import { Router } from 'express';
 import * as authController from '../controller/auth.controller'
+import validate from '../middleware/validate';
+import { userRegisterSchema, userLoginSchema, forgotPassSchema, resetPassSchema } from '../validation/authValidationSchema';
+import { handleAdminRegister } from '../controller/superAdmin.comtroller';
+import { createAdminSchema } from '../validation/authValidationSchema';
 const authRouter = Router();
 
-authRouter.post('/register', authController.handleUserRegister);
-authRouter.post('/login', authController.handleUserLogin);
-authRouter.post('/forgot-password', authController.handleForgotPassword);
-authRouter.post('/reset-password', authController.handleResetPassword);
+authRouter.post('/register', validate({ body: userRegisterSchema }), authController.handleUserRegister);
+authRouter.post('/login', validate({ body: userLoginSchema }), authController.handleUserLogin);
+authRouter.post('/forgot-password',validate({ body: forgotPassSchema }), authController.handleForgotPassword);
+authRouter.post('/reset-password',validate({ body: resetPassSchema }), authController.handleResetPassword);
 
-// authRouter.post('/signup', validate(signupSchema), authController.handleSignUp);
+// TEMPORARY | CREATE ADMIN
+authRouter.post('/admin/register', validate({ body: createAdminSchema }), handleAdminRegister);
 
-// authRouter.post('/login', authController.handleLogin);
 
-// authRouter.post('/logout', authController.handleLogout);
 
-// authRouter.post('/refresh', authController.handleRefresh);
 
 export default authRouter;

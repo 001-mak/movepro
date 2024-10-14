@@ -8,9 +8,8 @@ import { MdPayment } from 'react-icons/md';
 import { CiViewList } from 'react-icons/ci';
 import { MdOutlineContactSupport } from 'react-icons/md';
 import { MdOutlineAttachEmail } from 'react-icons/md';
-import Logo from '../../images/logo/moventry-logo.png';
-import { checkPermission, RoleEnum, TenantUserRoles } from '../../common/constants';
-import { useSelector } from 'react-redux';
+import Logo from '../../images/logo/MOVEPRO-02.png';
+import { allowedRoles } from '../../utils/allowedRoles';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -18,7 +17,6 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const user = useSelector((state: any) => state.auth.user);
   const location = useLocation();
   const { pathname } = location;
 
@@ -75,7 +73,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-5.5">
         <NavLink to="/">
-          <img src={Logo} alt="Logo" style={{ height: '80px' }} />
+          <img src={Logo} alt="Logo" style={{ height: 'auto' }} />
         </NavLink>
 
         <button
@@ -127,10 +125,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-              ]) && (
+              {allowedRoles(['super_admin']) && (
                 <SidebarLinkGroup
                   activeCondition={
                     pathname === '/companies' || pathname.includes('companies')
@@ -205,11 +200,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </SidebarLinkGroup>
               )}
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-                RoleEnum.SalesAdmin,
-              ]) && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/all-leads"
@@ -224,10 +215,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-              ]) && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/users"
@@ -257,11 +245,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-                RoleEnum.FinancialAdmin,
-              ]) && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/payments"
@@ -276,10 +260,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-              ]) && (
+              {allowedRoles(['super_admin']) && (
                 <li>
                   <NavLink
                     to="/packages"
@@ -295,7 +276,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
 
               {/* Tenant Menu */}
-              {user.role > 5 && (
+              {allowedRoles(['tenatnt_admin']) && (
                 <>
                   <SidebarLinkGroup
                     activeCondition={
@@ -578,12 +559,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* Tenant Menu */}
 
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-                RoleEnum.SupportAdmin,
-                ...TenantUserRoles
-              ]) && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/support"
@@ -598,10 +574,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-              ]) && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/emailtemplates"
@@ -644,10 +617,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              {checkPermission(user.role, [
-                RoleEnum.SuperAdmin,
-                RoleEnum.SubAdmin,
-              ]) && (
+              {allowedRoles(['super_admin', 'tenatnt_admin'])&& (
                 <li>
                   <NavLink
                     to="/settings"
@@ -690,10 +660,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {checkPermission(user.role, [
-                RoleEnum.TenantAdmin,
-                RoleEnum.TenantManager,
-              ]) && (
+              {allowedRoles(['tenatnt_admin']) && (
                 <SidebarLinkGroup
                   activeCondition={
                     pathname === '/materials' || pathname.includes('materials')
