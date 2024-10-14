@@ -4,6 +4,7 @@ import Logo from '../../images/logo/MOVEPRO-01.png';
 import { postApiCall } from '../../services/api-service';
 import { login } from './AuthSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 
 
 const SignIn: React.FC = () => {
@@ -16,16 +17,15 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await postApiCall('/auth/login', {
-        email_id:email_id,
-        password:password
+      email_id:email_id,
+      password:password
     }).then(response=>{
       localStorage.setItem('user', JSON.stringify(response.data.userData));
       localStorage.setItem('access_token', response.data.accessToken);
       dispatch(login(response.data.userData));
-
-    }).catch (error=>{
+    }
+  ).catch (error=>{
       console.error('Error signing in:', error);
-      // alert('Failed to sign in. Please check your email and password.');
     })
   };
   

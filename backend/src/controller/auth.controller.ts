@@ -7,12 +7,6 @@ import { sendEmail } from "../utils/emailService";
 import { generateRandomString } from "../utils/common.util";
 import httpStatus from "http-status";
 
-// Helper function for error responses
-const handleError = (res: Response, error: any, message: string = "Server error") => {
-  console.error(error);
-  return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message, error: JSON.stringify(error) });
-};
-
 // Handle User Registration
 export const handleUserRegister = async (
   req: TypedRequest<IUserRegister>,
@@ -61,7 +55,8 @@ export const handleUserRegister = async (
 
     res.status(httpStatus.CREATED).json({ accessToken, userData: tokenData });
   } catch (error: any) {
-    handleError(res, error);
+  return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message:'Internal server error', error: JSON.stringify(error) });
+  
   }
 };
 
@@ -89,7 +84,8 @@ export const handleUserLogin = async (
 
     res.status(httpStatus.OK).json({ accessToken, userData: tokenData });
   } catch (error: any) {
-    handleError(res, error);
+    console.log(error)
+    res.status(500).json(error.message)
   }
 };
 
@@ -125,7 +121,8 @@ export const handleForgotPassword = async (
 
     res.status(httpStatus.OK).json({ message: "Password reset link sent to your email." });
   } catch (error: any) {
-    handleError(res, error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message:'Internal server error', error: JSON.stringify(error) });
+
   }
 };
 
@@ -163,6 +160,7 @@ export const handleResetPassword = async (
 
     res.status(httpStatus.OK).json({ message: "Password reset successfully." });
   } catch (error: any) {
-    handleError(res, error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message:'Internal server error', error: JSON.stringify(error) });
+
   }
 };

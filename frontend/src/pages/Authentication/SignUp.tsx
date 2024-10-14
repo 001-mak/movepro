@@ -6,13 +6,26 @@ import Logo from '../../images/logo/MOVEPRO-01.png';
 import { useSelector } from 'react-redux';
 import { FormProvider, useForm } from 'react-hook-form';
 import { InputField } from '../../common/InputField';
+import { postApiCall } from '../../services/api-service';
+import { login } from './AuthSlice';
+import { useDispatch } from 'react-redux';
 
 const SignUp: React.FC = () => {
   const loggedIn = useSelector((state: any) => state.auth.isLoggedIn);
   const methods = useForm();
+  const dispatch = useDispatch();
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    console.log({ ...data, zip: String(data.zip), phone_no: String(data.phone_no), ssn: String(data.ssn)});
+      await postApiCall('/auth/register', {...data, zip:String(data.zip)}).then(response=>{
+        localStorage.setItem('user', JSON.stringify(response.data.userData));
+        localStorage.setItem('access_token', response.data.accessToken);
+        dispatch(login(response.data.userData));
+        console.log(response)
+      }
+    ).catch (error=>{
+        console.error('Error signing in:', error);
+      })
   };
 
   if (loggedIn) {
@@ -184,7 +197,8 @@ const SignUp: React.FC = () => {
                           label="First Name"
                           type="text"
                           required={true}
-                          errMsg="First Name is required"
+                          minLength={2}
+                          maxLength={50}
                         />
                       </div>
 
@@ -194,37 +208,51 @@ const SignUp: React.FC = () => {
                           label="Last Name"
                           type="text"
                           required={true}
-                          errMsg="Last Name is required"
+                          minLength={2}
+                          maxLength={50}
                         />
                       </div>
 
                       <div className="mb-5.5">
                         <InputField
-                          name="email"
+                          name="email_id"
                           label="Email"
                           type="email"
                           required={true}
-                          errMsg="Email is required"
+                          minLength={2}
                         />
                       </div>
 
                       <div className="mb-5.5">
                         <InputField
-                          name="phone"
-                          label="Phone Number"
-                          type="text"
+                          name="ssn"
+                          label="SSN"
+                          type="number"
                           required={true}
-                          errMsg="Phone Number is required"
+                          minLength={9}
+                          maxLength={9}
                         />
                       </div>
 
                       <div className="mb-5.5">
                         <InputField
-                          name="company"
+                          name="phone_no"
+                          label="Phone Number"
+                          type="number"
+                          required={true}
+                          minLength={10}
+                          maxLength={15}
+                        />
+                      </div>
+
+                      <div className="mb-5.5">
+                        <InputField
+                          name="company_name"
                           label="Company Name"
                           type="text"
                           required={true}
-                          errMsg="Company Name is required"
+                          minLength={3}
+                          maxLength={150}
                         />
                       </div>
 
@@ -234,7 +262,8 @@ const SignUp: React.FC = () => {
                           label="Street Address"
                           type="text"
                           required={true}
-                          errMsg="Street Address is required"
+                          minLength={2}
+                          maxLength={250}
                         />
                       </div>
 
@@ -244,7 +273,8 @@ const SignUp: React.FC = () => {
                           label="City"
                           type="text"
                           required={true}
-                          errMsg="City is required"
+                          minLength={2}
+                          maxLength={250}
                         />
                       </div>
 
@@ -254,7 +284,8 @@ const SignUp: React.FC = () => {
                           label="State"
                           type="text"
                           required={true}
-                          errMsg="State is required"
+                          minLength={2}
+                          maxLength={250}
                         />
                       </div>
 
@@ -264,7 +295,8 @@ const SignUp: React.FC = () => {
                           label="Country"
                           type="text"
                           required={true}
-                          errMsg="Country is required"
+                          minLength={2}
+                          maxLength={250}
                         />
                       </div>
 
@@ -272,9 +304,10 @@ const SignUp: React.FC = () => {
                         <InputField
                           name="zip"
                           label="Zipcode"
-                          type="text"
+                          type="number"
                           required={true}
-                          errMsg="Zipcode is required"
+                          minLength={5}
+                          maxLength={5}
                         />
                       </div>
 
@@ -284,23 +317,15 @@ const SignUp: React.FC = () => {
                           label="Password"
                           type="password"
                           required={true}
-                          errMsg="Password is required"
+                          minLength={8}
+                          maxLength={250}
                         />
                       </div>
 
-                      <div className="mb-5.5">
-                        <InputField
-                          name="confirmpassword"
-                          label="Confirm Password"
-                          type="password"
-                          required={true}
-                          errMsg="Confirm Password is required"
-                        />
-                      </div>
                     </div>
                     <div className="mb-5.5 flex items-end justify-center col-12">
                       <input
-                      value='Create Account'
+                        value="Create Account"
                         type="submit"
                         className="flex w-full items-end justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                       />

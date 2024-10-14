@@ -9,7 +9,6 @@ import { CiViewList } from 'react-icons/ci';
 import { MdOutlineContactSupport } from 'react-icons/md';
 import { MdOutlineAttachEmail } from 'react-icons/md';
 import Logo from '../../images/logo/MOVEPRO-02.png';
-import { useSelector } from 'react-redux';
 import { allowedRoles } from '../../utils/allowedRoles';
 
 interface SidebarProps {
@@ -18,7 +17,6 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  // const user = useSelector((state: any) => state.auth.user);
   const location = useLocation();
   const { pathname } = location;
 
