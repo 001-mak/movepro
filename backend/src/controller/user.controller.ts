@@ -15,11 +15,20 @@ const selectUserData = {
   picture: true,
 };
 
+export interface UserSearch {
+  email_id?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_no?: string;
+  searchText?: string;
+}
+
+
 const fetchUsers = async (
   user: ITokenData,
   page: number,
   limit: number,
-  query: any
+  query: UserSearch
 ) => {
   const skip = (page - 1) * limit;
 
@@ -28,7 +37,8 @@ const fetchUsers = async (
       ? { id: { not: user.id } }
       : { company_id: user.company_id, id: { not: user.id } };
 
-  const orCondition = searchFilters(['first_name', 'last_name', 'email'], query)
+  let orCondition = undefined
+  if(Object.keys(query).length !== 0) orCondition = searchFilters(['first_name', 'last_name', 'email_id'], query)
 
   const [users] = await Promise.all([
     prismaClient.tbl_user.findMany({
@@ -57,11 +67,10 @@ const fetchUsers = async (
 export const handleGetUsers = async (
   req: Request,
   res: Response,
-  next: NextFunction
 ) => {
-  try {
+  try { 
     const user = req.user as ITokenData;
-    const query = req.query;
+    const query = req.query as UserSearch;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.pageSize as string) || 10;
 

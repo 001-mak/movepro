@@ -24,7 +24,11 @@ const validate =
         query: req.query,
         params: req.params
       },
-      { abortEarly: false, stripUnknown: true }
+      {
+        abortEarly: false, // Report all validation errors
+        stripUnknown: true, // Automatically remove unknown keys
+        allowUnknown: false, // Disallow unknown query parameters
+      }
     );
     if (!error) {
       next();

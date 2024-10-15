@@ -60,7 +60,7 @@ export const updateUserSchema = Joi.object({
     "string.base": "Current pay must be a string",
     "string.max": "Current pay cannot exceed 10 characters",
   }),
-});
+}).unknown(false);
 
 export const createUserSchema = Joi.object({
   email_id: Joi.string()
@@ -131,7 +131,7 @@ export const createUserSchema = Joi.object({
   current_pay: Joi.string().max(10).optional().messages({
     "string.max": "Current pay can have a maximum length of 10 characters",
   }),
-});
+}).unknown(false);
 
 export const userSearchSchema = Joi.object({
   email_id: Joi.string().max(255).optional(),
@@ -139,4 +139,4 @@ export const userSearchSchema = Joi.object({
   last_name: Joi.string().max(255).optional(),
   phone_no: Joi.string().max(255).optional(),
   searchText: Joi.string().max(255).optional(),
-});
+}).unknown(false)
