@@ -96,22 +96,22 @@ export const userRegisterSchema = Joi.object({
     .messages({
       'string.max': 'Current pay can have a maximum length of 10 characters',
     }),
-});
+}).unknown(false);
 
 
 export const userLoginSchema = Joi.object({
   email_id: Joi.string().email().max(255).required(),
   password: Joi.string().min(8).max(255).required()
-});
+}).unknown(false);
 
 export const forgotPassSchema = Joi.object({
   email_id: Joi.string().email().max(255).required(),
-});
+}).unknown(false);
 
 export const resetPassSchema = Joi.object({
   token: Joi.string().email().max(255).required(),
   password: Joi.string().min(8).max(255).required()
-});
+}).unknown(false);
 
 
 
@@ -158,4 +158,4 @@ export const createAdminSchema = Joi.object({
       'string.max': 'Password can have a maximum length of 128 characters',
       'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
     })
-});
+}).unknown(false);

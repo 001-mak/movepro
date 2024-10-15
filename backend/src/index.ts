@@ -10,7 +10,6 @@ process.on('SIGTERM', () => {
   console.info('Closing server.');
   server.close((err) => {
     console.info('Server closed.');
-    // eslint-disable-next-line no-process-exit
     process.exit(err ? 1 : 0);
   });
 });
