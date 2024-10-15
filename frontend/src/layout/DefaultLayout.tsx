@@ -32,16 +32,16 @@ const hasPermission = (pathname:any, userRole:any) => {
 const DefaultLayout: React.FC = () => {
   const { pathname } = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const loggedIn = useSelector((state: any) => state.auth.isLoggedIn);
-  const user = useSelector((state: any) => state.auth.user);
+  // const loggedIn = useSelector((state: any) => state.auth.isLoggedIn);
+  // const user = useSelector((state: any) => state.auth.user);
 
-  if (!loggedIn) {
-    return <Navigate to="/auth/signin" replace />;
-  }
+  // if (!loggedIn) {
+  //   return <Navigate to="/auth/signin" replace />;
+  // }
 
-  if (!hasPermission(pathname, user.role)) {
-    return <Navigate to="/not-authorized" />;
-  }
+  // if (!hasPermission(pathname, user.role)) {
+  //   return <Navigate to="/not-authorized" />;
+  // }
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
@@ -54,7 +54,7 @@ const DefaultLayout: React.FC = () => {
         {/* <!-- ===== Content Area Start ===== --> */}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           {/* <!-- ===== Header Start ===== --> */}
-          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+          {/* <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
           {/* <!-- ===== Header End ===== --> */}
 
           {/* <!-- ===== Main Content Start ===== --> */}

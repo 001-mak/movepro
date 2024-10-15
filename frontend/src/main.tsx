@@ -8,7 +8,7 @@ import 'jsvectormap/dist/css/jsvectormap.css';
 import 'flatpickr/dist/flatpickr.min.css';
 
 import { Provider } from 'react-redux';
-import { store } from './store';
+import store from '../src/redux/store';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DynamicModal from './common/Modals/DynamicModal';
