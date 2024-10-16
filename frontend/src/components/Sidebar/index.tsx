@@ -17,9 +17,12 @@ interface SidebarProps {
   setSidebarOpen: (arg: boolean) => void;
 }
 
+
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
   const { pathname } = location;
+ 
+  const user_role = allowedRoles();
 
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
@@ -29,6 +32,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true',
   );
 
+  
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
@@ -126,7 +130,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              {allowedRoles(['super_admin']) && (
+              {user_role === 'super_admin' && (
                 <SidebarLinkGroup
                   activeCondition={
                     pathname === '/companies' || pathname.includes('companies')
@@ -201,7 +205,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </SidebarLinkGroup>
               )}
 
-              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
+              {user_role === 'super_admin' && (
                 <li>
                   <NavLink
                     to="/all-leads"
@@ -216,7 +220,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
+              { user_role === 'super_admin' && (
                 <li>
                   <NavLink
                     to="/users"
@@ -246,7 +250,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
+              {user_role ==='super_admin'  && (
                 <li>
                   <NavLink
                     to="/payments"
@@ -261,7 +265,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {allowedRoles(['super_admin']) && (
+              {user_role === 'super_admin'  && (
                 <li>
                   <NavLink
                     to="/packages"
@@ -277,7 +281,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
 
               {/* Tenant Menu */}
-              {allowedRoles(['tenatnt_admin']) && (
+              {user_role === 'tenant_admin' && (
                 <>
                   <SidebarLinkGroup
                     activeCondition={
@@ -560,7 +564,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* Tenant Menu */}
 
 
-              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
+              { (user_role ==='super_admin' || user_role === 'tenant_admin') && (
                 <li>
                   <NavLink
                     to="/support"
@@ -575,7 +579,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
+              {user_role ==='super_admin' && (
                 <li>
                   <NavLink
                     to="/emailtemplates"
@@ -618,7 +622,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              {allowedRoles(['super_admin', 'tenatnt_admin'])&& (
+              {user_role ==='super_admin' && (
                 <li>
                   <NavLink
                     to="/settings"
@@ -661,7 +665,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
 
-              {allowedRoles(['tenatnt_admin']) && (
+              {user_role ==='super_admin' || user_role ==='tenant_admin' && (
                 <SidebarLinkGroup
                   activeCondition={
                     pathname === '/materials' || pathname.includes('materials')

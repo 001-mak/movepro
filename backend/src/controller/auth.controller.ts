@@ -55,6 +55,7 @@ export const handleUserRegister = async (
 
     res.status(httpStatus.CREATED).json({ accessToken, userData: tokenData });
   } catch (error: any) {
+    console.log(error);
   return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message:'Internal server error', error: JSON.stringify(error) });
   
   }
@@ -86,6 +87,7 @@ export const handleUserLogin = async (
   } catch (error: any) {
     console.log(error)
     res.status(500).json(error.message)
+   
   }
 };
 
