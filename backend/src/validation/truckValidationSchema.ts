@@ -26,4 +26,4 @@ export const createTruckSchema = Joi.object({
   cargo_restrictions: Joi.string().optional().allow(null),
   vehicle_notes: Joi.string().optional().allow(null),
   special_permits: Joi.string().optional().allow(null)
-});
+}).unknown(false);

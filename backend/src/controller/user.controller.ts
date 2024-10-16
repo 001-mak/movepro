@@ -3,6 +3,7 @@ import prismaClient from "../config/prisma";
 import bcrypt from "bcrypt";
 import { ITokenData, IUser } from "../interface/interface";
 import HttpStatus from "http-status";
+import { searchFilters } from "../utils/searchFilters";
 
 const selectUserData = {
   id: true,
@@ -14,50 +15,50 @@ const selectUserData = {
   picture: true,
 };
 
+export interface UserSearch {
+  email_id?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_no?: string;
+  searchText?: string;
+}
+
+
 const fetchUsers = async (
   user: ITokenData,
   page: number,
   limit: number,
-  query: any
+  query: UserSearch
 ) => {
   const skip = (page - 1) * limit;
 
-  const queryFilter =
+  const accessFilter =
     user.user_role === "super_admin"
       ? { id: { not: user.id } }
       : { company_id: user.company_id, id: { not: user.id } };
 
-  const [users, totalCount] = await Promise.all([
+  let orCondition = undefined
+  if(Object.keys(query).length !== 0) orCondition = searchFilters(['first_name', 'last_name', 'email_id'], query)
+
+  const [users] = await Promise.all([
     prismaClient.tbl_user.findMany({
       skip,
       take: limit,
       where: {
-        AND: [queryFilter],
-        OR: [
-          {
-            email_id: query?.email_id
-              ? String(query.email_id)
-              : query?.searchText
-              ? String(query.searchText)
-              : undefined,
-            first_name: query?.first_name
-              ? String(query.first_name)
-              : query?.first_name
-              ? String(query.first_name)
-              : undefined,
-            last_name: query?.last_name
-              ? String(query.last_name)
-              : query?.last_name
-              ? String(query.last_name)
-              : undefined,
-          },
-        ],
+        AND: [accessFilter],
+        OR: orCondition,
       },
-      select: selectUserData,
+      select: {
+        ...selectUserData,
+        tbl_company: {
+          select: {
+            company_name: true,
+          },
+        },
+      },
     }),
-    prismaClient.tbl_user.count({ where: queryFilter }),
   ]);
-
+  const totalCount = users.length;
   const totalPages = Math.ceil(totalCount / limit);
 
   return { users, totalCount, totalPages, currentPage: page, pageSize: limit };
@@ -66,11 +67,10 @@ const fetchUsers = async (
 export const handleGetUsers = async (
   req: Request,
   res: Response,
-  next: NextFunction
 ) => {
-  try {
+  try { 
     const user = req.user as ITokenData;
-    const query = req.query;
+    const query = req.query as UserSearch;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.pageSize as string) || 10;
 
@@ -171,8 +171,8 @@ export const handleCreateUser = async (req: Request, res: Response) => {
         data: {
           user_id: newUser.id,
           license_number: req.body.license_number as string,
-          license_expiry: req.body.license_expiry as string
-        }
+          license_expiry: req.body.license_expiry as string,
+        },
       });
     }
 
