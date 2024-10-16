@@ -30,4 +30,4 @@ export const materialValidationSchema = Joi.object({
     })
 });
 
-module.exports = materialValidationSchema;
+

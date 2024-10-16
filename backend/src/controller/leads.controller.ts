@@ -19,6 +19,7 @@ export const handleCreateLead = async (req: Request, res: Response) => {
       MoveDate,
       MoveTime,
       LoadingCity,
+      UnloadingCity,
       company_id,
     } = req.body;
 
@@ -32,7 +33,8 @@ export const handleCreateLead = async (req: Request, res: Response) => {
       !ServiceType ||
       !MoveDate ||
       !MoveTime ||
-      !LoadingCity
+      !LoadingCity||
+      !UnloadingCity 
     ) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
@@ -54,6 +56,7 @@ export const handleCreateLead = async (req: Request, res: Response) => {
       MoveDate,
       MoveTime,
       LoadingCity,
+      UnloadingCity,
       company_id: company_id ? parseInt(company_id, 10) : user.company_id, // Use user's company_id if not provided
     };
 
@@ -331,6 +334,7 @@ export const handleUpdateLead = async (req: Request, res: Response) => {
             MoveDate,
             MoveTime,
             LoadingCity,
+            UnloadingCity ,
             company_id // Optional field
         }= req.body;
 
@@ -350,6 +354,7 @@ export const handleUpdateLead = async (req: Request, res: Response) => {
             MoveDate,
             MoveTime,
             LoadingCity,
+            UnloadingCity,
             company_id: company_id ? parseInt(company_id, 10) : user.company_id
         };
 

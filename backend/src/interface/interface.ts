@@ -120,7 +120,7 @@ export interface Lead {
   UnloadingZip?: string; // Optional
   UnloadingLat?: string; // Optional
   UnloadingLong?: string; // Optional
-  UnloadingCity?: string; // Optional
+  UnloadingCity: string; // Optional
   UnloadingState?: string; // Optional
   UnloadingStairs?: string; // Optional
   UnloadingNeedHelpPacking?: string; // Optional

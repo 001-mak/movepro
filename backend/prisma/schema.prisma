@@ -73,7 +73,7 @@ model tbl_leads {
   UnloadingZip               String?      @db.VarChar(10)
   UnloadingLat               String?      @db.VarChar(10)
   UnloadingLong              String?      @db.VarChar(10)
-  UnloadingCity              String?      @db.VarChar(20)
+  UnloadingCity              String       @db.VarChar(20)
   UnloadingState             String?      @db.VarChar(20)
   UnloadingStairs            String?      @db.VarChar(20)
   UnloadingNeedHelpPacking   String?      @db.VarChar(1)
