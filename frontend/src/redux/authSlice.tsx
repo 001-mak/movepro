@@ -11,7 +11,7 @@ interface UserData {
   state: string;
   zip: string;
   country: string;
-  role_name: string; // Add other fields as needed
+  user_role: string; // Add other fields as needed
 }
 
 interface AuthState {

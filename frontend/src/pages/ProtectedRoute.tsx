@@ -11,14 +11,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
     const accessToken = useSelector((state: RootState) => selectAccessToken(state));
     const userData = useSelector((state: RootState) => selectUserData(state));
 
-    const userRole = userData ? userData.role_name : null;
+    const userRole = userData ? userData.user_role : null;
 
   if (!accessToken) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth/signin" replace />;
   }
 
   if (!allowedRoles.includes(userRole || '')) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/auth/signin" replace />;
   }
 
   return <Outlet />;

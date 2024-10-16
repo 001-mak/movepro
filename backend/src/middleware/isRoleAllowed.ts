@@ -1,19 +1,20 @@
-import { Request,Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 
-const isRoleAllowed = (req: Request, res: Response, next: NextFunction, roles:string[])=>{
-
-    const role:string = req.user.user_role as string
+// Middleware factory for role checking
+const isRoleAllowed = (roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const role: string = req.user?.user_role as string;
 
     if (!role) {
-        return res.sendStatus(401).json({ message: 'No user found' });
-      }
+      return res.status(401).json({ message: 'No user role found' });
+    }
 
-    if(roles.includes(role)){
-        next()
+    if (roles.includes(role)) {
+      return next();
     }
-    else{
-    return res.sendStatus(403).json({ message: 'Forbidden' });
-    }
-}
+
+    return res.status(403).json({ message: 'Forbidden: Insufficient role' });
+  };
+};
 
 export default isRoleAllowed;

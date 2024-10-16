@@ -1,28 +1,23 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import { RiTeamLine } from 'react-icons/ri';
 import { MdAddBusiness, MdBuild, MdBusiness, MdFactory, MdOutlineDashboard, MdOutlineDiscount, MdOutlineDocumentScanner, MdOutlineFireTruck, MdOutlineInventory2, MdOutlineLeaderboard, MdOutlinePayments, MdOutlinePointOfSale, MdOutlineSecurity, MdOutlineSubscriptions } from 'react-icons/md';
+import { FaExclamation } from 'react-icons/fa6';
 import { MdPayment } from 'react-icons/md';
 import { CiViewList } from 'react-icons/ci';
 import { MdOutlineContactSupport } from 'react-icons/md';
 import { MdOutlineAttachEmail } from 'react-icons/md';
-import Logo from '../../images/logo/moventry-logo.png';
-import { useSelector } from 'react-redux';
-import { selectAccessToken, selectUserData } from '../../redux/authSlice';
-import { RootState } from '../../redux/store';
+import Logo from '../../images/logo/MOVEPRO-02.png';
+import { allowedRoles } from '../../utils/allowedRoles';
+
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
 }
 
-
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  
-  const accessToken = useSelector((state: RootState) => selectAccessToken(state));
-  const userData = useSelector((state: RootState) => selectUserData(state));
-  const userRole = userData ? userData.role_name : null;
-
   const location = useLocation();
   const { pathname } = location;
 
@@ -79,7 +74,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-5.5">
         <NavLink to="/">
-          <img src={Logo} alt="Logo" style={{ height: '80px' }} />
+          <img src={Logo} alt="Logo" style={{ height: 'auto' }} />
         </NavLink>
 
         <button
@@ -131,8 +126,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              { userRole === 'SUPER_ADMIN'
-               && (
+              {allowedRoles(['super_admin']) && (
                 <SidebarLinkGroup
                   activeCondition={
                     pathname === '/companies' || pathname.includes('companies')
@@ -205,9 +199,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </React.Fragment>
                   )}
                 </SidebarLinkGroup>
-               )} 
+              )}
 
-              {userRole === 'SUPER_ADMIN'&& (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/all-leads"
@@ -220,9 +214,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     All Leads
                   </NavLink>
                 </li>
-               )} 
+              )}
 
-              {userRole === 'SUPER_ADMIN' && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/users"
@@ -250,9 +244,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     Users
                   </NavLink>
                 </li>
-               )}
+              )}
 
-              {userRole === 'SUPER_ADMIN' && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/payments"
@@ -265,9 +259,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     Payments History
                   </NavLink>
                 </li>
-             )} 
+              )}
 
-              {userRole === 'SUPER_ADMIN' && (
+              {allowedRoles(['super_admin']) && (
                 <li>
                   <NavLink
                     to="/packages"
@@ -280,10 +274,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     Packages
                   </NavLink>
                 </li>
-              )} 
+              )}
 
               {/* Tenant Menu */}
-              {userRole === 'TENANT_ADMIN' && (
+              {allowedRoles(['tenatnt_admin']) && (
                 <>
                   <SidebarLinkGroup
                     activeCondition={
@@ -561,12 +555,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </NavLink>
                   </li>
                 </>
-              )} 
+              )}
 
               {/* Tenant Menu */}
 
 
-              {userRole === 'SUPER_ADMIN' && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/support"
@@ -579,9 +573,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     Support
                   </NavLink>
                 </li>
-              )} 
+              )}
 
-              {userRole === 'SUPER_ADMIN' && (
+              {allowedRoles(['super_admin', 'tenatnt_admin']) && (
                 <li>
                   <NavLink
                     to="/emailtemplates"
@@ -594,7 +588,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     Email Management
                   </NavLink>
                 </li>
-               )} 
+              )}
 
               <li>
                 <NavLink
@@ -624,7 +618,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
-              {userRole === 'SUPER_ADMIN' && (
+              {allowedRoles(['super_admin', 'tenatnt_admin'])&& (
                 <li>
                   <NavLink
                     to="/settings"
@@ -665,12 +659,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     Settings
                   </NavLink>
                 </li>
-               )} 
+              )}
 
-              {/* {checkPermission(user.role, [
-                RoleEnum.TenantAdmin,
-                RoleEnum.TenantManager,
-              ]) && ( */}
+              {allowedRoles(['tenatnt_admin']) && (
                 <SidebarLinkGroup
                   activeCondition={
                     pathname === '/materials' || pathname.includes('materials')
@@ -868,7 +859,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </React.Fragment>
                   )}
                 </SidebarLinkGroup>
-              {/* )} */}
+              )}
             </ul>
           </div>
         </nav>

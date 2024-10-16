@@ -11,14 +11,10 @@ export type TypedRequest<
   DeepPartial<QueryString>
 >;
 
-// type Role = "SUPER_ADMIN" | "TENANT_ADMIN" | "DRIVER" | "CREW";
-
-// export interface IUserRole {
-//   1: Role;
-//   2: Role;
-//   3: Role;
-//   4: Role;
-// }
+export type RequireAtLeastOne<T> = {
+  [K in keyof T]-?: Required<Pick<T, K>> &
+    Partial<Pick<T, Exclude<keyof T, K>>>;
+}[keyof T];
 
 export interface IUserRegister {
   password: string;
@@ -62,7 +58,6 @@ export interface IUser {
   user_role?: string;
   hire_date?: string;
   current_pay?: string;
-  company_id?: number;
 }
 
 export interface ITokenData {
@@ -72,4 +67,33 @@ export interface ITokenData {
   email_id: string;         // User's email ID
   user_role: string;        // User's role (e.g., SUPER_ADMIN, TENANT_ADMIN, etc.)
   company_id?: number; // Optional company ID (can be null)
+}
+
+
+export interface ITruck {
+  company_id: number;
+  rented: boolean; 
+  make: string;
+  model: string;
+  year_of_manufacture: number;
+  vin: string; // Unique
+  license_plate_number: string;
+  license_plate_state_province: string;
+  truck_type: string;
+  truck_capacity?: string;
+  owner_name: string;
+  lease_details?: string;
+  insurance_provider?: string;
+  insurance_policy_number?: string;
+  fuel_efficiency?: string;
+  tare_weight?: string; // Empty truck weight
+  payload_capacity?: string;
+  volume: string;
+  last_maintenance_date?: Date;
+  next_maintenance_date?: Date;
+  dot_compliance_number?: string; // USA-specific
+  cvor_number?: string; // Canada-specific
+  cargo_restrictions?: string;
+  vehicle_notes?: string;
+  special_permits?: string;
 }

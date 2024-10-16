@@ -6,10 +6,10 @@ import { useState } from 'react';
 import { AiOutlineMail } from "react-icons/ai";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate , useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import Logo from '../../images/logo/moventry-logo.png';
 import { useDispatch } from 'react-redux';
-import { setCredentials , selectAccessToken } from '../../redux/authSlice';
+import { setCredentials} from '../../redux/authSlice';
+import { postApiCall } from '../../services/api-service';
 const SigninForm = () => {
 
   // let accessToken = useSelector((state: RootState) => selectAccessToken(state));
@@ -19,13 +19,28 @@ const SigninForm = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('authState');
-    console.log("AccessToken:", accessToken);
+    const authState = localStorage.getItem('authState');
+    
+    if (authState) {
+      try {
+        const parsedAuthState = JSON.parse(authState);
+        const accessToken = parsedAuthState?.accessToken;
 
-    if (accessToken) {
-      // Get the previous path from local storage
-      const previousPath = localStorage.getItem('previousPath') || '/'; // Fallback to home
-      navigate(previousPath); // Navigate to the previous path
+        console.log('AccessToken:', accessToken);
+
+        if (accessToken) {
+          // Get the previous path from localStorage
+          const previousPath = localStorage.getItem('previousPath') || '/';
+          console.log('Previous Path:', previousPath);
+
+          // Adding a small delay to allow the component to fully mount before navigation
+          setTimeout(() => {
+            navigate(previousPath);
+          }, 100); // 100ms delay for smooth transition (you can adjust or remove this)
+        }
+      } catch (error) {
+        console.error('Error parsing authState from localStorage:', error);
+      }
     }
   }, [navigate]);
 
@@ -37,7 +52,6 @@ const SigninForm = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
-    console.log("Hehe")
   };
 
 
@@ -46,18 +60,10 @@ const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
   event.preventDefault();
   
   try {
-    const response = await axios.post(
-      'http://localhost:8001/api/auth/login', // API endpoint for login
-      {
-        email_id: email,
-        password: password,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const response = await postApiCall('/auth/login', {
+      email_id:email,
+      password:password
+    })
 
     const { accessToken, userData } = response.data;
     
@@ -69,13 +75,14 @@ const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     });
     console.log(userData);
 
-    const userRole = userData.role_name; // Extract role_name for navigation
+    const userRole = userData.user_role; 
+    console.log("ROLE" ,  userRole)// Extract role_name for navigation
     switch (userRole) {
-      case 'SUPER_ADMIN':
-        navigate('/');
+      case 'super_admin':
+        navigate('/dasboard');
         break;
-      case 'TENANT_ADMIN':
-        navigate('/tenantAdmin/dashboard');
+      case 'tenant_admin':
+        navigate('/dashboard');
         break;
       case 'DRIVER':
         navigate('/driver/dashboard');
