@@ -285,3 +285,49 @@ ALTER TABLE tbl_leads
 ADD CONSTRAINT fk_company_id 
 FOREIGN KEY (company_id) REFERENCES tbl_company(id)
 ON DELETE CASCADE;
+
+CREATE TABLE tbl_driver (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
+    license_number VARCHAR(100) UNIQUE NOT NULL,
+    license_expiry VARCHAR(100) NOT NULL,
+
+    -- Foreign key constraints
+    FOREIGN KEY (user_id) REFERENCES tbl_user(id) ON DELETE CASCADE ON UPDATE NO ACTION
+);
+
+-- Index for the user_id field
+CREATE INDEX fk_driver_user ON tbl_driver(user_id);
+
+
+CREATE TABLE tbl_truck (
+    truck_id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id int NOT NULL,
+    rented bit,
+    make VARCHAR(255) NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    year_of_manufacture INT NOT NULL,
+    vin VARCHAR(255) NOT NULL UNIQUE,
+    license_plate_number VARCHAR(50) NOT NULL,
+    license_plate_state_province VARCHAR(50) NOT NULL,
+    truck_type VARCHAR(100) NOT NULL,
+    truck_capacity VARCHAR(50),
+    owner_name VARCHAR(255) NOT NULL,
+    lease_details TEXT,
+    insurance_provider VARCHAR(255),
+    insurance_policy_number VARCHAR(255),
+    fuel_efficiency varchar(100),
+    tare_weight varchar(100), -- empty truck weight
+    payload_capacity varchar(100),
+    volume varchar(100) NOT NULL,
+    last_maintenance_date DATE,
+    next_maintenance_date DATE,
+    dot_compliance_number VARCHAR(50), -- USA-specific
+    cvor_number VARCHAR(50), -- Canada-specific
+    cargo_restrictions TEXT,
+    vehicle_notes TEXT,
+    special_permits TEXT,
+    
+     -- Foreign key constraints
+    FOREIGN KEY (company_id) REFERENCES tbl_company(id) ON DELETE CASCADE ON UPDATE CASCADE 
+);

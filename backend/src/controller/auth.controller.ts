@@ -1,139 +1,67 @@
 import type { NextFunction, Response } from "express";
 import prismaClient from "../config/prisma";
-import { TypedRequest, IUserRegister, IUserLogin, IUser } from "../interface/interface";
+import { TypedRequest, IUserRegister, IUserLogin } from "../interface/interface";
 import { createAccessToken } from "../utils/generateTokens.util";
 import bcrypt from "bcrypt";
 import { sendEmail } from "../utils/emailService";
 import { generateRandomString } from "../utils/common.util";
+import httpStatus from "http-status";
 
-
+// Handle User Registration
 export const handleUserRegister = async (
   req: TypedRequest<IUserRegister>,
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    password,
-    first_name,
-    last_name,
-    email_id,
-    phone_no,
-    street,
-    city,
-    state,
-    zip,
-    country,
-    company_name,
-    ssn
-  } = req.body;
 
-  if (
-    first_name &&
-    last_name &&
-    email_id &&
-    phone_no &&
-    company_name &&
-    street &&
-    city &&
-    state &&
-    zip &&
-    country &&
-    password &&
-    ssn
-  ) {
-    try {
-      const checkUserEmail = await prismaClient.tbl_user.findUnique({
-        where: {
-          email_id,
-        },
-      });
+  const { password, first_name, last_name, email_id, phone_no, street, city, state, zip, country, company_name, ssn } = req.body;
 
-      if (checkUserEmail) {
-        return res.status(400).json({ message: "User already exists." }); // email is already in db
-      }
+  if (!(first_name && last_name && email_id && phone_no && company_name && street && city && state && zip && country && password && ssn)) {
+    return next({ status: httpStatus.BAD_REQUEST, message: "Missing required fields" });
+  }
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+  try {
+    const existingUser = await prismaClient.tbl_user.findUnique({ where: { email_id } });
 
-      const user = await prismaClient.tbl_user.create({
-        data:{
-          email_id,
-          first_name,
-          last_name,
-          phone_no,
-          salt,
-          password:hashedPassword,
-          ssn:ssn,
-          street,
-          city,
-          state,
-          zip,
-          country,
-          user_role:"TENANT_ADMIN"
-        }
-      })
-      const user_id = user.id
-      const companyObj = await prismaClient.tbl_company.create({
-        data: {
-          user_id,
-          company_name,
-          company_email:"",
-          street: street,
-          city: city,
-          state: state,
-          zip: zip,
-          country: country,
-          company_logo: '',
-          website: '',
-          social_fb: '',
-          social_tw: '',
-          social_in: '',
-          social_insta: '',
-          social_tube: '',
-        }
-      });
-
-      const updatedUser = await prismaClient.tbl_user.update({
-        where: { id: user.id },
-        data: { company_id: companyObj.id }
-      });
-
-      const userData = {
-        id: user.id,
-        first_name,
-        last_name,
-        email_id,
-        user_role: user.user_role,
-        phone_no,
-        street,
-        city,
-        state,
-        zip,
-        country,
-        company_name: companyObj.company_name
-      };
-
-      const tokenData = {
-        id: user.id,
-        first_name,
-        last_name,
-        email_id,
-        user_role: user.user_role,
-        company_id: companyObj.id
-      };
-
-      const accessToken = createAccessToken(tokenData);
-      res.status(201).send({ accessToken, userData });
-    } catch (error: any) {
-      console.log(error);
-      res.status(500).json({ error: JSON.stringify(error), ex: error });
+    if (existingUser) {
+      return res.status(httpStatus.BAD_REQUEST).json({ message: "User already exists." });
     }
-  } else {
-    next({ message: "missing required fields" });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = await prismaClient.tbl_user.create({
+      data: {
+        email_id, first_name, last_name, phone_no, salt, password: hashedPassword, ssn, street, city, state, zip, country, user_role: "tenant_admin",
+      },
+    });
+
+    const company = await prismaClient.tbl_company.create({
+      data: {
+        user_id: newUser.id,
+        company_name,
+        street, city, state, zip, country,
+        company_email: "", company_logo: "", website: "",
+        social_fb: "", social_tw: "", social_in: "", social_insta: "", social_tube: "",
+      },
+    });
+
+    await prismaClient.tbl_user.update({
+      where: { id: newUser.id },
+      data: { company_id: company.id },
+    });
+
+    const tokenData = { id: newUser.id, first_name, last_name, email_id, user_role: newUser.user_role, company_id: company.id };
+    const accessToken = createAccessToken(tokenData);
+
+    res.status(httpStatus.CREATED).json({ accessToken, userData: tokenData });
+  } catch (error: any) {
+  return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message:'Internal server error', error: JSON.stringify(error) });
+  
   }
 };
 
-
+// Handle User Login
 export const handleUserLogin = async (
   req: TypedRequest<IUserLogin>,
   res: Response,
@@ -141,66 +69,28 @@ export const handleUserLogin = async (
 ) => {
   const { email_id, password } = req.body;
 
-  if (!email_id || !password) {
-    return res.status(400).json({ message: "Missing required fields." });
+  if (!(email_id && password)) {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Missing required fields." });
   }
 
   try {
-    // Check if user exists by email
-    const user = await prismaClient.tbl_user.findUnique({
-      where: { email_id },
-    });
+    const user = await prismaClient.tbl_user.findUnique({ where: { email_id } });
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid email or password." });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid email or password." });
     }
 
-    // Compare the provided password with the hashed password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid email or password." });
-    }
-
-    // Construct the userData object for response
-    const userData = {
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email_id: user.email_id,
-      user_role: user.user_role,
-      company_id:user.company_id,
-      phone_no: user.phone_no,
-      street: user.street,
-      city: user.city,
-      state: user.state,
-      zip: user.zip,
-      country: user.country
-    };
-
-    // Token payload
-    const tokenData = {
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email_id: user.email_id,
-      user_role: user.user_role,
-      company_id:user.company_id,
-    };
-
-    // Generate JWT access token
+    const tokenData = { id: user.id, first_name: user.first_name, last_name: user.last_name, email_id: user.email_id, user_role: user.user_role, company_id: user.company_id };
     const accessToken = createAccessToken(tokenData);
 
-    // Send response with user data and token
-    return res.status(200).json({ accessToken, userData });
+    res.status(httpStatus.OK).json({ accessToken, userData: tokenData });
   } catch (error: any) {
-    console.log(error);
-    return res.status(500).json({ error: JSON.stringify(error), ex: error });
+    console.log(error)
+    res.status(500).json(error.message)
   }
 };
 
-//HANDLE FORGOT PASSWORD
-
+// Handle Forgot Password
 export const handleForgotPassword = async (
   req: TypedRequest<{ email_id: string }>,
   res: Response,
@@ -209,52 +99,35 @@ export const handleForgotPassword = async (
   const { email_id } = req.body;
 
   if (!email_id) {
-    return res.status(400).json({ message: "Email is required." });
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Email is required." });
   }
 
   try {
-    // Check if user exists by email
-    const user = await prismaClient.tbl_user.findFirst({
-      where: { email_id },
-    });
+    const user = await prismaClient.tbl_user.findFirst({ where: { email_id } });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(httpStatus.NOT_FOUND).json({ message: "User not found." });
     }
 
-    // Generate a reset token and expiration time
     const resetToken = generateRandomString(32);
     const tokenExpiry = new Date(Date.now() + 3600000); // Token valid for 1 hour
 
-
     await prismaClient.tbl_user.update({
-      where:{
-        id: user.id
-      },
-      data:{
-        reset_key: resetToken,
-        reset_key_expiry: tokenExpiry
-      }
-    })
+      where: { id: user.id },
+      data: { reset_key: resetToken, reset_key_expiry: tokenExpiry },
+    });
 
-    // Create a password reset link (front-end URL that handles the reset)
     const resetLink = `${process.env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
+    await sendEmail(user.email_id, "Password Reset Request", `Please click the link to reset your password: ${resetLink}`);
 
-    // Send password reset email
-    await sendEmail(
-      user.email_id,
-      "Password Reset Request",
-      `Please click the following link to reset your password: ${resetLink}`,
-    );
-
-    res.status(200).json({ message: "Password reset link sent to your email." });
+    res.status(httpStatus.OK).json({ message: "Password reset link sent to your email." });
   } catch (error: any) {
-    console.error(error);
-    return res.status(500).json({ error: JSON.stringify(error), ex: error });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message:'Internal server error', error: JSON.stringify(error) });
+
   }
 };
 
-
+// Handle Reset Password
 export const handleResetPassword = async (
   req: TypedRequest<{ token: string; password: string }>,
   res: Response,
@@ -262,42 +135,33 @@ export const handleResetPassword = async (
 ) => {
   const { token, password } = req.body;
 
-  if (!token || !password) {
-    return res.status(400).json({ message: "Missing required fields." });
+  if (!(token && password)) {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Missing required fields." });
   }
 
   try {
-    // Find user by reset token and check if token is still valid
     const user = await prismaClient.tbl_user.findFirst({
       where: {
         reset_key: token,
-        reset_key_expiry: {
-          gte: new Date(), // Check if token is still valid
-        },
+        reset_key_expiry: { gte: new Date() },
       },
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid or expired reset token." });
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid or expired reset token." });
     }
 
-    // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Update user password and clear reset token
     await prismaClient.tbl_user.update({
       where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        reset_key: null, // Clear reset token
-        reset_key_expiry: null, // Clear token expiry
-      },
+      data: { password: hashedPassword, reset_key: null, reset_key_expiry: null },
     });
 
-    res.status(200).json({ message: "Password reset successfully." });
+    res.status(httpStatus.OK).json({ message: "Password reset successfully." });
   } catch (error: any) {
-    console.error(error);
-    return res.status(500).json({ error: JSON.stringify(error), ex: error });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message:'Internal server error', error: JSON.stringify(error) });
+
   }
 };

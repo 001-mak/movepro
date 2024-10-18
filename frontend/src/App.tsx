@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import ProtectedRoute from './layout/ProtectedRoute';
 
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
@@ -46,245 +47,12 @@ import AEAdditionalService from './pages/TenantPages/AdditionalServices/AEAdditi
 import AEValuation from './pages/TenantPages/Valuations/AEValuation';
 import ValuationsLV from './pages/TenantPages/Valuations/ValuationsLV';
 
-// function App() {
-//   const [loading, setLoading] = useState<boolean>(true);
-//   const { pathname } = useLocation();
-
-//   useEffect(() => {
-//     window.scrollTo(0, 0);
-//   }, [pathname]);
-
-//   useEffect(() => {
-//     setTimeout(() => setLoading(false), 1000);
-//   }, []);
-
-//   return loading ? (
-//     <Loader />
-//   ) : (
-//     <DefaultLayout>
-//       <Routes>
-//         <Route
-//           index
-//           element={
-//             <>
-//               <PageTitle title="Moventry Dashboard | Super Admin" />
-//               <ECommerce />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/companies"
-//           element={
-//             <>
-//               <PageTitle title="Calendar | Best Moving CRM Software" />
-//               <Companies />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/view-subscriber"
-//           element={
-//             <>
-//               <PageTitle title="Subscriber Information" />
-//               <ViewCompany />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/add-company"
-//           element={
-//             <>
-//               <PageTitle title="Calendar | Best Moving CRM Software" />
-//               <AECompany />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/all-leads"
-//           element={
-//             <>
-//               <PageTitle title="Moventry | All Leads" />
-//               <AllLeads />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/view-lead"
-//           element={
-//             <>
-//               <PageTitle title="Calendar | Best Moving CRM Software" />
-//               <ViewLead />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/users"
-//           element={
-//             <>
-//               <PageTitle title="Users management" />
-//               <UsersLV />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/add-user"
-//           element={
-//             <>
-//               <PageTitle title="Add User | Best Moving CRM Software" />
-//               <AddAdminUser />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/payments"
-//           element={
-//             <>
-//               <PageTitle title="Moventry | Payments" />
-//               <PaymentHistory />
-//             </>
-//           }
-//         />
-
-//         <Route
-//           path="/welcome-email"
-//           element={
-//             <>
-//               <PageTitle title="welcome email template" />
-//               <WelcomeEmail />
-//             </>
-//           }
-//         />
-
-//         <Route
-//           path="/payment-email"
-//           element={
-//             <>
-//               <PageTitle title="Payment Success email template" />
-//               <PaymentSuccessEmail />
-//             </>
-//           }
-//         />
-
-//         <Route
-//           path="/unsuccessful-email"
-//           element={
-//             <>
-//               <PageTitle title="Payment Success email template" />
-//               <PaymentUnsuccessfullEmail />
-//             </>
-//           }
-//         />
-
-//         <Route
-//           path="/calendar"
-//           element={
-//             <>
-//               <PageTitle title="Calendar | Best Moving CRM Software" />
-//               <Calendar />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/profile"
-//           element={
-//             <>
-//               <PageTitle title="Profile | Best Moving CRM Software" />
-//               <Profile />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/forms/form-elements"
-//           element={
-//             <>
-//               <PageTitle title="Form Elements | Best Moving CRM Software" />
-//               <FormElements />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/forms/form-layout"
-//           element={
-//             <>
-//               <PageTitle title="Form Layout | Best Moving CRM Software" />
-//               <FormLayout />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/tables"
-//           element={
-//             <>
-//               <PageTitle title="Tables | Best Moving CRM Software" />
-//               <Tables />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/settings"
-//           element={
-//             <>
-//               <PageTitle title="Settings | Best Moving CRM Software" />
-//               <Settings />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/chart"
-//           element={
-//             <>
-//               <PageTitle title="Basic Chart | Best Moving CRM Software" />
-//               <Chart />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/ui/alerts"
-//           element={
-//             <>
-//               <PageTitle title="Alerts | Best Moving CRM Software" />
-//               <Alerts />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/ui/buttons"
-//           element={
-//             <>
-//               <PageTitle title="Buttons | Best Moving CRM Software" />
-//               <Buttons />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/auth/signin"
-//           element={
-//             <>
-//               <PageTitle title="Signin | Best Moving CRM Software" />
-//               <SignIn />
-//             </>
-//           }
-//         />
-//         <Route
-//           path="/auth/signup"
-//           element={
-//             <>
-//               <PageTitle title="Signup | Best Moving CRM Software" />
-//               <SignUp />
-//             </>
-//           }
-//         />
-//       </Routes>
-//     </DefaultLayout>
-//   );
-// }
-
-const publicUrls = [
-  '/auth/signin',
-  '/auth/signup',
-  '/auth/reset-password',
-  '/auth/forgot-password',
-];
+// const publicUrls = [
+//   '/auth/signin',
+//   '/auth/signup',
+//   '/auth/reset-password',
+//   '/auth/forgot-password',
+// ];
 function App() {
   const user = useSelector((state: any) => state.auth.user);
   const isLoggedIn = useSelector((state: any) => state.auth.isLoggedIn);
@@ -354,25 +122,29 @@ function App() {
           }
         />
 
-        <Route element={<DefaultLayout />}>
-          <Route
-            index
-            element={
-              <>
-                <PageTitle title="Moventry Dashboard | Super Admin" />
-                <ECommerce />
-              </>
-            }
-          />
+        <Route element={<><DefaultLayout /></>}>
+          <Route>
+            <Route
+              index
+              element={
+                <>
+                  <PageTitle title="Moventry Dashboard | Super Admin" />
+                  <ECommerce />
+                </>
+              }
+            />
+          </Route>
           <Route
             path="/companies"
             element={
               <>
+               <ProtectedRoute allowedRoles={['super_admin']} />
                 <PageTitle title="Companies | Best Moving CRM Software" />
                 <Companies />
               </>
             }
           />
+
           <Route
             path="/view-company/:id"
             element={
