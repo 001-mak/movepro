@@ -8,33 +8,35 @@ datasource db {
 }
 
 model tbl_company {
-  id                                     Int                    @id @default(autoincrement())
-  company_name                           String                 @db.VarChar(250)
-  company_email                          String                 @db.VarChar(250)
-  street                                 String                 @db.MediumText
-  city                                   String                 @db.VarChar(50)
-  state                                  String                 @db.VarChar(50)
-  zip                                    String                 @db.VarChar(10)
-  country                                String                 @db.VarChar(50)
-  company_logo                           String                 @db.VarChar(250)
-  website                                String                 @db.VarChar(250)
-  social_fb                              String                 @db.MediumText
-  social_tw                              String                 @db.MediumText
-  social_in                              String                 @db.MediumText
-  social_insta                           String                 @db.MediumText
-  social_tube                            String                 @db.MediumText
-  user_id                                Int
-  subscription_plan_id                   Int?                   @default(1)
-  tbl_subscription_plan                  tbl_subscription_plan? @relation(fields: [subscription_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subscription_plan")
-  tbl_user_tbl_company_user_idTotbl_user tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_user")
-  tbl_inventory_groups                   tbl_inventory_groups[]
-  tbl_leads                              tbl_leads[]
-  tbl_materials                          tbl_materials[]
-  tbl_truck                              tbl_truck[]
-  tbl_user                               tbl_user[]
+  id                                        Int                    @id @default(autoincrement())
+  company_name                              String                 @db.VarChar(250)
+  company_email                             String                 @db.VarChar(250)
+  street                                    String                 @db.MediumText
+  city                                      String                 @db.VarChar(50)
+  state                                     String                 @db.VarChar(50)
+  zip                                       String                 @db.VarChar(10)
+  country                                   String                 @db.VarChar(50)
+  company_logo                              String                 @db.VarChar(250)
+  website                                   String                 @db.VarChar(250)
+  social_fb                                 String                 @db.MediumText
+  social_tw                                 String                 @db.MediumText
+  social_in                                 String                 @db.MediumText
+  social_insta                              String                 @db.MediumText
+  social_tube                               String                 @db.MediumText
+  user_id                                   Int
+  subscription_plan_id                      Int?                   @default(1)
+  tbl_subscription_plan                     tbl_subscription_plan? @relation(fields: [subscription_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subscription_plan")
+  tbl_user_tbl_company_user_idTotbl_user    tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_user_company")
+  tbl_inventory_groups                      tbl_inventory_groups[]
+  tbl_leads                                 tbl_leads[]
+  tbl_materials                             tbl_materials[]
+  tbl_truck                                 tbl_truck[]
+  tbl_user                                  tbl_user[]
+  tbl_user_tbl_user_company_idTotbl_company tbl_user[]             @relation("tbl_user_company_idTotbl_company")
 
-  @@index([user_id], map: "fk_user_company")
+
   @@index([subscription_plan_id], map: "fk_subscription_plan")
+  @@index([user_id], map: "fk_user_company")
 }
 
 model tbl_user {
@@ -119,7 +121,7 @@ model tbl_leads {
   UnloadingZip               String?      @db.VarChar(10)
   UnloadingLat               String?      @db.VarChar(10)
   UnloadingLong              String?      @db.VarChar(10)
-  UnloadingCity              String?      @db.VarChar(20)
+  UnloadingCity              String       @db.VarChar(20)
   UnloadingState             String?      @db.VarChar(20)
   UnloadingStairs            String?      @db.VarChar(20)
   UnloadingNeedHelpPacking   String?      @db.VarChar(1)
@@ -165,6 +167,7 @@ model tbl_leads {
 
   @@index([company_id], map: "fk_company_id")
 }
+
 
 model tbl_driver {
   id             Int      @id @default(autoincrement())
@@ -226,9 +229,19 @@ model tbl_inventory_groups {
   group_name                String                      @db.VarChar(100)
   company_id                Int
   tbl_inventory_group_items tbl_inventory_group_items[]
-  tbl_company               tbl_company                 @relation(fields: [company_id], references: [id], onDelete: Cascade, map: "fk_tbl_inventory_group_company")
+  tbl_company               tbl_company                 @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_inventory_group_company")
 
   @@index([company_id], map: "fk_tbl_inventory_group_company")
+}
+
+model tbl_inventory_group_items {
+  id                   Int                   @id @default(autoincrement())
+  group_id             Int?
+  item_name            String?               @db.VarChar(100)
+  item_size            String?               @db.VarChar(100)
+  tbl_inventory_groups tbl_inventory_groups? @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inventory_group_item_group")
+
+  @@index([group_id], map: "group_id")
 }
 
 model tbl_materials {
@@ -237,7 +250,7 @@ model tbl_materials {
   material_description String?     @db.VarChar(500)
   material_price       Float       @db.Float
   company_id           Int
-  tbl_company          tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, map: "fk_tbl_materials_company")
+  tbl_company          tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_materials_company")
 
   @@index([company_id], map: "fk_tbl_materials_company")
 }

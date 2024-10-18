@@ -13,6 +13,7 @@ export const handleUserRegister = async (
   res: Response,
   next: NextFunction
 ) => {
+
   const { password, first_name, last_name, email_id, phone_no, street, city, state, zip, country, company_name, ssn } = req.body;
 
   if (!(first_name && last_name && email_id && phone_no && company_name && street && city && state && zip && country && password && ssn)) {

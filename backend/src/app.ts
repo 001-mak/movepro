@@ -5,8 +5,11 @@ import compression from 'compression';
 import config from './config/config';
 import path from 'path';
 import authRouter from './routes/auth.route';
+import leadRouter from './routes/lead.route';
 import authLimiter from './middleware/authLimiter';
 import userRouter from './routes/user.route';
+import inventoryRouter from './routes/inventory.route'
+import materialsRouter from './routes/materials.route'
 import truckRouter from './routes/truck.route';
 
 const app: Express = express();
@@ -36,6 +39,9 @@ if (config.node_env === 'production') {
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/leads',leadRouter);
+app.use('/api/v1/inventory',inventoryRouter);
+app.use('/api/v1/materials',materialsRouter);
 app.use('/api/v1/trucks', truckRouter);
 
 
