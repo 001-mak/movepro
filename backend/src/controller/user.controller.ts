@@ -13,6 +13,7 @@ const selectUserData = {
   phone_no: true,
   user_role: true,
   picture: true,
+  company_id:true
 };
 
 export interface UserSearch {
