@@ -96,9 +96,9 @@ const CompanyUsersLV = () => {
     <>
       <Breadcrumb pageName="Company Users" />
       <PaginatedTable
-        pagedApiUrl="/users/paged"
+        pagedApiUrl="/users"
         columns={userColumns}
-        actions={actions}
+        // actions={actions}
         extraQueryParams={{
           company_users: true
         }}
