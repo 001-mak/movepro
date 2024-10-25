@@ -6,7 +6,7 @@ import validate from "../middleware/validate";
 import {
   updateUserSchema,
   createUserSchema,
-  userSearchSchema,
+  getUsersQuerySchema,
 } from "../validation/userValidationSchema";
 import { paramsIdSchema } from "../validation/commonValidation";
 const userRouter = Router();
@@ -14,7 +14,7 @@ const userRouter = Router();
 userRouter.get(
     "/",
     validate({
-      query: userSearchSchema,
+      query: getUsersQuerySchema,
     }),
     isAuth,
     isRoleAllowed(["super_admin", "tenant_admin"]),

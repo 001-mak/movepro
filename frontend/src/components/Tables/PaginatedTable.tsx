@@ -6,11 +6,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 interface PaginatedTableProps<T extends object> {
   columns: Column<T>[];
-  actions?: {
-    handleView?: (row: any) => void;
-    handleEdit?: (row: any) => void;
-    handleDelete?: (row: any) => void;
-  };
+  // actions?: {
+  //   handleView?: (row: any) => void;
+  //   handleEdit?: (row: any) => void;
+  //   handleDelete?: (row: any) => void;
+  // };
   customButton?: {
     buttonLabel: string;
     handleButton: () => void;
@@ -22,7 +22,7 @@ interface PaginatedTableProps<T extends object> {
 
 const PaginatedTable = <T extends object>({
   columns,
-  actions,
+  // actions,
   customButton,
   pagedApiUrl,
   searchFormFields,
@@ -35,7 +35,6 @@ const PaginatedTable = <T extends object>({
   const [searchText, setSearchText] = useState('');
   const methods = useForm();
   
-
   const {
     getTableProps,
     getTableBodyProps,
@@ -79,7 +78,6 @@ const PaginatedTable = <T extends object>({
           : 'asc'
         : 'desc';
 
-
       getApiCall(`${pagedApiUrl}`,null,{
         params: {
           pageIndex: pageIndex + 1,
@@ -92,7 +90,7 @@ const PaginatedTable = <T extends object>({
         },
       }).then((res) => {
         setDropdownOpen(false);
-        res.data.data;
+        console.log(res.data);
         setPageData(res.data.data);
         setPageCount(res.data.totalPages);
       });
@@ -295,7 +293,7 @@ const PaginatedTable = <T extends object>({
                     </div>
                   </th>
                 ))}
-                {actions && <th className="px-6 py-3">Action</th>}
+                {/* {actions && <th className="px-6 py-3">Action</th>} */}
               </tr>
             ))}
           </thead>
@@ -315,7 +313,7 @@ const PaginatedTable = <T extends object>({
                       </td>
                     );
                   })}
-                  <td className="border-b border-[#eee] py-4 dark:border-strokedark">
+                  {/* <td className="border-b border-[#eee] py-4 dark:border-strokedark">
                     <div className="flex items-center justify-center ms-3 ">
                       {actions && actions?.handleView && (
                         <button
@@ -393,7 +391,7 @@ const PaginatedTable = <T extends object>({
                         </button>
                       )}
                     </div>
-                  </td>
+                  </td> */}
                 </tr>
               );
             })}

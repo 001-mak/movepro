@@ -4,6 +4,7 @@ import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Lead } from '../../interface/interfaces';
 import PaginatedTable from '../../components/Tables/PaginatedTable';
 import { InputField } from '../../common/InputField';
+import { SelectOption } from '../../common/SelectOption';
 
 // table header
 const columns: Column<Lead>[] = [
@@ -113,8 +114,16 @@ const columns: Column<Lead>[] = [
   },
 ];
 
+const countries = [
+  { Label: 'United States', Value: 'US' },
+  { Label: 'Canada', Value: 'CA' },
+  { Label: 'Australia', Value: 'AU' },
+  { Label: 'United Kingdom', Value: 'UK' },
+];
+
+
 const AllLeads = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const actions = {
     handleView: (row: any) => {
       navigate(`/view-lead/${row.id}`);
@@ -124,45 +133,27 @@ const AllLeads = () => {
     <>
       <Breadcrumb pageName="All Leads" />
       <PaginatedTable
-        pagedApiUrl="/leads/paged"
+        pagedApiUrl="/leads"
         columns={columns}
-        actions={actions}
+        // actions={actions}
         searchFormFields={
           <>
-
             <div className="mb-5.5">
-              <InputField
-                name="email"
-                label="Email"
+              {/* <InputField
+                name="searchText"
+                label="Search"
                 type="text"
                 required={false}
-              />
+              /> */}
             </div>
 
             <div className="mb-5.5">
-              <InputField
-                name="first_name"
-                label="First Name"
-                type="text"
-                required={false}
-              />
-            </div>
-
-            <div className="mb-5.5">
-              <InputField
-                name="last_name"
-                label="Last Name"
-                type="text"
-                required={false}
-              />
-            </div>
-
-            <div className="mb-5.5">
-              <InputField
-                name="phone"
-                label="Phone Number"
-                type="text"
-                required={false}
+              <SelectOption
+                name="country"
+                label="Select Country"
+                value={countries}
+                required={true}
+                errMsg="Please select a country."
               />
             </div>
           </>

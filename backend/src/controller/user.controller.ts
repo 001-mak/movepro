@@ -13,74 +13,63 @@ const selectUserData = {
   phone_no: true,
   user_role: true,
   picture: true,
-  company_id:true
+  company_id: true,
 };
 
-export interface UserSearch {
-  email_id?: string;
-  first_name?: string;
-  last_name?: string;
-  phone_no?: string;
-  searchText?: string;
-}
+export const handleGetUsers = async (req: Request, res: Response) => {
+  try {
+    const user = req.user as ITokenData;
+    // Default values for pagination and sorting
+    const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const orderBy = (req.query.orderBy as string) || "id";
+    const orderDirection = (req.query.orderDirection as string) || "asc";
 
+    // Calculate skip for pagination
+    const skip = (pageIndex - 1) * pageSize;
 
-const fetchUsers = async (
-  user: ITokenData,
-  page: number,
-  limit: number,
-  query: UserSearch
-) => {
-  const skip = (page - 1) * limit;
+    const accessFilter =
+      user.user_role === "super_admin"
+        ? { id: { not: user.id } }
+        : { company_id: user.company_id, id: { not: user.id } };
 
-  const accessFilter =
-    user.user_role === "super_admin"
-      ? { id: { not: user.id } }
-      : { company_id: user.company_id, id: { not: user.id } };
+    let orCondition = undefined;
+    if (Object.keys(req.query).length !== 0)
+      orCondition = searchFilters(
+        ["first_name", "last_name", "email_id"],
+        req.query
+      );
 
-  let orCondition = undefined
-  if(Object.keys(query).length !== 0) orCondition = searchFilters(['first_name', 'last_name', 'email_id'], query)
-
-  const [users] = await Promise.all([
-    prismaClient.tbl_user.findMany({
+    // Query to get paginated users
+    const users = await prismaClient.tbl_user.findMany({
       skip,
-      take: limit,
+      take: pageSize,
+      orderBy: {
+        [orderBy]: orderDirection,
+      },
       where: {
         AND: [accessFilter],
         OR: orCondition,
       },
       select: {
         ...selectUserData,
-        tbl_company: {
-          select: {
-            company_name: true,
-          },
-        },
       },
-    }),
-  ]);
-  const totalCount = users.length;
-  const totalPages = Math.ceil(totalCount / limit);
+    });
 
-  return { users, totalCount, totalPages, currentPage: page, pageSize: limit };
-};
+    // Query to get the total number of users matching criteria without pagination
+    const total = await prismaClient.tbl_user.count({
+      where: {
+        AND: [accessFilter],
+        OR: orCondition,
+      },
+    });
 
-export const handleGetUsers = async (
-  req: Request,
-  res: Response,
-) => {
-  try { 
-    const user = req.user as ITokenData;
-    const query = req.query as UserSearch;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.pageSize as string) || 10;
+    // Calculate total pages
+    const totalPages = Math.ceil(total / pageSize);
 
-    if (user.user_role === "super_admin" || user.user_role === "tenant_admin") {
-      const result = await fetchUsers(user, page, limit, query);
-      return res.status(HttpStatus.OK).json(result);
-    }
-
-    return res.status(HttpStatus.FORBIDDEN); // 403 Forbidden
+    return res
+      .status(HttpStatus.OK)
+      .json({ data: users, total, pageIndex, pageSize, totalPages });
   } catch (error) {
     console.error(error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -88,6 +77,7 @@ export const handleGetUsers = async (
     });
   }
 };
+
 
 export const handleCreateUser = async (req: Request, res: Response) => {
   const loggedInUser = req.user as ITokenData;

@@ -149,10 +149,28 @@ export const createUserSchema = Joi.object({
   }),
 }).unknown(false);
 
-export const userSearchSchema = Joi.object({
-  email_id: Joi.string().max(255).optional(),
-  first_name: Joi.string().max(255).optional(),
-  last_name: Joi.string().max(255).optional(),
-  phone_no: Joi.string().max(255).optional(),
-  searchText: Joi.string().max(255).optional(),
-}).unknown(false)
+// export const userSearchSchema = Joi.object({
+//   email_id: Joi.string().max(255).optional(),
+//   first_name: Joi.string().max(255).optional(),
+//   last_name: Joi.string().max(255).optional(),
+//   phone_no: Joi.string().max(255).optional(),
+//   searchText: Joi.string().max(255).optional(),
+// }).unknown(false)
+
+
+export const getUsersQuerySchema = Joi.object({
+  pageIndex: Joi.number().integer().min(1).default(1).optional(),
+  pageSize: Joi.number().integer().min(1).max(100).default(10).optional(),
+  orderBy: Joi.string()
+    .valid('id', 'first_name', 'last_name', 'email_id')
+    .default('id')
+    .optional(),
+  orderDirection: Joi.string()
+    .valid('asc', 'desc')
+    .default('asc')
+    .optional(),
+  first_name: Joi.string().optional(),
+  last_name: Joi.string().optional(),
+  email_id: Joi.string().email().optional(),
+  // Add any other searchable fields as optional strings if needed
+});
