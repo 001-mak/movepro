@@ -26,7 +26,7 @@ MYSQL_DATABASE=moventrycrm
 MYSQL_ROOT_PASSWORD=root
 
 # Example: mysql://USER:PASSWORD@HOST:PORT/DATABASE
-DATABASE_URL=mysql://mysqlab:root@localhost:3306/moventrycrm
+DATABASE_URL=mysql://root:H@roon8389@localhost:3306/movepro
 
 # Configuration for the emial service
 SMTP_HOST=aAA

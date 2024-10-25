@@ -25,8 +25,8 @@ model tbl_company {
   social_tube                               String                 @db.MediumText
   user_id                                   Int
   subscription_plan_id                      Int?                   @default(1)
+  tbl_user_tbl_company_user_idTotbl_user    tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_user")
   tbl_subscription_plan                     tbl_subscription_plan? @relation(fields: [subscription_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subscription_plan")
-  tbl_user_tbl_company_user_idTotbl_user    tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_company")
   tbl_inventory_groups                      tbl_inventory_groups[]
   tbl_leads                                 tbl_leads[]
   tbl_materials                             tbl_materials[]
@@ -235,7 +235,7 @@ model tbl_user {
   tbl_company_tbl_company_user_idTotbl_user    tbl_company[] @relation("tbl_company_user_idTotbl_user")
   tbl_driver                                   tbl_driver?
   tbl_truck                                    tbl_truck[]
-  tbl_company_tbl_user_company_idTotbl_company tbl_company?  @relation("tbl_user_company_idTotbl_company", fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_user")
+  tbl_company_tbl_user_company_idTotbl_company tbl_company?  @relation("tbl_user_company_idTotbl_company", fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_company")
   tbl_role                                     tbl_role?     @relation(fields: [user_role], references: [role], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_role")
 
   @@index([company_id], map: "fk_company_user")
