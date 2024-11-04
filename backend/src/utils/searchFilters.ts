@@ -1,20 +1,27 @@
-export const searchFilters = (filterFields:string[], query:any)=>{
-    return filterFields.map(field => ({
+export const searchFilters = (filterFields: string[], query: any) => {
+  const searchText = query.searchText as string;
+  const Clientfilters = (query.searchFilters as string)?.split(",");
+
+  
+  if (searchText && query.searchFilters) {
+    // Validate and Filter out unnecessary search fields
+    const validFielters = Clientfilters.filter((filter) =>
+      filterFields.includes(filter)
+    );
+    return validFielters.map((field) => ({
+      [field]: { contains: searchText },
+    }));
+  }
+  if (searchText && !searchFilters) {
+    return filterFields
+      .map((field) => ({
         [field]: {
-          contains: 
-            query[field]
-            ? query[field]
-            : query.searchText,
+          contains: searchText,
         },
-      })).filter(condition => Object.values(condition)[0].contains !== undefined);
-}
-
-// import { UserSearch } from "../controller/user.controller";
-
-// export const searchFilters = (filterFields:string[], query:UserSearch)=>{
-//     return filterFields.map(field => ({
-//         [field]: {
-//           contains: query.searchText
-//         },
-//       }));
-// }
+      }))
+      .filter(
+        (condition) => Object.values(condition)[0].contains !== undefined
+      );
+  }
+  else return undefined;
+};
