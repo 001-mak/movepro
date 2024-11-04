@@ -12,11 +12,11 @@ export const searchFilters = (filterFields: string[], query: any) => {
       [field]: { contains: searchText },
     }));
   }
-  if (searchText && !query.searchFilters) {
+  if (searchText && !searchFilters) {
     return filterFields
       .map((field) => ({
         [field]: {
-          contains: query.searchText,
+          contains: searchText,
         },
       }))
       .filter(
