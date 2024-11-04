@@ -4,7 +4,7 @@ import httpStatus from 'http-status'
 import type {
     Lead,TypedRequest,PagedQuery
 }from '../interface/interface'
-
+import { ITokenData} from "../interface/interface";
 
 export const handleCreateLead = async (req: Request, res: Response) => {
   try {
@@ -70,13 +70,6 @@ export const handleCreateLead = async (req: Request, res: Response) => {
 
   } catch (error: any) {
     console.error('Error creating lead:', error);
-
-    // Prisma error handling (specific error codes can be handled as needed)
-    if (error.code === 'P2003') {
-      return res.status(400).json({ message: 'Invalid company ID or foreign key constraint.' });
-    }
-
-    // Handle unknown errors
     return res.status(500).json({ message: 'Internal server error.', error: error.message });
   }
 };
@@ -85,34 +78,48 @@ export const handleCreateLead = async (req: Request, res: Response) => {
 
 export const handleGetAllLeads = async (req: TypedRequest, res: Response) => {
     try {
-      // Ensure the user is authenticated (from the `isAuth` middleware)
-      const user = req.user;
-      if (!user) {
-        return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized. User is not authenticated.' });
-      }
-  
-      // Fetch all leads from the database
-      const leads = await prismaClient.tbl_leads.findMany({
-        where: {
-          company_id: user.company_id, // Fetch leads for the authenticated user's company
-        },
-      });
-  
-      // Check if leads are found
-      if (!leads || leads.length === 0) {
-        return res.status(httpStatus.NOT_FOUND).json({ message: 'No leads found for the specified company.' });
-      }
-  
-      // Return the leads
-      return res.status(httpStatus.OK).json(leads);
-  
+        const user = req.user as ITokenData;
+        if (!user) {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized. User is not authenticated.' });
+        }
+        const leadFilter: { company_id?: number } = {};
+        if (user.user_role === 'tenant_admin') {
+            leadFilter.company_id = user.company_id; 
+        }
+     
+        const leads = await prismaClient.tbl_leads.findMany({
+            where: leadFilter,
+            select: {
+                first_name: true,
+                last_name: true,
+                email: true,
+                phone: true,
+                JobType: true,
+                ServiceType: true,
+                MoveDate: true,
+                MoveTime: true,
+                LoadingCity: true,
+                UnloadingCity: true,
+                company_id: true,
+                lead_status:true
+            },
+        });
+
+        if (!leads || leads.length === 0) {
+            return res.status(httpStatus.OK).json({ message: 'No leads found for the specified criteria.' });
+        }
+
+
+        return res.status(httpStatus.OK).json(leads);
+
     } catch (error: any) {
-      console.error('Error fetching leads:', error);
-  
-      // Handle any unknown errors
-      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error.', error: error.message });
+        console.error('Error fetching leads:', error);
+
+    
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error.', error: error.message });
     }
-  };
+};
+
 
   export const handleGetLeadById = async (req: Request, res: Response) => {
     try {
@@ -121,7 +128,7 @@ export const handleGetAllLeads = async (req: TypedRequest, res: Response) => {
         const user = req.user; // Assuming `req.user` is populated by an authentication middleware
 
         // Check if the user is authenticated and has a company_id
-        if (!user || !user.company_id) {
+        if (!user) {
             return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
         }
 
@@ -134,13 +141,14 @@ export const handleGetAllLeads = async (req: TypedRequest, res: Response) => {
         const lead = await prismaClient.tbl_leads.findFirst({
             where: {
                 id: leadId,
-                company_id: user.company_id, // Ensure the lead belongs to the user's company
+                // If the user is a super admin, do not filter by company_id
+                ...(user.user_role === "super_admin" ? {} : { company_id: user.company_id }),
             },
         });
 
         // If no lead is found or the company_id doesn't match
         if (!lead) {
-            return res.status(httpStatus.NOT_FOUND).json({ message: 'Lead not found or you are not authorized to access this lead' });
+            return res.status(httpStatus.OK).json({ message: 'Lead not found FOR THE SPECIFIED ID' });
         }
 
         // Respond with the lead data
@@ -178,14 +186,12 @@ export const handleGetLeadsByCompany = async (req: Request, res: Response) => {
         }
 
         // Authorization check: Verify if the authenticated user is authorized to fetch leads for this company
-        if (user.company_id !== parsedCompanyId) {
+        if (user.user_role === "tenant_admin" && user.company_id !== parsedCompanyId) {
             return res.status(httpStatus.FORBIDDEN).json({
                 success: false,
                 message: 'Access denied. You are not authorized to view leads for this company.'
             });
         }
-
-        // Fetch leads for the given company
         const leads = await prismaClient.tbl_leads.findMany({
             where: {
                 company_id: parsedCompanyId,
@@ -215,7 +221,7 @@ export const handleGetLeadsByCompany = async (req: Request, res: Response) => {
 
         // Handle case where no leads are found
         if (leads.length === 0) {
-            return res.status(httpStatus.NOT_FOUND).json({
+            return res.status(httpStatus.OK).json({
                 success: false,
                 message: 'No leads found for the specified company.'
             });
@@ -266,7 +272,7 @@ export const handleDeleteLead = async (req: Request, res: Response) => {
         });
 
         if (!lead) {
-            return res.status(httpStatus.NOT_FOUND).json({
+            return res.status(httpStatus.OK).json({
                 success: false,
                 message: 'Lead not found.'
             });
@@ -315,7 +321,7 @@ export const handleUpdateLead = async (req: Request, res: Response) => {
         });
 
         if (!existingLead) {
-            return res.status(404).json({ message: 'Lead not found.' });
+            return res.status(200).json({ message: 'Lead not found.' });
         }
 
         // Check if the lead belongs to the user's company
