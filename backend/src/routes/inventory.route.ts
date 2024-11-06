@@ -1,7 +1,7 @@
 import {Router } from 'express';
 import * as inventoryController from '../controller/inventory.controller'
 import isAuth from '../middleware/isAuth'
-import { inventoryGroupItemSchema,inventoryGroupSchema } from '../validations/inventory.validation';
+import { inventoryGroupItemSchema,inventoryGroupSchema } from '../validation/inventory.validation';
 import validate from '../middleware/validate';
 
 const inventoryRouter=Router();

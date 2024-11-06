@@ -1,7 +1,7 @@
 import {Router} from 'express'
 import isAuth from '../middleware/isAuth'
 import validate from '../middleware/validate'
-import { leadSchema } from '../validations/lead.validation'
+import { leadSchema } from '../validation/lead.validation'
 
 import * as leadController from '../controller/leads.controller'
 
