@@ -210,3 +210,22 @@ export interface ITruck {
   vehicle_notes?: string;
   special_permits?: string;
 }
+
+export interface ICompany {
+  company_name: string;
+  company_email: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  company_logo: string;
+  website: string;
+  social_fb: string;
+  social_tw: string;
+  social_in: string;
+  social_insta: string;
+  social_tube: string;
+  user_id: number;
+  subscription_plan_id?: number;
+}

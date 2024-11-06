@@ -169,8 +169,7 @@ export const getUsersQuerySchema = Joi.object({
     .valid('asc', 'desc')
     .default('asc')
     .optional(),
-  first_name: Joi.string().optional(),
-  last_name: Joi.string().optional(),
-  email_id: Joi.string().email().optional(),
+  searchText: Joi.string().optional(),
+  searchFilters: Joi.string().optional(),
   // Add any other searchable fields as optional strings if needed
-});
+}).unknown(false);
