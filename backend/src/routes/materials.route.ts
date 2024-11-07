@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as materialsController from '../controller/materials.controller';
 import isAuth from '../middleware/isAuth';
 import validate from '../middleware/validate';
-import {materialValidationSchema} from '../validations/material.validation';
+import {materialValidationSchema} from '../validation/material.validation';
 
 const materialsRouter = Router();
 

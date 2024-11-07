@@ -32,7 +32,7 @@ export const handleUserRegister = async (
 
     const newUser = await prismaClient.tbl_user.create({
       data: {
-        email_id, first_name, last_name, phone_no, salt, password: hashedPassword, ssn, street, city, state, zip, country, user_role: "tenant_admin",
+        email_id, first_name, last_name, phone_no, salt, password: hashedPassword, ssn, street, city, state, zip, country, user_role: "super_admin",
       },
     });
 
