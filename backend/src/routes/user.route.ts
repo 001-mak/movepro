@@ -8,13 +8,13 @@ import {
   createUserSchema,
   getUsersQuerySchema,
 } from "../validation/userValidationSchema";
-import { paramsIdSchema } from "../validation/commonValidation";
+import { paramsIdSchema,pagedSearchQuerySchema } from "../validation/commonValidation";
 const userRouter = Router();
 
 userRouter.get(
     "/",
     validate({
-      query: getUsersQuerySchema,
+      query: pagedSearchQuerySchema,
     }),
     isAuth,
     isRoleAllowed(["super_admin", "tenant_admin"]),
