@@ -124,7 +124,7 @@ const AllLeads = () => {
     <>
       <Breadcrumb pageName="All Leads" />
       <PaginatedTable
-        pagedApiUrl="/leads/paged"
+        pagedApiUrl="/leads"
         columns={columns}
         actions={actions}
         searchFormFields={
