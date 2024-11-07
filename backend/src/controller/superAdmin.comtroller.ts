@@ -58,7 +58,7 @@ export const handleAdminRegister = async (
     // Generate access token
     const accessToken = createAccessToken(newUser);
 
-    return res.status(httpStatus.CREATED).json({ accessToken, user: newUser });
+    return res.status(httpStatus.CREATED).json({ accessToken, userData: newUser });
   } catch (error: any) {
     console.log(error)
     return res.status(httpStatus.INTERNAL_SERVER_ERROR)
