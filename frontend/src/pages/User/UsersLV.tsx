@@ -3,20 +3,12 @@ import { Column } from 'react-table';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import PaginatedTable from '../../components/Tables/PaginatedTable';
 import { useNavigate } from 'react-router-dom';
-import { AdminUserRoles, Roles } from '../../common/constants';
 import { InputField } from '../../common/InputField';
-import { useEffect, useState } from 'react';
-import { SelectOption } from '../../common/SelectOption';
-import { getApiCall } from '../../services/api-service';
 
 const userColumns: Column<any>[] = [
   {
     Header: 'ID',
     accessor: 'id',
-  },
-  {
-    Header: 'Username',
-    accessor: 'username',
   },
   {
     Header: 'First Name',
@@ -35,29 +27,33 @@ const userColumns: Column<any>[] = [
     accessor: 'phone_no',
   },
   {
-    Header: 'Status',
-    accessor: 'status',
-    Cell: ({ value }: { value: string }) => (
-      <span>
-        {value === '1' ? 'Active' : value === '0' ? 'Inactive' : 'Unknown'}
-      </span>
-    ),
+    Header: 'User Role',
+    accessor: 'user_role',
   },
-  {
-    Header: 'Role',
-    accessor: 'role',
-    Cell: ({ value }: { value: string }) => (
-      <span>{Roles.find((x) => x.id == value)?.role_name}</span>
-    ),
-  },
+  // {
+  //   Header: 'Status',
+  //   accessor: 'status',
+  //   Cell: ({ value }: { value: string }) => (
+  //     <span>
+  //       {value === '1' ? 'Active' : value === '0' ? 'Inactive' : 'Unknown'}
+  //     </span>
+  //   ),
+  // },
+  // {
+  //   Header: 'Role',
+  //   accessor: 'role',
+  //   Cell: ({ value }: { value: string }) => (
+  //     <span>{Roles.find((x) => x.id == value)?.role_name}</span>
+  //   ),
+  // },
 ];
 
-const roleDDL: any[] = [{Label:'', Value: ''},...Roles.filter(x=> AdminUserRoles.includes(x.id)).map((x: any) => {
-  return {
-    Label: x.role_name,
-    Value: x.id,
-  };
-})];
+// const roleDDL: any[] = [{Label:'', Value: ''},...Roles.filter(x=> AdminUserRoles.includes(x.id)).map((x: any) => {
+//   return {
+//     Label: x.role_name,
+//     Value: x.id,
+//   };
+// })];
 
 const UsersLV = () => {
   const navigate = useNavigate();
@@ -84,9 +80,9 @@ const UsersLV = () => {
     <>
       <Breadcrumb pageName="Users Management" />
       <PaginatedTable
-        pagedApiUrl="/users/paged"
+        pagedApiUrl="/users"
         columns={userColumns}
-        actions={actions}
+        // actions={actions}
         customButton={customButton}
         extraQueryParams={{
           admin_users:true
@@ -129,7 +125,7 @@ const UsersLV = () => {
               />
             </div>
 
-            {roleDDL.length && (
+            {/* {roleDDL.length && (
               <div className="mb-5.5">
                 <SelectOption
                   name="role"
@@ -138,7 +134,7 @@ const UsersLV = () => {
                   value={roleDDL}
                 />
               </div>
-            )}
+            )} */}
           </>
         }
       />

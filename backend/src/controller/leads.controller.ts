@@ -87,6 +87,7 @@ export const handleGetAllLeads = async (req: TypedRequest, res: Response) => {
     try {
       // Ensure the user is authenticated (from the `isAuth` middleware)
       const user = req.user;
+      console.log(user)
       if (!user) {
         return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized. User is not authenticated.' });
       }
@@ -100,7 +101,7 @@ export const handleGetAllLeads = async (req: TypedRequest, res: Response) => {
   
       // Check if leads are found
       if (!leads || leads.length === 0) {
-        return res.status(httpStatus.NOT_FOUND).json({ message: 'No leads found for the specified company.' });
+        return res.status(httpStatus.OK).json({ message: 'No leads found for the specified company.' });
       }
   
       // Return the leads
