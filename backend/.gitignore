@@ -1,6 +1,7 @@
 .env
 node_modules/
 dist/
+prisma/
 yarn.lock
 yarn-error.log
 logs/
@@ -18,6 +19,8 @@ lerna-debug.log*
 
 node_modules
 dist
+prisma
+schema.prisma
 dist-ssr
 *.local
 
