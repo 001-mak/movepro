@@ -117,7 +117,7 @@ export const handleForgotPassword = async (
       data: { reset_key: resetToken, reset_key_expiry: tokenExpiry },
     });
 
-    const resetLink = `${process.env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.CORS_ORIGIN}/auth/reset-password?token=${resetToken}`;
     await sendEmail(user.email_id, "Password Reset Request", `Please click the link to reset your password: ${resetLink}`);
 
     res.status(httpStatus.OK).json({ message: "Password reset link sent to your email." });
