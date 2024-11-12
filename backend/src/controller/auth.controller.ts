@@ -86,7 +86,7 @@ export const handleUserLogin = async (
     res.status(httpStatus.OK).json({ accessToken, userData: tokenData });
   } catch (error: any) {
     console.log(error)
-    res.status(500).json(error.message)
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json(error.message)
   }
 };
 
