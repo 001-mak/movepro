@@ -37,8 +37,8 @@ const validate =
         field: err.path.join(', '),
         message: err.message
       }));
-
-      res.status(httpStatus.BAD_REQUEST).json({ errors });
+      
+      res.status(httpStatus.BAD_REQUEST).json({ error: errors[0] });
     }
   };
 
