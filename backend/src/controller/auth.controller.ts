@@ -76,8 +76,12 @@ export const handleUserLogin = async (
   try {
     const user = await prismaClient.tbl_user.findUnique({ where: { email_id } });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid email or password." });
+    if (!user) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: "Email does not exist." });
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid password." });
     }
 
     const tokenData = { id: user.id, first_name: user.first_name, last_name: user.last_name, email_id: user.email_id, user_role: user.user_role, company_id: user.company_id };

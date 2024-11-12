@@ -93,17 +93,63 @@ export const userRegisterSchema = Joi.object({
 }).unknown(false);
 
 export const userLoginSchema = Joi.object({
-  email_id: Joi.string().email().max(255).required(),
-  password: Joi.string().min(8).max(255).required(),
+  email_id: Joi.string()
+    .email({ tlds: { allow: false } })
+    .max(255)
+    .required()
+    .messages({
+      "string.email": "Please provide a valid email address",
+      "string.max": "Email address can have a maximum length of 255 characters",
+      "string.empty": "Email address is required",
+    }),
+  password: Joi.string()
+    .min(8)
+    .max(128)
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.empty": "Password is required",
+      "string.min": "Password should have at least 8 characters",
+      "string.max": "Password can have a maximum length of 128 characters",
+      "string.pattern.base":
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+    }),
 }).unknown(false);
 
 export const forgotPassSchema = Joi.object({
-  email_id: Joi.string().email().max(255).required(),
+  email_id: Joi.string()
+    .email({ tlds: { allow: false } })
+    .max(255)
+    .required()
+    .messages({
+      "string.email": "Please provide a valid email address",
+      "string.max": "Email address can have a maximum length of 255 characters",
+      "string.empty": "Email address is required",
+    }),
 }).unknown(false);
 
 export const resetPassSchema = Joi.object({
   token: Joi.string().max(255).required(),
-  password: Joi.string().min(8).max(255).required(),
+  password: Joi.string()
+    .min(8)
+    .max(128)
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.empty": "Password is required",
+      "string.min": "Password should have at least 8 characters",
+      "string.max": "Password can have a maximum length of 128 characters",
+      "string.pattern.base":
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+    }),
 }).unknown(false);
 
 // CREATE Admin Joi validation schema
