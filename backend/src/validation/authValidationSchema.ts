@@ -102,7 +102,7 @@ export const forgotPassSchema = Joi.object({
 }).unknown(false);
 
 export const resetPassSchema = Joi.object({
-  token: Joi.string().email().max(255).required(),
+  token: Joi.string().max(255).required(),
   password: Joi.string().min(8).max(255).required(),
 }).unknown(false);
 
