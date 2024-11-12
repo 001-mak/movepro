@@ -25,8 +25,8 @@ model tbl_company {
   social_tube                               String                 @db.MediumText
   user_id                                   Int
   subscription_plan_id                      Int?                   @default(1)
-  company_owner                             tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_user")
   subscription_plan                         tbl_subscription_plan? @relation(fields: [subscription_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subscription_plan")
+  company_owner                             tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_user")
   tbl_inventory_groups                      tbl_inventory_groups[]
   tbl_leads                                 tbl_leads[]
   tbl_materials                             tbl_materials[]

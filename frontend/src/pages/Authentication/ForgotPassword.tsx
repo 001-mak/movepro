@@ -1,16 +1,50 @@
-import React from 'react';
+import React , {useState} from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import Logo from '../../images/logo/moventry-logo.png';
+import { postApiCall } from '../../services/api-service';
 import { useSelector } from 'react-redux';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Loader from '../../common/Loader';
 const ForgotPassword: React.FC = () => {
   const loggedIn = useSelector((state: any) => state.auth.isLoggedIn);
 
   if (loggedIn) {
     return <Navigate to="/" replace />;
   }
+
+  const [email, setEmail] = useState<string>('');
+  const [isValid, setIsValid] = useState<boolean>(true);
+  const [loading , setLoading ] = useState<boolean>(false);
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = event.target.value;
+    setEmail(newEmail);
+
+    // Basic email format validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setIsValid(emailPattern.test(newEmail));
+  };
+
+  const forgetPassword = async (event: React.FormEvent) => {
+    setLoading(true);
+    event.preventDefault();
+    const email_id = email;
+  
+    try {
+       await postApiCall('/auth/forgot-password', { email_id });
+       setLoading(false);
+      toast.success('Password reset email sent successfully!');
+    } catch (error) {
+      setLoading(false);
+      toast.error('Failed to send password reset email. Please try again');
+    }
+  };
+  
   return (
-    <>
+    loading ? (
+      <Loader/>
+    ) : (<>
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full border-stroke dark:border-strokedark xl:block xl:w-1/2 xl:border-r-2">
@@ -163,11 +197,18 @@ const ForgotPassword: React.FC = () => {
                     Email
                   </label>
                   <div className="relative">
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
+                  <div>
+      <input
+        type="email"
+        placeholder="Enter your email"
+        value={email}
+        onChange={handleEmailChange}
+        className={`w-full rounded-lg border py-4 pl-6 pr-10 text-black outline-none
+          ${isValid ? 'border-stroke' : 'border-red-500'}
+          focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary`}
+      />
+      {!isValid && <p className="text-red-500 mt-2">Please enter a valid email address.</p>}
+    </div>
 
                     <span className="absolute right-4 top-4">
                       <svg
@@ -190,18 +231,20 @@ const ForgotPassword: React.FC = () => {
                 </div>
 
                 <div>
-                  <input
-                    type="submit"
-                    value="Send Password Reset Link"
-                    className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                  />
+                  <button
+                  onClick={forgetPassword}
+                  disabled={!isValid}
+                    className={`w-full  ${isValid ? "cursor-pointer" : "cursor-not-allowed"} rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90`}
+                  >
+                    Send Password Reset Link
+                  </button>
                 </div>
               </form>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </>)
   );
 };
 
