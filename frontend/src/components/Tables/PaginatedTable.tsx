@@ -6,11 +6,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 interface PaginatedTableProps<T extends object> {
   columns: Column<T>[];
-  // actions?: {
-  //   handleView?: (row: any) => void;
-  //   handleEdit?: (row: any) => void;
-  //   handleDelete?: (row: any) => void;
-  // };
+  actions?: {
+    handleView?: (row: any) => void;
+    handleEdit?: (row: any) => void;
+    handleDelete?: (row: any) => void;
+  };
   customButton?: {
     buttonLabel: string;
     handleButton: () => void;
@@ -22,7 +22,7 @@ interface PaginatedTableProps<T extends object> {
 
 const PaginatedTable = <T extends object>({
   columns,
-  // actions,
+  actions,
   customButton,
   pagedApiUrl,
   searchFormFields,
@@ -196,23 +196,19 @@ const PaginatedTable = <T extends object>({
                 <div
                   ref={dropdown}
                   onFocus={() => setDropdownOpen(true)}
-                  className={`absolute right-0 top-full z-40 w-150 space-y-1 rounded-sm border border-stroke bg-white p-1.5 shadow-default dark:border-strokedark dark:bg-boxdark ${
+                  className={`absolute right-0 top-10 z-40 w-70  space-y-1 rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark ${
                     dropdownOpen === true ? 'block' : 'hidden'
                   }`}
                 >
                   <FormProvider {...methods}>
                     <form onSubmit={methods.handleSubmit(onSubmit)}>
-                      <div className="grid grid-cols-1 gap-4 py-4 px-6.5 sm:grid-cols-3">
+                      <div className="">
                         {searchFormFields}
-                        <div className="mb-5.5 flex items-end justify-center">
-                          <input
-                            type="submit"
-                            className="flex w-full items-end justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                          />
-                        </div>
-                        <div className="mb-5.5 flex items-end justify-center">
+                        <div className='flex gap-x-6 justify-end mt-5'>
+                        
+                        <div className=" flex items-end justify-center">
 
-                        <button className="flex w-full items-end justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                        <button className="flex w-full items-end justify-center rounded bg-primary py-2 px-4 font-medium text-gray hover:bg-opacity-90"
                           onClick={()=>{
                             setSearchFilters({});
                             let currentValues = methods.watch();
@@ -226,6 +222,13 @@ const PaginatedTable = <T extends object>({
                           }}>
                             Reset
                           </button>
+                        </div>
+                        <div className="flex items-end justify-center ">
+                          <input
+                            type="submit"
+                            className="flex w-full items-end justify-center rounded bg-primary py-2 px-3 font-medium text-gray hover:bg-opacity-90"
+                          />
+                        </div>
                         </div>
 
                       </div>
@@ -293,7 +296,7 @@ const PaginatedTable = <T extends object>({
                     </div>
                   </th>
                 ))}
-                {/* {actions && <th className="px-6 py-3">Action</th>} */}
+                {actions && <th className="px-6 py-3">Action</th>}
               </tr>
             ))}
           </thead>
@@ -313,12 +316,12 @@ const PaginatedTable = <T extends object>({
                       </td>
                     );
                   })}
-                  {/* <td className="border-b border-[#eee] py-4 dark:border-strokedark">
+                  <td className="border-b border-[#eee] py-4 dark:border-strokedark">
                     <div className="flex items-center justify-center ms-3 ">
                       {actions && actions?.handleView && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => actions?.handleView(row.original)}
+                          onClick={() => console.log("H")}
                         >
                           <svg
                             className="fill-current"
@@ -342,7 +345,7 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleEdit && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => actions.handleEdit(row.original)}
+                          onClick={() => console.log("h")}
                         >
                           <svg
                             width="17"
@@ -361,7 +364,7 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleDelete && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => actions.handleDelete(row.original)}
+                          onClick={() => console.log("h")}
                         >
                           <svg
                             className="fill-current"
@@ -391,7 +394,7 @@ const PaginatedTable = <T extends object>({
                         </button>
                       )}
                     </div>
-                  </td> */}
+                  </td>
                 </tr>
               );
             })}
