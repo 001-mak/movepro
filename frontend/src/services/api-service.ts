@@ -33,7 +33,15 @@ const createApiCall = (method: 'post' | 'put' | 'get' | 'delete') => {
       const response = await axios(config);
       return response;
     } catch (err : any) {
-      toast.error(`${err.response.data.message}`);
+      console.log(err);
+      if(err?.response?.data?.error?.message) 
+      {
+        toast.error(`${err.response.data.error.message}`);
+      }
+      if(err.response.data.message) {
+        toast.error(`${err.response.data.message}`);
+      }
+      
       const error = err as ErrorResponse;
       if (error.response?.status === 401) {
         if(containsAuthIgnoreCase(url)) {
