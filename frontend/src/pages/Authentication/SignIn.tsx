@@ -5,7 +5,8 @@ import { postApiCall } from '../../services/api-service';
 import { login } from './AuthSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const SignIn: React.FC = () => {
@@ -13,6 +14,8 @@ const SignIn: React.FC = () => {
   const [email_id, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(true);
   const dispatch = useDispatch();
 
   const togglePasswordVisibility = () => {
@@ -21,23 +24,33 @@ const SignIn: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await postApiCall('/auth/login', {
-      email_id:email_id,
-      password:password
-    }).then(response=>{
+    console.log("Chexk")
+    
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const response = await  postApiCall('/auth/login', {
+        email_id,
+        password
+      });
+      
       localStorage.setItem('user', JSON.stringify(response.data.userData));
       localStorage.setItem('access_token', response.data.accessToken);
       dispatch(login(response.data.userData));
+    } catch (error) {
+      
+    } finally {
+      setIsSubmitting(false);
     }
-  ).catch (error=>{
-      console.error('Error signing in:', error);
-    })
   };
-  
+
   
   if (loggedIn) {
     return <Navigate to="/" replace />;
   }
+
+  
   
   return (
     <>
@@ -193,7 +206,7 @@ const SignIn: React.FC = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type="text"
+                      type="email"
                       placeholder="Enter your Email"
                       value={email_id}
                 onChange={(e) => setEmail(e.target.value)}
@@ -255,11 +268,14 @@ const SignIn: React.FC = () => {
                 
 
                 <div className="mb-5">
-                  <input
-                    type="submit"
-                    value="Sign In"
+                  <button
+                   type="submit"
+                  disabled={isSubmitting}
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                  />
+                  >
+                   {isSubmitting ? 'Signing In...' : 'Sign In'}
+                </button>
+
                 </div>
                 <div className="mt-6 text-center">
                   <p>

@@ -111,6 +111,7 @@ function App() {
             </>
           }
         />
+        
 
         <Route
           path="/not-authorized"
@@ -134,6 +135,10 @@ function App() {
               }
             />
           </Route>
+
+          {/* --------------------------------Super Admin Routes --------------------------------------------- */}
+
+
           <Route
             path="/companies"
             element={
@@ -149,6 +154,7 @@ function App() {
             path="/view-company/:id"
             element={
               <>
+               <ProtectedRoute allowedRoles={['super_admin']} />
                 <PageTitle title="Company Information" />
                 <ViewCompany />
               </>
@@ -158,24 +164,18 @@ function App() {
             path="/add-company"
             element={
               <>
+               <ProtectedRoute allowedRoles={['super_admin']} />
                 <PageTitle title="Add Company | Best Moving CRM Software" />
                 <AECompany />
               </>
             }
           />
-          <Route
-            path="/company-users"
-            element={
-              <>
-                <PageTitle title="Company Users | Best Moving CRM Software" />
-                <CompanyUsersLV />
-              </>
-            }
-          />
+          
           <Route
             path="/edit-company/:id"
             element={
               <>
+               <ProtectedRoute allowedRoles={['super_admin' ,'tenant_admin']} />
                 <PageTitle title="Edit Company | Best Moving CRM Software" />
                 <EditCompany />
               </>
@@ -185,6 +185,7 @@ function App() {
             path="/all-leads"
             element={
               <>
+               <ProtectedRoute allowedRoles={['super_admin' ,'tenant_admin']} />
                 <PageTitle title="Moventry | All Leads" />
                 <AllLeads />
               </>
@@ -194,6 +195,7 @@ function App() {
             path="/view-lead/:id"
             element={
               <>
+               <ProtectedRoute allowedRoles={['super_admin' ,'tenant_admin']} />
                 <PageTitle title="View Lead | Best Moving CRM Software" />
                 <ViewLead />
               </>
@@ -203,6 +205,7 @@ function App() {
             path="/users"
             element={
               <>
+               <ProtectedRoute allowedRoles={['super_admin' ,'tenant_admin']} />
                 <PageTitle title="Users management" />
                 <UsersLV />
               </>

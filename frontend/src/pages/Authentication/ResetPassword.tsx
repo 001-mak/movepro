@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation , useNavigate } from 'react-router-dom';
 import Logo from '../../images/logo/moventry-logo.png';
 import { postApiCall } from '../../services/api-service';
 import { useSelector } from 'react-redux';
@@ -19,7 +19,7 @@ const ResetPassword: React.FC = () => {
 
   
   const loggedIn = useSelector((state: any) => state.auth.isLoggedIn);
-
+  const navigate = useNavigate();
   if (loggedIn) {
     return <Navigate to="/" replace />;
   }
@@ -63,12 +63,16 @@ const ResetPassword: React.FC = () => {
 
     
     try {
-      await postApiCall('/auth/reset-password', { token :String(token) ,password : String(password) });
+      await postApiCall('/auth/reset-password', { token ,password  });
       setLoading(false);
-     toast.success('Password reset successfully!');
+      toast.success("Password reset successfully!", {
+        autoClose: 3000, 
+        onClose: () => {
+          navigate("/auth/signin"); 
+        }
+      });
    } catch (error) {
      setLoading(false);
-     toast.error('Failed reset password. Please try again');
    }
   };
   return (
