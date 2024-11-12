@@ -706,18 +706,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               Companies List
                             </NavLink>
                           </li>
-                          <li>
-                            <NavLink
-                              to="/company-users"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                              <RiTeamLine className="fill-current text-xl" />{' '}
-                              Company Users
-                            </NavLink>
-                          </li>
+                          
                           <li>
                             <NavLink
                               to="/add-company"
@@ -735,6 +724,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </React.Fragment>
                   )}
                 </SidebarLinkGroup>
+                
+                          <li>
+                  <NavLink
+                    to="/users"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                      pathname.includes('all-leads') &&
+                      'bg-graydark dark:bg-meta-4'
+                    }`}
+                  >
+                    <RiTeamLine className="fill-current text-xl" />
+                    Users
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink
                     to="/all-leads"
