@@ -84,9 +84,9 @@ const PaginatedTable = <T extends object>({
           pageSize,
           orderBy,
           orderDirection,
-          searchText,
-          ...searchFilters,
-          ...extraQueryParams
+          // searchText,
+          // ...searchFilters,
+          // ...extraQueryParams
         },
       }).then((res) => {
         setDropdownOpen(false);

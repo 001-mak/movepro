@@ -172,4 +172,4 @@ export const getUsersQuerySchema = Joi.object({
   searchText: Joi.string().optional(),
   searchFilters: Joi.string().optional(),
   // Add any other searchable fields as optional strings if needed
-}).unknown(false);
+}).unknown(false)
