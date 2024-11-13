@@ -34,11 +34,12 @@ export const handleGetUsers = async (req: Request, res: Response) => {
         : { company_id: user.company_id, id: { not: user.id } };
 
     let orCondition = undefined;
-    if (Object.keys(req.query).length !== 0)
+    if (req.query.searchText){
       orCondition = searchFilters(
         ["first_name", "last_name", "email_id"],
         req.query
       );
+    } 
 
     // Query to get paginated users
     const users = await prismaClient.tbl_user.findMany({
@@ -74,10 +75,10 @@ export const handleGetUsers = async (req: Request, res: Response) => {
     console.error(error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       message: "Internal server error",
+      error,
     });
   }
 };
-
 
 export const handleCreateUser = async (req: Request, res: Response) => {
   const loggedInUser = req.user as ITokenData;
