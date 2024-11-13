@@ -5,6 +5,7 @@ import type {
     Lead,TypedRequest,PagedQuery
 }from '../interface/interface'
 import { ITokenData} from "../interface/interface";
+import { searchFilters } from "../utils/searchFilters";
 
 export const handleCreateLead = async (req: Request, res: Response) => {
   try {
@@ -380,105 +381,193 @@ export const handleUpdateLead = async (req: Request, res: Response) => {
 
 
 
-const buildWhereClause = (query: Record<string, any>) => {
-    const { searchText, email, first_name, last_name, phone } = query;
-    const where: Record<string, any> = {};
+// const buildWhereClause = (query: Record<string, any>) => {
+//     const { searchText, email, first_name, last_name, phone } = query;
+//     const where: Record<string, any> = {};
 
-    // Adding search conditions
-    if (searchText) {
-        where.OR = [
-            { email: { contains: searchText, mode: 'insensitive' } },
-            { first_name: { contains: searchText, mode: 'insensitive' } },
-            { last_name: { contains: searchText, mode: 'insensitive' } },
-            { phone: { contains: searchText } },
-        ];
-    }
+//     // Adding search conditions
+//     if (searchText) {
+//         where.OR = [
+//             { email: { contains: searchText, mode: 'insensitive' } },
+//             { first_name: { contains: searchText, mode: 'insensitive' } },
+//             { last_name: { contains: searchText, mode: 'insensitive' } },
+//             { phone: { contains: searchText } },
+//         ];
+//     }
 
-    // Adding individual filters
-    if (email) where.email = { contains: email, mode: 'insensitive' };
-    if (first_name) where.first_name = { contains: first_name, mode: 'insensitive' };
-    if (last_name) where.last_name = { contains: last_name, mode: 'insensitive' };
-    if (phone) where.phone = { contains: phone };
+//     // Adding individual filters
+//     if (email) where.email = { contains: email, mode: 'insensitive' };
+//     if (first_name) where.first_name = { contains: first_name, mode: 'insensitive' };
+//     if (last_name) where.last_name = { contains: last_name, mode: 'insensitive' };
+//     if (phone) where.phone = { contains: phone };
 
-    return where;
+//     return where;
+// };
+
+
+// export const handleGetPagedLead = async (req: Request, res: Response) => {
+//     try {
+//         // Check for user authentication
+//         const user= req.user; // Assuming req.user is set by your authentication middleware
+//         if (!user || !user.id || !user.company_id) {
+//             return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
+//         }
+
+//         console.log("Query Parameters:", req.query);
+
+//         // Default values for pagination and sorting
+//         const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+//         const pageSize = parseInt(req.query.pageSize as string) || 10;
+//         const orderBy = (req.query.orderBy as string) || 'id';
+//         const orderDirection = (req.query.orderDirection as string) || 'asc';
+
+//         // Calculate skip for pagination
+//         const skip = (pageIndex - 1) * pageSize;
+
+//         // Build where clause using the query parameters
+//         const whereClause = buildWhereClause(req.query);
+//         console.log("Where Clause:", whereClause);
+        
+//         // Fetch leads and total count in a single transaction
+//         const [leads, total] = await prismaClient.$transaction([
+//             prismaClient.tbl_leads.findMany({
+//                 where: {
+//                     ...whereClause,
+//                     company_id: user.company_id, // Ensure we only fetch leads for the user's company
+//                 },
+//                 skip,
+//                 take: pageSize,
+//                 orderBy: {
+//                     [orderBy]: orderDirection,
+//                 },
+//                 select: {
+//                     id: true,
+//                     company_id: true,
+//                     first_name: true,
+//                     last_name: true,
+//                     phone: true,
+//                     email: true,
+//                     JobType: true,
+//                     ServiceType: true,
+//                     MoveDate: true,
+//                     MoveTime: true,
+//                     EstimatedDate: true,
+//                     EstimatedTime: true,
+//                     insert_time: true,
+//                     distance: true,
+//                     lead_status: true,
+//                     book_date: true,
+//                     complete_date: true,
+//                     accept_status: true,
+//                     reject_reason: true,
+//                 },
+//             }),
+//             prismaClient.tbl_leads.count({
+//                 where: {
+//                     ...whereClause,
+//                     company_id: user.company_id, // Ensure we only count leads belonging to the user's company
+//                 }
+//             }),
+//         ]);
+
+//         // Send response with leads and pagination info
+//         res.json({
+//             data: leads,
+//             total,
+//             pageIndex,
+//             pageSize,
+//             totalPages: Math.ceil(total / pageSize),
+//         });
+//     } catch (error) {
+//         console.error('Error fetching paged leads:', error);
+//         res.status(500).json({ error: `Error fetching paged leads: ${(error as Error).message}` });
+//     }
+// };
+
+
+const selectLeadData = {
+    id: true,
+    company_id: true,
+    first_name: true,
+    last_name: true,
+    phone: true,
+    email: true,
+    JobType: true,
+    ServiceType: true,
+    MoveDate: true,
+    MoveTime: true,
+    EstimatedDate: true,
+    EstimatedTime: true,
+    insert_time: true,
+    distance: true,
+    lead_status: true,
+    book_date: true,
+    complete_date: true,
+    accept_status: true,
+    reject_reason: true,
+
 };
 
 
 export const handleGetPagedLead = async (req: Request, res: Response) => {
     try {
-        // Check for user authentication
-        const user= req.user; // Assuming req.user is set by your authentication middleware
-        if (!user || !user.id || !user.company_id) {
-            return res.status(401).json({ message: 'Unauthorized. User is not authenticated.' });
-        }
-
-        console.log("Query Parameters:", req.query);
-
-        // Default values for pagination and sorting
-        const pageIndex = parseInt(req.query.pageIndex as string) || 1;
-        const pageSize = parseInt(req.query.pageSize as string) || 10;
-        const orderBy = (req.query.orderBy as string) || 'id';
-        const orderDirection = (req.query.orderDirection as string) || 'asc';
-
-        // Calculate skip for pagination
-        const skip = (pageIndex - 1) * pageSize;
-
-        // Build where clause using the query parameters
-        const whereClause = buildWhereClause(req.query);
-        console.log("Where Clause:", whereClause);
-        
-        // Fetch leads and total count in a single transaction
-        const [leads, total] = await prismaClient.$transaction([
-            prismaClient.tbl_leads.findMany({
-                where: {
-                    ...whereClause,
-                    company_id: user.company_id, // Ensure we only fetch leads for the user's company
-                },
-                skip,
-                take: pageSize,
-                orderBy: {
-                    [orderBy]: orderDirection,
-                },
-                select: {
-                    id: true,
-                    company_id: true,
-                    first_name: true,
-                    last_name: true,
-                    phone: true,
-                    email: true,
-                    JobType: true,
-                    ServiceType: true,
-                    MoveDate: true,
-                    MoveTime: true,
-                    EstimatedDate: true,
-                    EstimatedTime: true,
-                    insert_time: true,
-                    distance: true,
-                    lead_status: true,
-                    book_date: true,
-                    complete_date: true,
-                    accept_status: true,
-                    reject_reason: true,
-                },
-            }),
-            prismaClient.tbl_leads.count({
-                where: {
-                    ...whereClause,
-                    company_id: user.company_id, // Ensure we only count leads belonging to the user's company
-                }
-            }),
-        ]);
-
-        // Send response with leads and pagination info
-        res.json({
-            data: leads,
-            total,
-            pageIndex,
-            pageSize,
-            totalPages: Math.ceil(total / pageSize),
-        });
+      const user = req.user as ITokenData;
+      // Default values for pagination and sorting
+      const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const orderBy = (req.query.orderBy as string) || "id";
+      const orderDirection = (req.query.orderDirection as string) || "asc";
+  
+      // Calculate skip for pagination
+      const skip = (pageIndex - 1) * pageSize;
+  
+      const accessFilter =
+        user.user_role === "super_admin"
+          ? { id: { not: user.id } }
+          : { company_id: user.company_id, id: { not: user.id } };
+  
+      let orCondition = undefined;
+      if (Object.keys(req.query).length !== 0)
+        orCondition = searchFilters(
+          ["first_name", "last_name", "email_id"],
+          req.query
+        );
+  
+      // Query to get paginated users
+      const users = await prismaClient.tbl_user.findMany({
+        skip,
+        take: pageSize,
+        orderBy: {
+          [orderBy]: orderDirection,
+        },
+        where: {
+          AND: [accessFilter],
+          OR: orCondition,
+        },
+        select: {
+          ...selectLeadData,
+        },
+      });
+  
+      // Query to get the total number of users matching criteria without pagination
+      const total = await prismaClient.tbl_user.count({
+        where: {
+          AND: [accessFilter],
+          OR: orCondition,
+        },
+      });
+  
+      // Calculate total pages
+      const totalPages = Math.ceil(total / pageSize);
+  
+      return res
+        .status(httpStatus.OK)
+        .json({ data: users, total, pageIndex, pageSize, totalPages });
     } catch (error) {
-        console.error('Error fetching paged leads:', error);
-        res.status(500).json({ error: `Error fetching paged leads: ${(error as Error).message}` });
+      console.error(error);
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        message: "Internal server error",
+      });
     }
-};
+  };
+  
