@@ -3,6 +3,7 @@ import { useTable, useSortBy, usePagination, Column } from 'react-table';
 import { getApiCall } from '../../services/api-service';
 import { MdSearch } from 'react-icons/md';
 import { FormProvider, useForm } from 'react-hook-form';
+import { IoFilter, IoCloseCircle } from "react-icons/io5";
 
 interface PaginatedTableProps<T extends object> {
   columns: Column<T>[];
@@ -18,6 +19,11 @@ interface PaginatedTableProps<T extends object> {
   pagedApiUrl?: string;
   searchFormFields?: any;
   extraQueryParams?: any
+  filterFields?: IFilterFields[]
+}
+export interface IFilterFields {
+  id: string;
+  label: string;
 }
 
 const PaginatedTable = <T extends object>({
@@ -25,16 +31,16 @@ const PaginatedTable = <T extends object>({
   actions,
   customButton,
   pagedApiUrl,
-  searchFormFields,
-  extraQueryParams
+  filterFields,
+  extraQueryParams,
 }: PaginatedTableProps<T>) => {
   const [pageData, setPageData] = useState<T[]>([]);
   const [pageCount, setPageCount] = useState(0);
-
-  const [searchFilters, setSearchFilters] = useState({});
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [searchFilters, setSearchFilters] = useState([]);
   const [searchText, setSearchText] = useState('');
   const methods = useForm();
-  
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -68,7 +74,8 @@ const PaginatedTable = <T extends object>({
     pageIndex: number,
     pageSize: number,
     sortBy: any[],
-    searchFilters: any,
+    searchFilters?: any[],
+    searchText?: string,
   ) => {
     try {
       const orderBy = sortBy.length ? sortBy[0].id : columns[0].accessor;
@@ -77,20 +84,25 @@ const PaginatedTable = <T extends object>({
           ? 'desc'
           : 'asc'
         : 'desc';
-
-      getApiCall(`${pagedApiUrl}`,null,{
-        params: {
-          pageIndex: pageIndex + 1,
-          pageSize,
-          orderBy,
-          orderDirection,
-          // searchText,
-          // ...searchFilters,
-          // ...extraQueryParams
-        },
+  
+      const params: Record<string, any> = {
+        pageIndex: pageIndex + 1,
+        pageSize,
+        orderBy,
+        orderDirection,
+      };
+  
+      // Conditionally add searchText if it has a value
+      if (searchText) params.searchText = searchText;
+  
+      // Convert searchFilters array to comma-separated string if it exists and has elements
+      if (searchFilters && searchFilters.length > 0) {
+        params.searchFilters = searchFilters.join(',');
+      }
+  
+      getApiCall(`${pagedApiUrl}`, null, {
+        params,
       }).then((res) => {
-        setDropdownOpen(false);
-        console.log(res.data);
         setPageData(res.data.data);
         setPageCount(res.data.totalPages);
       });
@@ -98,9 +110,83 @@ const PaginatedTable = <T extends object>({
       console.error('Error fetching data:', error);
     }
   };
+  
+  
+  const CustomCheckbox = ({ id, label, checked, onChange }: { id: string; label: string; checked: boolean; onChange: () => void }) => {
+    const handleClick = (e: React.MouseEvent) => {
+      e.preventDefault();  // Prevent default behavior
+      e.stopPropagation(); // Stop event propagation
+      onChange();
+    };
 
+    return (
+      <div onClick={handleClick} className="w-full">
+        <label
+          htmlFor={id}
+          className="flex cursor-pointer select-none items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="relative">
+            <input
+              type="checkbox"
+              id={id}
+              className="sr-only"
+              checked={checked}
+              onChange={(e) => {
+                e.stopPropagation();
+                onChange();
+              }}
+            />
+            <div
+              className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${checked && 'border-primary bg-gray dark:bg-transparent'
+                }`}
+            >
+              <span
+                className={`h-2.5 w-2.5 rounded-sm ${checked && 'bg-primary'}`}
+              ></span>
+            </div>
+          </div>
+          {label}
+        </label>
+      </div>
+    );
+  };
+
+  
+
+  // const onSubmit = (formData: any) => {
+  //   setSearchFilters(formData);
+  //   let aa = methods.watch();
+  //   setSearchFilters({...aa});
+  // };
+
+  const resetFilters = () => {
+    setSelectedFilters([]);
+    fetchData(pageIndex, pageSize, sortBy, selectedFilters, searchText);
+};
+
+  const handleFilterChange = (fieldId: string) => {
+    setSelectedFilters(prev => {
+      if (prev.includes(fieldId)) {
+        // If ID exists, remove it
+        return prev.filter(id => id !== fieldId);
+      } else {
+        // If ID doesn't exist, add it
+        return [...prev, fieldId];
+      }
+    });
+    setDropdownOpen(true);
+  };
+
+  // New function to handle apply filters
+  const handleApplyFilters = () => {
+    fetchData(pageIndex, pageSize, sortBy, selectedFilters , searchText);
+    setDropdownOpen(false); // Only close dropdown when explicitly applying filters
+    
+
+  };
   useEffect(() => {
-    fetchData(pageIndex, pageSize, sortBy, searchFilters);
+    fetchData(pageIndex, pageSize, sortBy, selectedFilters, searchText);
   }, [pageIndex, pageSize, sortBy, searchFilters]);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -108,7 +194,7 @@ const PaginatedTable = <T extends object>({
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
-  // close on click outside
+
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
       if (!dropdown.current) return;
@@ -133,14 +219,6 @@ const PaginatedTable = <T extends object>({
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
-
-  const onSubmit = (formData: any) => {
-    setSearchFilters(formData);
-    let aa = methods.watch();
-
-    setSearchFilters({...aa});
-  };
-
   return (
     <section className="data-table-common data-table-two rounded-sm border border-stroke bg-white py-4 shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex justify-between border-b border-stroke px-4 pb-4 dark:border-strokedark">
@@ -163,83 +241,59 @@ const PaginatedTable = <T extends object>({
             placeholder="Search..."
           />
           <div className="relative flex ml-1">
-            {searchFormFields && (
+            {filterFields && filterFields.length > 0 && (
               <>
                 <button
                   className="text-primary hover:text-body"
                   ref={trigger}
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <svg
-                    className="fill-current"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 18 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M2.25 11.25C3.49264 11.25 4.5 10.2426 4.5 9C4.5 7.75736 3.49264 6.75 2.25 6.75C1.00736 6.75 0 7.75736 0 9C0 10.2426 1.00736 11.25 2.25 11.25Z"
-                      fill=""
-                    />
-                    <path
-                      d="M9 11.25C10.2426 11.25 11.25 10.2426 11.25 9C11.25 7.75736 10.2426 6.75 9 6.75C7.75736 6.75 6.75 7.75736 6.75 9C6.75 10.2426 7.75736 11.25 9 11.25Z"
-                      fill=""
-                    />
-                    <path
-                      d="M15.75 11.25C16.9926 11.25 18 10.2426 18 9C18 7.75736 16.9926 6.75 15.75 6.75C14.5074 6.75 13.5 7.75736 13.5 9C13.5 10.2426 14.5074 11.25 15.75 11.25Z"
-                      fill=""
-                    />
-                  </svg>
+                  <IoFilter className="text-2xl" />
                 </button>
 
                 <div
                   ref={dropdown}
-                  onFocus={() => setDropdownOpen(true)}
-                  className={`absolute right-0 top-10 z-40 w-70  space-y-1 rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark ${
-                    dropdownOpen === true ? 'block' : 'hidden'
-                  }`}
+                  className={`absolute right-0 top-10 z-40 w-70 space-y-1 rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen ? 'block' : 'hidden'
+                    }`}
                 >
-                  <FormProvider {...methods}>
-                    <form onSubmit={methods.handleSubmit(onSubmit)}>
-                      <div className="">
-                        {searchFormFields}
-                        <div className='flex gap-x-6 justify-end mt-5'>
-                        
-                        <div className=" flex items-end justify-center">
-
-                        <button className="flex w-full items-end justify-center rounded bg-primary py-2 px-4 font-medium text-gray hover:bg-opacity-90"
-                          onClick={()=>{
-                            setSearchFilters({});
-                            let currentValues = methods.watch();
-                            const updatedValues = Object.keys(currentValues).reduce((acc:any, key) => {
-                              acc[key] = '';
-                              return acc;
-                            }, {});
-                            
-                            methods.reset(updatedValues);
-                            setSearchText('');
-                          }}>
-                            Reset
-                          </button>
-                        </div>
-                        <div className="flex items-end justify-center ">
-                          <input
-                            type="submit"
-                            className="flex w-full items-end justify-center rounded bg-primary py-2 px-3 font-medium text-gray hover:bg-opacity-90"
+                  <div className="space-y-4">
+                    {filterFields && filterFields.length > 0 && (
+                      <>
+                        {filterFields.map((field) => (
+                          <CustomCheckbox
+                            key={field.id}
+                            id={field.id}
+                            label={field.label}
+                            checked={selectedFilters.includes(field.id)}
+                            onChange={() => handleFilterChange(field.id)}
                           />
-                        </div>
-                        </div>
-
-                      </div>
-                    </form>
-                  </FormProvider>
+                        ))}
+                      </>
+                    )}
+                    <div className="flex gap-x-6 justify-end mt-5">
+                      <button
+                        className="flex items-center justify-center rounded bg-primary py-2 px-4 font-medium text-gray hover:bg-opacity-90"
+                        onClick={resetFilters}
+                      >
+                        Reset
+                      </button>
+                      <button
+                        disabled={!searchText}
+                        className={`flex items-center justify-center rounded bg-primary py-2 px-4 font-medium text-gray hover:bg-opacity-90 ${searchText ? "cursor-pointer" : "cursor-not-allowed"
+                          }`}
+                        onClick={handleApplyFilters}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
           </div>
+
           <button className="inline justify-center rounded bg-primary px-2 py-2.5 ml-1 font-medium text-gray hover:bg-opacity-90"
-            onClick={()=>fetchData(pageIndex, pageSize, sortBy, searchFilters)}>
+            onClick={() => fetchData(pageIndex, pageSize, sortBy, selectedFilters, searchText)}>
             <MdSearch className="fill-current text-xl" />
           </button>
         </div>
@@ -321,7 +375,7 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleView && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => console.log("H")}
+                          onClick={() => { }}
                         >
                           <svg
                             className="fill-current"

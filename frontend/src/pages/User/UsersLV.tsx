@@ -2,6 +2,7 @@ import { Column } from 'react-table';
 import { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import PaginatedTable from '../../components/Tables/PaginatedTable';
+import { IFilterFields } from '../../components/Tables/PaginatedTable';
 import { useNavigate } from 'react-router-dom';
 import CheckboxOne from '../../components/Checkboxes/CheckboxOne';
 
@@ -40,6 +41,13 @@ const userColumns: Column<any>[] = [
     Header: 'User Role',
     accessor: 'user_role',
   },
+];
+
+const filterFields = [
+  { id: 'email_id', label: 'Email' },
+  { id: 'first_name', label: 'First Name' },
+  { id: 'last_name', label: 'Last Name' },
+  { id: 'phone_no', label: 'Phone Number' }
 ];
 
 const UsersLV = () => {
@@ -84,32 +92,10 @@ const UsersLV = () => {
         columns={userColumns}
         actions={actions}
         customButton={customButton}
+        filterFields={filterFields}
         extraQueryParams={{
-          admin_users: true,
-          ...selectedFields
+          admin_users: true
         }}
-        searchFormFields={
-          <div className="space-y-4">
-            <CheckboxOne
-              id="email_id"
-              checked={selectedFields.email_id}
-              onChange={() => handleCheckboxChange('email_id')}
-              label="Email"
-            />
-            <CheckboxOne
-              id="first_name"
-              checked={selectedFields.first_name}
-              onChange={() => handleCheckboxChange('first_name')}
-              label="First Name"
-            />
-            <CheckboxOne
-              id="phone_no"
-              checked={selectedFields.phone_no}
-              onChange={() => handleCheckboxChange('phone_no')}
-              label="Phone Number"
-            />
-          </div>
-        }
       />
     </>
   );

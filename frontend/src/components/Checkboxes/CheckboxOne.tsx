@@ -12,7 +12,7 @@ const CheckboxOne: React.FC<CheckboxOneProps> = ({ label, id, checked, onChange 
     <div>
       <label
         htmlFor={id}
-        className="flex cursor-pointer select-none items-center"
+        className="flex cursor-pointer select-none items-center "
       >
         <div className="relative">
           <input
