@@ -54,8 +54,6 @@ const PaginatedTable = <T extends object>({
     nextPage,
     previousPage,
     setPageSize,
-    globalFilter,
-    setGlobalFilter,
     state: { pageIndex, pageSize, sortBy },
   } = useTable(
     {
@@ -78,6 +76,14 @@ const PaginatedTable = <T extends object>({
     searchText?: string,
   ) => {
     try {
+      console.log('Fetching data with:', {
+        pageIndex,
+        pageSize,
+        sortBy,
+        searchFilters,
+        searchText,
+      });
+  
       const orderBy = sortBy.length ? sortBy[0].id : columns[0].accessor;
       const orderDirection = sortBy.length
         ? sortBy[0].desc
@@ -92,20 +98,17 @@ const PaginatedTable = <T extends object>({
         orderDirection,
       };
   
-      // Conditionally add searchText if it has a value
       if (searchText) params.searchText = searchText;
-  
-      // Convert searchFilters array to comma-separated string if it exists and has elements
       if (searchFilters && searchFilters.length > 0) {
         params.searchFilters = searchFilters.join(',');
       }
   
-      getApiCall(`${pagedApiUrl}`, null, {
+      const response = await getApiCall(`${pagedApiUrl}`, null, {
         params,
-      }).then((res) => {
-        setPageData(res.data.data);
-        setPageCount(res.data.totalPages);
       });
+      console.log('Fetched data:', response.data);
+      setPageData(response.data.data);
+      setPageCount(response.data.totalPages);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -154,11 +157,7 @@ const PaginatedTable = <T extends object>({
 
   
 
-  // const onSubmit = (formData: any) => {
-  //   setSearchFilters(formData);
-  //   let aa = methods.watch();
-  //   setSearchFilters({...aa});
-  // };
+  
 
   const resetFilters = () => {
     setSelectedFilters([]);
