@@ -26,6 +26,13 @@ export interface IFilterFields {
   label: string;
 }
 
+interface DeleteConfirmationProps {
+  onDelete: () => void;
+  onCancel: () => void;
+}
+
+
+
 const PaginatedTable = <T extends object>({
   columns,
   actions,
@@ -39,6 +46,8 @@ const PaginatedTable = <T extends object>({
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [searchFilters, setSearchFilters] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [deleteRowId, setDeleteRowId] = useState<any>(null);
   const methods = useForm();
 
   const {
@@ -155,6 +164,54 @@ const PaginatedTable = <T extends object>({
     );
   };
 
+
+  const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({ onDelete, onCancel }) => {
+    const popupRef = useRef<HTMLDivElement>(null);
+  
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+          onCancel(); // Close the popup when clicking outside
+        }
+      };
+  
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [onCancel]);
+  
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-10">
+        <div ref={popupRef} className="bg-white rounded-md shadow-lg p-8 w-full max-w-md">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Confirm Delete</h3>
+            <button className="text-gray-500 hover:text-gray-700" onClick={onCancel}>
+              <IoCloseCircle size={24} />
+            </button>
+          </div>
+          <p className="mb-6">Are you sure you want to delete this item?</p>
+          <div className="flex justify-end">
+            <button
+              className="bg-primary text-white px-4 py-2 rounded-md mr-2 hover:bg-opacity-90"
+              onClick={onDelete}
+            >
+              Yes
+            </button>
+            <button
+              className="text-gray-500 px-4 py-2 rounded-md hover:bg-gray-100"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  
+  
   
 
   
@@ -184,6 +241,23 @@ const PaginatedTable = <T extends object>({
     
 
   };
+
+  const handleDelete = (rowId: any) => {
+    setDeleteRowId(rowId);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = () => {
+    if (actions && actions.handleDelete) {
+      actions.handleDelete(deleteRowId);
+    }
+    setShowDeleteConfirmation(false);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(false);
+  };
+
   useEffect(() => {
     fetchData(pageIndex, pageSize, sortBy, selectedFilters, searchText);
   }, [pageIndex, pageSize, sortBy, searchFilters]);
@@ -374,7 +448,7 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleView && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => { }}
+                          onClick={() => {actions.handleView && actions.handleView(row.original.id)}}
                         >
                           <svg
                             className="fill-current"
@@ -398,7 +472,7 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleEdit && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => console.log("h")}
+                          onClick={() => {actions.handleEdit && actions.handleEdit(row.original.id)}}
                         >
                           <svg
                             width="17"
@@ -417,7 +491,10 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleDelete && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => console.log("h")}
+                          onClick={() => {
+                            setDeleteRowId(row.original.id);
+                            setShowDeleteConfirmation(true);
+                          }}
                         >
                           <svg
                             className="fill-current"
@@ -446,6 +523,9 @@ const PaginatedTable = <T extends object>({
                           </svg>
                         </button>
                       )}
+                      {showDeleteConfirmation && (
+        <DeleteConfirmation onDelete={confirmDelete} onCancel={cancelDelete} />
+      )}
                     </div>
                   </td>
                 </tr>

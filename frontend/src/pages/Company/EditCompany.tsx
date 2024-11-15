@@ -80,250 +80,153 @@ function EditCompany() {
         </div>
         {packages && (
           <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)}>
-              <div className="grid grid-cols-1 gap-4 py-4 px-6.5 sm:grid-cols-3">
-                <div className="mb-5.5">
-                  <InputField
-                    name="email_id"
-                    label="Email"
-                    type="email"
-                    required={true}
-                    errMsg="Email is required"
-                    disabled={isEditMode}
-                    maxLength={250}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="company_name"
-                    label="Company Name"
-                    type="text"
-                    required={true}
-                    errMsg="Company Name is required"
-                    maxLength={250}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="slogan"
-                    label="Company Slogan"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={100}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="street"
-                    label="Street Address"
-                    type="text"
-                    required={true}
-                    errMsg="Street Address is required"
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="city"
-                    label="City"
-                    type="text"
-                    required={true}
-                    errMsg="City is required"
-                    maxLength={50}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="state"
-                    label="State"
-                    type="text"
-                    required={true}
-                    errMsg="State is required"
-                    maxLength={50}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="zip"
-                    label="Zipcode"
-                    type="text"
-                    required={true}
-                    errMsg="Zipcode is required"
-                    maxLength={10}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="country"
-                    label="Country"
-                    type="text"
-                    required={true}
-                    errMsg="Country is required"
-                    maxLength={50}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <SelectOption
-                    name="plan_purchased"
-                    label="Package Plan"
-                    required={true}
-                    value={packages ?? []}
-                    errMsg="Package plan is required"
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <SelectOption
-                    name="plan_purchased_status"
-                    label="Company Status"
-                    required={true}
-                    value={[
-                      { Label: 'InActive', Value: 0 },
-                      { Label: 'Active', Value: 1 },
-                    ]}
-                    errMsg="Company Status is required"
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="website"
-                    label="Website"
-                    type="text"
-                    required={false}
-                    errMsg="Website is required"
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="social_fb"
-                    label="Facebook Link"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="social_tw"
-                    label="Twitter Link"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="social_in"
-                    label="Linkedin Link"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="social_insta"
-                    label="Instagram Link"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="social_tube"
-                    label="Youtube Link"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="tax_id"
-                    label="Tax ID"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={100}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="us_dot"
-                    label="US Dot"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={100}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="company_mc"
-                    label="Company MC"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={100}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="minimum_hour"
-                    label="Minimum Hour"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={100}
-                  />
-                </div>
-
-                <div className="mb-5.5">
-                  <InputField
-                    name="social_pin"
-                    label="Social Pin"
-                    type="text"
-                    required={false}
-                    errMsg=""
-                    maxLength={255}
-                  />
-                </div>
-
-                <div className="mb-5.5 lg:px-10 flex items-end justify-center">
-                  <input
-                    type="submit"
-                    className="flex w-full items-end justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                  />
-                </div>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
+            <div className="grid grid-cols-1 gap-4 py-4 px-6.5 sm:grid-cols-3">
+              <div className="mb-4.5">
+                <InputField
+                  name="first_name"
+                  label="First Name"
+                  type="text"
+                  required={true}
+                  minLength={2}
+                  maxLength={50}
+                />
               </div>
-            </form>
-          </FormProvider>
+
+              <div className="mb-4.5">
+                <InputField
+                  name="last_name"
+                  label="Last Name"
+                  type="text"
+                  required={true}
+                  minLength={2}
+                  maxLength={50}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="email_id"
+                  label="Email"
+                  type="email"
+                  required={true}
+                  minLength={2}
+                  disabled={isEditMode}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="ssn"
+                  label="SSN"
+                  type="number"
+                  required={true}
+                  minLength={9}
+                  maxLength={9}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="phone_no"
+                  label="Phone Number"
+                  type="number"
+                  required={true}
+                  minLength={10}
+                  maxLength={15}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="company_name"
+                  label="Company Name"
+                  type="text"
+                  required={true}
+                  minLength={3}
+                  maxLength={150}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="street"
+                  label="Street Address"
+                  type="text"
+                  required={true}
+                  minLength={2}
+                  maxLength={250}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="city"
+                  label="City"
+                  type="text"
+                  required={true}
+                  minLength={2}
+                  maxLength={250}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="state"
+                  label="State"
+                  type="text"
+                  required={true}
+                  minLength={2}
+                  maxLength={250}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="country"
+                  label="Country"
+                  type="text"
+                  required={true}
+                  minLength={2}
+                  maxLength={250}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="zip"
+                  label="Zipcode"
+                  type="number"
+                  required={true}
+                  minLength={5}
+                  maxLength={5}
+                />
+              </div>
+
+              <div className="mb-5.5">
+                <InputField
+                  name="password"
+                  label="Password"
+                  type="password"
+                  required={true}
+                  minLength={8}
+                  maxLength={250}
+                />
+              </div>
+
+            </div>
+            <div className="mb-5.5 flex items-end px-6.5 col-12">
+              <input
+                value={` ${isEditMode ? "Edit Account" : "Create Account"}`}
+                type="submit"
+                className="flex w-full lg:w-1/5 items-end justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+              />
+            </div>
+            
+          </form>
+        </FormProvider>
+
+                
         )}
       </div>
     </>

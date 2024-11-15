@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({allowedRoles }) => {
   const user = useSelector((state:any)=>state.auth.user)
   const isLoggedIn = useSelector((state:any)=>state.auth.isLoggedIn)
-  console.log(user)
+  
 
   if (!user || !isLoggedIn) {
     return <Navigate to="/auth/signin" replace />;

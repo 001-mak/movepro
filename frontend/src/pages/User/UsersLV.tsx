@@ -2,7 +2,8 @@ import { Column } from 'react-table';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import PaginatedTable from '../../components/Tables/PaginatedTable';
 import { useNavigate } from 'react-router-dom';
-
+import { deleteApiCall } from '../../services/api-service';
+import { toast } from 'react-toastify';
 // Define the type for the fields
 
 
@@ -48,23 +49,33 @@ const UsersLV = () => {
  
 
   const actions = {
-    handleView: (row: any) => {
-      navigate('/add-user');
+    handleView: (id: any) => {
+      navigate(`/view-user/${id}`);
     },
-    handleEdit: (row: any) => {
-      navigate(`/edit-user/${row.id}`);
+    // handleEdit: (row: any) => {
+    //   navigate(`/edit-user/${row.id}`);
+    // },
+    handleDelete: async (id: any) => {
+      console.log(id)
+      try {
+        await deleteApiCall(`/users/${id}`);
+       
+        toast.success('User deleted successfully', { autoClose: 2000 });
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+
+        // Optionally, refresh data or update UI here
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error('Failed to delete user');
+      }
     },
-    handleDelete: () => { },
   };
 
-  const handleButton = () => {
-    navigate('/add-user');
-  };
+  
 
-  const customButton = {
-    buttonLabel: 'Add New',
-    handleButton,
-  };
+  
 
   return (
     <>
@@ -73,7 +84,7 @@ const UsersLV = () => {
         pagedApiUrl="/users"
         columns={userColumns}
         actions={actions}
-        customButton={customButton}
+        // customButton={customButton}
         filterFields={filterFields}
         extraQueryParams={{
           admin_users: true

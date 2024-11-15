@@ -221,7 +221,7 @@ function App() {
             }
           />
           <Route
-            path="/edit-user/:id"
+            path="/view-user/:id"
             element={
               <>
                 <PageTitle title="Edit User | Best Moving CRM Software" />

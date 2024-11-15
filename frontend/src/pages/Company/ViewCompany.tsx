@@ -12,6 +12,7 @@ function ViewCompany() {
       try {
         const { data }: any = await getApiCall(`/companies/${id}`);
         setCompany(data);
+        console.log("Data" , data)
       } catch (error) {
         console.error('Error fetching company data:', error);
       }
@@ -25,7 +26,7 @@ function ViewCompany() {
 
   return (
     <>
-      <Breadcrumb pageName="Company" />
+      <Breadcrumb pageName="View Company" />
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
           <h3 className="font-medium text-black dark:text-white">
