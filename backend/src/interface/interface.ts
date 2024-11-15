@@ -229,3 +229,8 @@ export interface ICompany {
   user_id: number;
   subscription_plan_id?: number;
 }
+
+export interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+  profilePictureBase64?: string;
+}

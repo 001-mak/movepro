@@ -77,46 +77,84 @@ export const handleCreateLead = async (req: Request, res: Response) => {
 
 
 
-export const handleGetAllLeads = async (req: TypedRequest, res: Response) => {
+export const handleGetLeads = async (req: TypedRequest, res: Response) => {
+    const selectLeadData = {
+        first_name: true,
+        last_name: true,
+        email: true,
+        phone: true,
+        JobType: true,
+        ServiceType: true,
+        MoveDate: true,
+        MoveTime: true,
+        LoadingCity: true,
+        UnloadingCity: true,
+        company_id: true,
+        lead_status: true
+    };
     try {
         const user = req.user as ITokenData;
+         // Default values for pagination and sorting
+    const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const orderBy = (req.query.orderBy as string) || "id";
+    const orderDirection = (req.query.orderDirection as string) || "asc";
+
+    // Calculate skip for pagination
+    const skip = (pageIndex - 1) * pageSize;
+    const accessFilter =
+    user.user_role === "super_admin"
+      ? { id: { not: user.id } }
+      : { company_id: user.company_id, id: { not: user.id } };
+
+  let orCondition = undefined;
+  if (req.query.searchText){
+    orCondition = searchFilters(
+      ["first_name", "last_name", "email_id"],
+      req.query
+    );
+  } 
         if (!user) {
             return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized. User is not authenticated.' });
         }
-        const leadFilter: { company_id?: number } = {};
-        if (user.user_role === 'tenant_admin') {
-            leadFilter.company_id = user.company_id; 
-        }
+        
      
         const leads = await prismaClient.tbl_leads.findMany({
-            where: leadFilter,
-            select: {
-                first_name: true,
-                last_name: true,
-                email: true,
-                phone: true,
-                JobType: true,
-                ServiceType: true,
-                MoveDate: true,
-                MoveTime: true,
-                LoadingCity: true,
-                UnloadingCity: true,
-                company_id: true,
-                lead_status:true
+            skip,
+            take: pageSize,
+            orderBy: {
+              [orderBy]: orderDirection,
             },
-        });
+            where: {
+              AND: [accessFilter],
+              OR: orCondition,
+            },
+            select: {
+              ...selectLeadData,
+            },
+          });
+      
 
-        if (!leads || leads.length === 0) {
-            return res.status(httpStatus.OK).json({ message: 'No leads found for the specified criteria.' });
-        }
+       
 
 
-        return res.status(httpStatus.OK).json(leads);
+    // Query to get the total number of users matching criteria without pagination
+    const total = await prismaClient.tbl_leads.count({
+        where: {
+          AND: [accessFilter],
+          OR: orCondition,
+        },
+      });
+  
+      // Calculate total pages
+      const totalPages = Math.ceil(total / pageSize);
+  
+      return res
+        .status(httpStatus.OK)
+        .json({ data: leads, total, pageIndex, pageSize, totalPages });
 
     } catch (error: any) {
         console.error('Error fetching leads:', error);
-
-    
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error.', error: error.message });
     }
 };
@@ -509,65 +547,65 @@ const selectLeadData = {
 };
 
 
-export const handleGetPagedLead = async (req: Request, res: Response) => {
-    try {
-      const user = req.user as ITokenData;
-      // Default values for pagination and sorting
-      const pageIndex = parseInt(req.query.pageIndex as string) || 1;
-      const pageSize = parseInt(req.query.pageSize as string) || 10;
-      const orderBy = (req.query.orderBy as string) || "id";
-      const orderDirection = (req.query.orderDirection as string) || "asc";
+// export const handleGetPagedLead = async (req: Request, res: Response) => {
+//     try {
+//       const user = req.user as ITokenData;
+//       // Default values for pagination and sorting
+//       const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+//       const pageSize = parseInt(req.query.pageSize as string) || 10;
+//       const orderBy = (req.query.orderBy as string) || "id";
+//       const orderDirection = (req.query.orderDirection as string) || "asc";
   
-      // Calculate skip for pagination
-      const skip = (pageIndex - 1) * pageSize;
+//       // Calculate skip for pagination
+//       const skip = (pageIndex - 1) * pageSize;
   
-      const accessFilter =
-        user.user_role === "super_admin"
-          ? { id: { not: user.id } }
-          : { company_id: user.company_id, id: { not: user.id } };
+//       const accessFilter =
+//         user.user_role === "super_admin"
+//           ? { id: { not: user.id } }
+//           : { company_id: user.company_id, id: { not: user.id } };
   
-      let orCondition = undefined;
-      if (Object.keys(req.query).length !== 0)
-        orCondition = searchFilters(
-          ["first_name", "last_name", "email_id"],
-          req.query
-        );
+//       let orCondition = undefined;
+//       if (Object.keys(req.query).length !== 0)
+//         orCondition = searchFilters(
+//           ["first_name", "last_name", "email_id"],
+//           req.query
+//         );
   
-      // Query to get paginated users
-      const users = await prismaClient.tbl_user.findMany({
-        skip,
-        take: pageSize,
-        orderBy: {
-          [orderBy]: orderDirection,
-        },
-        where: {
-          AND: [accessFilter],
-          OR: orCondition,
-        },
-        select: {
-          ...selectLeadData,
-        },
-      });
+//       // Query to get paginated users
+//       const users = await prismaClient.tbl_user.findMany({
+//         skip,
+//         take: pageSize,
+//         orderBy: {
+//           [orderBy]: orderDirection,
+//         },
+//         where: {
+//           AND: [accessFilter],
+//           OR: orCondition,
+//         },
+//         select: {
+//           ...selectLeadData,
+//         },
+//       });
   
-      // Query to get the total number of users matching criteria without pagination
-      const total = await prismaClient.tbl_user.count({
-        where: {
-          AND: [accessFilter],
-          OR: orCondition,
-        },
-      });
+//       // Query to get the total number of users matching criteria without pagination
+//       const total = await prismaClient.tbl_user.count({
+//         where: {
+//           AND: [accessFilter],
+//           OR: orCondition,
+//         },
+//       });
   
-      // Calculate total pages
-      const totalPages = Math.ceil(total / pageSize);
+//       // Calculate total pages
+//       const totalPages = Math.ceil(total / pageSize);
   
-      return res
-        .status(httpStatus.OK)
-        .json({ data: users, total, pageIndex, pageSize, totalPages });
-    } catch (error) {
-      console.error(error);
-      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-        message: "Internal server error",
-      });
-    }
-  };
+//       return res
+//         .status(httpStatus.OK)
+//         .json({ data: users, total, pageIndex, pageSize, totalPages });
+//     } catch (error) {
+//       console.error(error);
+//       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//         message: "Internal server error",
+//       });
+//     }
+//   };
   
