@@ -74,7 +74,7 @@ export const handleGetAllMaterials = async (req: Request, res: Response) => {
   
       // If no materials found, return a message
       if (materials.length === 0) {
-        return res.status(404).json({ message: 'No materials found for this company' });
+        return res.status(200).json({ message: 'No materials found for this company' });
       }
   
       // Respond with the list of materials
@@ -116,9 +116,9 @@ export const handleGetMaterialById = async (req: Request, res: Response) => {
         },
       });
   
-      // If material is not found or does not belong to the company, return 404
+     
       if (!material) {
-        return res.status(404).json({ message: 'Material not found or unauthorized' });
+        return res.status(200).json({ message: 'Material not found ' });
       }
   
       // Respond with the found material
@@ -169,9 +169,9 @@ export const handleUpdateMaterial = async (req: Request, res: Response) => {
         },
       });
   
-      // If the material is not found or unauthorized, return a 404
+    
       if (!material) {
-        return res.status(404).json({ message: 'Material not found or unauthorized' });
+        return res.status(200).json({ message: 'Material not found ' });
       }
   
       // Update the material in the database
@@ -222,9 +222,8 @@ export const handleDeleteMaterial = async (req: Request, res: Response) => {
         },
       });
   
-      // If the material is not found or unauthorized, return a 404
       if (!material) {
-        return res.status(404).json({ message: 'Material not found or unauthorized' });
+        return res.status(200).json({ message: 'Material not found or unauthorized' });
       }
   
       // Delete the material from the database
@@ -258,7 +257,7 @@ export const handleDeleteAllMaterials = async (req: Request, res: Response) => {
   
       // Check if any materials exist for the company
       if (materials.length === 0) {
-        return res.status(404).json({ message: 'No materials found for the company' });
+        return res.status(200).json({ message: 'No materials found for the company' });
       }
   
       // Delete all materials for the company
