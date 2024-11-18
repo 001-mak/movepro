@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as userController from "../controller/user.controller";
+import {handleUpdateUser} from '../controller/profile.controller';
 import isAuth from "../middleware/isAuth";
 import isRoleAllowed from "../middleware/isRoleAllowed";
 import validate from "../middleware/validate";
@@ -9,6 +10,8 @@ import {
   getUsersQuerySchema,
 } from "../validation/userValidationSchema";
 import { paramsIdSchema,pagedSearchQuerySchema } from "../validation/commonValidation";
+import uploadAndCompressImage from '../middleware/uploadAndCompressImage'
+
 const userRouter = Router();
 
 userRouter.get(
@@ -46,8 +49,8 @@ userRouter.put(
     params: paramsIdSchema,
   }),
   isAuth,
-  isRoleAllowed(["super_admin", "tenant_admin"]),
-  userController.handleUpdateUser
+  isRoleAllowed(["super_admin", "tenant_admin"]),uploadAndCompressImage,
+  handleUpdateUser
 );
 
 userRouter.delete(
