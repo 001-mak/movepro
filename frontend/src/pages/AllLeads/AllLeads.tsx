@@ -169,7 +169,8 @@ import { Column } from 'react-table';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import PaginatedTable from '../../components/Tables/PaginatedTable';
 import { useNavigate } from 'react-router-dom';
-
+import { deleteApiCall } from '../../services/api-service';
+import { toast } from 'react-toastify';
 // Define the type for the fields
 
 
@@ -179,14 +180,14 @@ const userColumns: Column<any>[] = [
         Header: 'ID',
         accessor: 'id',
       },
-      {
-        Header: 'User ID',
-        accessor: 'user_id',
-      },
-      {
-        Header: 'Provider ID',
-        accessor: 'provider_id',
-      },
+      // {
+      //   Header: 'User ID',
+      //   accessor: 'user_id',
+      // },
+      // {
+      //   Header: 'Provider ID',
+      //   accessor: 'provider_id',
+      // },
       {
         Header: 'Assigned To',
         accessor: 'assigned_to',
@@ -282,44 +283,59 @@ const userColumns: Column<any>[] = [
     ];
 
 const filterFields = [
-  { id: 'company_email', label: 'Email' },
-  // { id: 'first_name', label: 'First Name' },
-  // { id: 'last_name', label: 'Last Name' },
-  // { id: 'phone_no', label: 'Phone Number' }
+  { id: 'email_id', label: 'Email' },
+  { id: 'first_name', label: 'First Name' },
+  { id: 'last_name', label: 'Last Name' },
+  { id: 'phone_no', label: 'Phone Number' }
 ];
 
 const AllLeads = () => {
   const navigate = useNavigate();
+  
+
+ 
 
   const actions = {
     handleView: (id: any) => {
-      navigate(`/view-company/${id}`);
+      navigate(`/view-user/${id}`);
     },
-    handleEdit: (id: any) => {
-      navigate(`/edit-company/${id}`);
+    // handleEdit: (row: any) => {
+    //   navigate(`/edit-user/${row.id}`);
+    // },
+    handleDelete: async (id: any) => {
+      console.log(id)
+      try {
+        await deleteApiCall(`/users/${id}`);
+       
+        toast.success('User deleted successfully', { autoClose: 2000 });
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+
+        // Optionally, refresh data or update UI here
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error('Failed to delete user');
+      }
     },
-    handleDelete: () => { },
   };
 
-  const handleButton = () => {
-    navigate('/add-company');
-  };
+  
 
-  // const customButton = {
-  //   buttonLabel: 'Add New',
-  //   handleButton,
-  // };
+  
 
   return (
     <>
-      <Breadcrumb pageName="Companies" />
+      <Breadcrumb pageName="All Leads" />
       <PaginatedTable
-        pagedApiUrl="/leads/paged"
+        pagedApiUrl="/leads"
         columns={userColumns}
         actions={actions}
         // customButton={customButton}
         filterFields={filterFields}
-        
+        extraQueryParams={{
+          admin_users: true
+        }}
       />
     </>
   );
