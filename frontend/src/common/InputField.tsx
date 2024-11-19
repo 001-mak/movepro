@@ -54,6 +54,13 @@ export function InputField(props: IinputField) {
     }
   }
 
+  if (type === 'number') {
+  pattern = {
+    value: /^-?\d*\.?\d+$/,
+    message: 'Please enter a valid number'
+  }
+}
+
   return (
     <div>
       <label htmlFor={name} className="mb-2.5 block text-black dark:text-white">

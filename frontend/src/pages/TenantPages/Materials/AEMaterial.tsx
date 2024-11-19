@@ -40,10 +40,8 @@ function AEMaterial() {
   };
 
   const onSubmit = (formData: any) => {
-    console.log(typeof formData.users_limit);
     const data = filterNullValues(formData);
-    console.log(data);
-
+console.log("AAAAA" , data);
     if (isEditMode) {
       putApiCall(`/materials/${id}`, data)
         .then((_res) => {
@@ -55,6 +53,7 @@ function AEMaterial() {
           toast.error(ERROR_MESSAGE);
         });
     } else {
+      console.log(data)
       postApiCall('/materials', data)
         .then((_res) => {
           toast.success(RECORD_UPDATED_SUCCESS);
@@ -86,7 +85,6 @@ function AEMaterial() {
                   label="Name"
                   type="text"
                   required={true}
-                  errMsg="Name is required."
                   maxLength={100}
                 />
               </div>
@@ -107,7 +105,6 @@ function AEMaterial() {
                   label="Price"
                   type="number"
                   required={true}
-                  errMsg="Price is required"
                 />
               </div>
 

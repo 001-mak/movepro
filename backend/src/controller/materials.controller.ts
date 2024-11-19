@@ -11,6 +11,7 @@ export const handleCreateMaterial = async (req: Request, res: Response) => {
   try {
     // Extract company_id from authenticated user's token
     const company_id = req.user?.company_id;
+    console.log(company_id)
     
     // Check if company_id is present
     if (!company_id) {

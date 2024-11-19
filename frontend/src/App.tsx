@@ -46,6 +46,7 @@ import AdditionalServicesLV from './pages/TenantPages/AdditionalServices/Additio
 import AEAdditionalService from './pages/TenantPages/AdditionalServices/AEAdditionalService';
 import AEValuation from './pages/TenantPages/Valuations/AEValuation';
 import ValuationsLV from './pages/TenantPages/Valuations/ValuationsLV';
+import ComapnyProfile from './pages/TenantPages/Profile/CompanyProfile';
 
 // const publicUrls = [
 //   '/auth/signin',
@@ -325,6 +326,15 @@ function App() {
               <>
                 <PageTitle title="Settings | Best Moving CRM Software" />
                 <ProfileSettings />
+              </>
+            }
+          />
+          <Route
+            path="/company-profile"
+            element={
+              <>
+                <PageTitle title="Settings | Best Moving CRM Software" />
+                <ComapnyProfile />
               </>
             }
           />
