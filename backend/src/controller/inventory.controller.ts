@@ -51,7 +51,7 @@ export const handleCreateInventoryGroup = async (req: Request, res: Response) =>
   
       // Handle case where no inventory groups are found
       if (inventoryGroups.length === 0) {
-        return res.status(404).json({ message: 'No inventory groups found for the company.' });
+        return res.status(200).json({ message: 'No inventory groups found for the company.' });
       }
   
       // Return the found inventory groups
@@ -88,7 +88,7 @@ export const handleCreateInventoryGroup = async (req: Request, res: Response) =>
   
       // Handle case where the inventory group is not found
       if (!inventoryGroup) {
-        return res.status(404).json({ message: 'Inventory group not found or unauthorized to access this resource.' });
+        return res.status(200).json({ message: 'Inventory group not found or unauthorized to access this resource.' });
       }
   
       // Return the found inventory group
@@ -132,7 +132,7 @@ export const handleUpdateInventoryGroup = async (req: Request, res: Response) =>
       });
   
       if (!existingGroup) {
-        return res.status(404).json({ message: 'Inventory group not found or unauthorized to access this resource.' });
+        return res.status(200).json({ message: 'Inventory group not found or unauthorized to access this resource.' });
       }
   
       // Update the inventory group with the new group_name
@@ -181,7 +181,7 @@ export const handleDeleteInventoryGroup = async (req: Request, res: Response) =>
       });
   
       if (!existingGroup) {
-        return res.status(404).json({ message: 'Inventory group not found or unauthorized to access this resource.' });
+        return res.status(200).json({ message: 'Inventory group not found or unauthorized to access this resource.' });
       }
   
       // Delete the inventory group
@@ -330,7 +330,7 @@ export const handleGetItemsByGroupId = async (req: Request, res: Response) => {
 
       // Check if any items were found
       if (items.length === 0) {
-          return res.status(404).json({ message: 'No items found for the specified group ID.' });
+          return res.status(200).json({ message: 'No items found for the specified group ID.' });
       }
 
       // Send successful response with items
@@ -366,7 +366,7 @@ export const handleDeleteItemById = async (req: Request, res: Response) => {
       });
 
       if (!existingItem) {
-          return res.status(404).json({ message: 'Item not found.' });
+          return res.status(200).json({ message: 'Item not found.' });
       }
 
       // Delete the item
@@ -421,7 +421,7 @@ export const handleUpdateItemById = async (req: Request, res: Response) => {
       });
 
       if (!existingItem) {
-          return res.status(404).json({ message: 'Item not found.' });
+          return res.status(200).json({ message: 'Item not found.' });
       }
       const inventoryGroupItemData: InventoryGroupItem = { 
         item_name, 
@@ -459,7 +459,7 @@ export const handleGetAllItems = async (req: Request, res: Response) => {
 
       // Check if any items were found
       if (items.length === 0) {
-          return res.status(404).json({ message: 'No items found.' });
+          return res.status(200).json({ message: 'No items found.' });
       }
 
       // Send successful response with items
@@ -493,7 +493,7 @@ export const handleGetItemById = async (req: Request, res: Response) => {
 
       // Check if the item was found
       if (!item) {
-          return res.status(404).json({ message: 'Item not found.' });
+          return res.status(200).json({ message: 'Item not found.' });
       }
 
       // Send successful response with the item

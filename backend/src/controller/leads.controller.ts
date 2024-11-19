@@ -173,7 +173,7 @@ export const handleGetLeads = async (req: TypedRequest, res: Response) => {
 
         // Validate the lead ID
         if (isNaN(leadId)) {
-            return res.status(httpStatus.BAD_REQUEST).json({ message: 'Invalid lead ID' });
+            return res.status(httpStatus.OK).json({ message: 'Invalid lead ID or not found in databse' });
         }
 
         // Fetch the lead by ID and company_id
