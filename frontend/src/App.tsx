@@ -47,6 +47,7 @@ import AEAdditionalService from './pages/TenantPages/AdditionalServices/AEAdditi
 import AEValuation from './pages/TenantPages/Valuations/AEValuation';
 import ValuationsLV from './pages/TenantPages/Valuations/ValuationsLV';
 import ComapnyProfile from './pages/TenantPages/Profile/CompanyProfile';
+import AddLead from './pages/TenantPages/Leads/AddLead';
 
 // const publicUrls = [
 //   '/auth/signin',
@@ -189,6 +190,16 @@ function App() {
                <ProtectedRoute allowedRoles={['super_admin' ,'tenant_admin']} />
                 <PageTitle title="Moventry | All Leads" />
                 <AllLeads />
+              </>
+            }
+          />
+          <Route
+            path="/add-lead"
+            element={
+              <>
+               <ProtectedRoute allowedRoles={['super_admin' ,'tenant_admin']} />
+                <PageTitle title="Moventry | Add Lead" />
+                <AddLead/>
               </>
             }
           />

@@ -26,10 +26,7 @@ export interface IFilterFields {
   label: string;
 }
 
-interface DeleteConfirmationProps {
-  onDelete: () => void;
-  onCancel: () => void;
-}
+
 
 
 
@@ -46,8 +43,9 @@ const PaginatedTable = <T extends object>({
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [searchFilters, setSearchFilters] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [deleteRowId, setDeleteRowId] = useState<any>(null);
+  const deleteConfirmationRef = useRef<HTMLDivElement>(null);
   const methods = useForm();
 
   const {
@@ -165,28 +163,54 @@ const PaginatedTable = <T extends object>({
   };
 
 
-  const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({ onDelete, onCancel }) => {
-    const popupRef = useRef<HTMLDivElement>(null);
-  
+  const DeleteConfirmation = () => {
+    const handleConfirmDelete = () => {
+      // Call the delete handler from actions with the selected row ID
+      if (actions?.handleDelete && selectedRowId) {
+        actions.handleDelete(selectedRowId);
+        setShowDeleteConfirmation(false);
+        setSelectedRowId(null);
+      }
+    };
+
+    const handleCancelDelete = () => {
+      setShowDeleteConfirmation(false);
+      setSelectedRowId(null);
+    };
+
+    // Add click outside handler
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-          onCancel(); // Close the popup when clicking outside
+        // Check if the click is outside the delete confirmation modal
+        if (
+          deleteConfirmationRef.current && 
+          !deleteConfirmationRef.current.contains(event.target as Node)
+        ) {
+          handleCancelDelete();
         }
       };
-  
+
+      // Add event listener when modal is open
       document.addEventListener('mousedown', handleClickOutside);
+      
+      // Cleanup event listener
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
       };
-    }, [onCancel]);
-  
+    }, []);
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-10">
-        <div ref={popupRef} className="bg-white rounded-md shadow-lg p-8 w-full max-w-md">
+        <div 
+          ref={deleteConfirmationRef}
+          className="bg-white rounded-md shadow-lg p-8 w-full max-w-md"
+        >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Confirm Delete</h3>
-            <button className="text-gray-500 hover:text-gray-700" onClick={onCancel}>
+            <button 
+              className="text-gray-500 hover:text-gray-700" 
+              onClick={handleCancelDelete}
+            >
               <IoCloseCircle size={24} />
             </button>
           </div>
@@ -194,13 +218,13 @@ const PaginatedTable = <T extends object>({
           <div className="flex justify-end">
             <button
               className="bg-primary text-white px-4 py-2 rounded-md mr-2 hover:bg-opacity-90"
-              onClick={onDelete}
+              onClick={handleConfirmDelete}
             >
               Yes
             </button>
             <button
               className="text-gray-500 px-4 py-2 rounded-md hover:bg-gray-100"
-              onClick={onCancel}
+              onClick={handleCancelDelete}
             >
               Cancel
             </button>
@@ -209,8 +233,6 @@ const PaginatedTable = <T extends object>({
       </div>
     );
   };
-  
-  
   
   
 
@@ -242,21 +264,9 @@ const PaginatedTable = <T extends object>({
 
   };
 
-  const handleDelete = (rowId: any) => {
-    setDeleteRowId(rowId);
-    setShowDeleteConfirmation(true);
-  };
+  
 
-  const confirmDelete = () => {
-    if (actions && actions.handleDelete) {
-      actions.handleDelete(deleteRowId);
-    }
-    setShowDeleteConfirmation(false);
-  };
 
-  const cancelDelete = () => {
-    setShowDeleteConfirmation(false);
-  };
 
   useEffect(() => {
     fetchData(pageIndex, pageSize, sortBy, selectedFilters, searchText);
@@ -492,7 +502,8 @@ const PaginatedTable = <T extends object>({
                         <button
                           className="hover:text-primary px-1"
                           onClick={() => {
-                            setDeleteRowId(row.original.id);
+                            // Set the selected row ID and show delete confirmation
+                            setSelectedRowId(row.original.id);
                             setShowDeleteConfirmation(true);
                           }}
                         >
@@ -524,8 +535,8 @@ const PaginatedTable = <T extends object>({
                         </button>
                       )}
                       {showDeleteConfirmation && (
-        <DeleteConfirmation onDelete={confirmDelete} onCancel={cancelDelete} />
-      )}
+    <DeleteConfirmation />
+  )}
                     </div>
                   </td>
                 </tr>

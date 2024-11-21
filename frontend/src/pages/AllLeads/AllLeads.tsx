@@ -114,67 +114,81 @@ const userColumns: Column<any>[] = [
       },
     ];
 
-const filterFields = [
-  { id: 'email_id', label: 'Email' },
-  { id: 'first_name', label: 'First Name' },
-  { id: 'last_name', label: 'Last Name' },
-  { id: 'phone_no', label: 'Phone Number' }
-];
-
-const AllLeads = () => {
-  const navigate = useNavigate();
-  const userState = useSelector((state: any) => state.auth.user);
-   
-  useEffect(() => {
-    console.log("User" , userState.user_role)
-}, []);
-  
-
- 
-
-  const actions = {
-    handleView: (id: any) => {
-      navigate(`/view-user/${id}`);
-    },
-    // handleEdit: (row: any) => {
-    //   navigate(`/edit-user/${row.id}`);
-    // },
-    handleDelete: async (id: any) => {
-      console.log(id)
-      try {
-        await deleteApiCall(`/users/${id}`);
+    const filterFields = [
+      { id: 'email_id', label: 'Email' },
+      { id: 'first_name', label: 'First Name' },
+      { id: 'last_name', label: 'Last Name' },
+      { id: 'phone_no', label: 'Phone Number' }
+    ];
+    
+    const AllLeads = () => {
+      const navigate = useNavigate();
+      const userState = useSelector((state: any) => state.auth.user);
        
-        toast.success('User deleted successfully', { autoClose: 2000 });
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-
-        // Optionally, refresh data or update UI here
-      } catch (error) {
-        console.error('Error deleting user:', error);
-        toast.error('Failed to delete user');
+      const actions: any = {
+        handleView: (id: any) => {
+          navigate(`/view-lead/${id}`);
+        },
+      };
+    
+      // Conditionally add edit and delete functions based on user role
+      if (userState.user_role === 'tenant_admin') {
+        actions.handleEdit = (row: any) => {
+          navigate(`/edit-lead/${row.id}`);
+        };
+        actions.handleDelete = async (id: any) => {
+          try {
+            console.log("Delete")
+            await deleteApiCall(`/leads/${id}`);
+            toast.success('Deleted successfully', { autoClose: 2000 });
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } catch (error) {
+            console.error('Error deleting Lead:', error);
+            toast.error('Failed to delete Lead');
+          }
+        };
       }
-    },
-  };
-
-  
-
-  
-
-  return (
-    <>
-      <Breadcrumb pageName="All Leads" />
-      <PaginatedTable
-        pagedApiUrl="/leads"
-        columns={userColumns}
-        actions={actions}
-        // customButton={customButton}
-        filterFields={filterFields}
-        extraQueryParams={{
+    
+      const handleAddNewLead = () => {
+        navigate('/add-lead');
+      };
+    
+      // Conditionally set up custom button and extra props
+      const tableProps: any = {
+        pagedApiUrl: userState.user_role === 'tenant_admin' 
+          ? `/leads` 
+          : '/leads',
+        columns: userColumns,
+        actions: actions,
+        filterFields: filterFields
+      };
+    
+      // Add custom button only for tenant_admin
+      if (userState.user_role === 'tenant_admin') {
+        tableProps.customButton = {
+          buttonLabel: 'Add New',
+          handleButton: handleAddNewLead
+        };
+      }
+    
+      // Add extra query params only for super_admin
+      if (userState.user_role === 'super_admin') {
+        tableProps.extraQueryParams = {
           admin_users: true
-        }}
-      />
-    </>
-  );
-};
-export default AllLeads;
+        };
+      }
+    
+      return (
+        <>
+          <Breadcrumb pageName="All Leads" />
+          <PaginatedTable 
+  {...tableProps} 
+  actions={actions}  // Ensure actions are passed
+/>
+        </>
+      );
+    };
+    
+    export default AllLeads;
