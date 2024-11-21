@@ -102,10 +102,12 @@ export const handleGetLeads = async (req: TypedRequest, res: Response) => {
 
     // Calculate skip for pagination
     const skip = (pageIndex - 1) * pageSize;
+    
     const accessFilter =
     user.user_role === "super_admin"
-      ? { id: { not: user.id } }
-      : { company_id: user.company_id, id: { not: user.id } };
+      ? {} 
+      : { company_id: user.company_id }; // Restrict to their company for non-super admins
+  
 
   let orCondition = undefined;
   if (req.query.searchText){
