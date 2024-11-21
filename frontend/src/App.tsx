@@ -46,6 +46,8 @@ import AdditionalServicesLV from './pages/TenantPages/AdditionalServices/Additio
 import AEAdditionalService from './pages/TenantPages/AdditionalServices/AEAdditionalService';
 import AEValuation from './pages/TenantPages/Valuations/AEValuation';
 import ValuationsLV from './pages/TenantPages/Valuations/ValuationsLV';
+import ComapnyProfile from './pages/TenantPages/Profile/CompanyProfile';
+import AddLead from './pages/TenantPages/Leads/AddLead';
 
 // const publicUrls = [
 //   '/auth/signin',
@@ -192,6 +194,16 @@ function App() {
             }
           />
           <Route
+            path="/add-lead"
+            element={
+              <>
+               <ProtectedRoute allowedRoles={['super_admin' ,'tenant_admin']} />
+                <PageTitle title="Moventry | Add Lead" />
+                <AddLead/>
+              </>
+            }
+          />
+          <Route
             path="/view-lead/:id"
             element={
               <>
@@ -221,7 +233,7 @@ function App() {
             }
           />
           <Route
-            path="/edit-user/:id"
+            path="/view-user/:id"
             element={
               <>
                 <PageTitle title="Edit User | Best Moving CRM Software" />
@@ -325,6 +337,15 @@ function App() {
               <>
                 <PageTitle title="Settings | Best Moving CRM Software" />
                 <ProfileSettings />
+              </>
+            }
+          />
+          <Route
+            path="/company-profile"
+            element={
+              <>
+                <PageTitle title="Settings | Best Moving CRM Software" />
+                <ComapnyProfile />
               </>
             }
           />

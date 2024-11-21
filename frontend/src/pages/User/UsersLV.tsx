@@ -1,20 +1,12 @@
 import { Column } from 'react-table';
-import { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import PaginatedTable from '../../components/Tables/PaginatedTable';
-import { IFilterFields } from '../../components/Tables/PaginatedTable';
 import { useNavigate } from 'react-router-dom';
-import CheckboxOne from '../../components/Checkboxes/CheckboxOne';
-
+import { deleteApiCall } from '../../services/api-service';
+import { toast } from 'react-toastify';
 // Define the type for the fields
-type SelectedFields = {
-  email_id: boolean;
-  first_name: boolean;
-  phone_no: boolean;
-};
 
-// Define valid field names
-type FieldNames = keyof SelectedFields;
+
 
 const userColumns: Column<any>[] = [
   {
@@ -52,37 +44,38 @@ const filterFields = [
 
 const UsersLV = () => {
   const navigate = useNavigate();
-  const [selectedFields, setSelectedFields] = useState<SelectedFields>({
-    email_id: false,
-    first_name: false,
-    phone_no: false
-  });
+  
 
-  const handleCheckboxChange = (field: FieldNames) => {
-    setSelectedFields(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
+ 
 
   const actions = {
-    handleView: (row: any) => {
-      navigate('/add-user');
+    handleView: (id: any) => {
+      navigate(`/view-user/${id}`);
     },
-    handleEdit: (row: any) => {
-      navigate(`/edit-user/${row.id}`);
+    // handleEdit: (row: any) => {
+    //   navigate(`/edit-user/${row.id}`);
+    // },
+    handleDelete: async (id: any) => {
+      console.log(id)
+      try {
+        await deleteApiCall(`/users/${id}`);
+       
+        toast.success('User deleted successfully', { autoClose: 2000 });
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+
+        // Optionally, refresh data or update UI here
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error('Failed to delete user');
+      }
     },
-    handleDelete: () => { },
   };
 
-  const handleButton = () => {
-    navigate('/add-user');
-  };
+  
 
-  const customButton = {
-    buttonLabel: 'Add New',
-    handleButton,
-  };
+  
 
   return (
     <>
@@ -91,7 +84,7 @@ const UsersLV = () => {
         pagedApiUrl="/users"
         columns={userColumns}
         actions={actions}
-        customButton={customButton}
+        // customButton={customButton}
         filterFields={filterFields}
         extraQueryParams={{
           admin_users: true

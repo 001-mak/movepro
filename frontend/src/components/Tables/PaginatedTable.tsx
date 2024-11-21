@@ -26,6 +26,10 @@ export interface IFilterFields {
   label: string;
 }
 
+
+
+
+
 const PaginatedTable = <T extends object>({
   columns,
   actions,
@@ -39,6 +43,9 @@ const PaginatedTable = <T extends object>({
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [searchFilters, setSearchFilters] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const deleteConfirmationRef = useRef<HTMLDivElement>(null);
   const methods = useForm();
 
   const {
@@ -54,8 +61,6 @@ const PaginatedTable = <T extends object>({
     nextPage,
     previousPage,
     setPageSize,
-    globalFilter,
-    setGlobalFilter,
     state: { pageIndex, pageSize, sortBy },
   } = useTable(
     {
@@ -78,6 +83,14 @@ const PaginatedTable = <T extends object>({
     searchText?: string,
   ) => {
     try {
+      console.log('Fetching data with:', {
+        pageIndex,
+        pageSize,
+        sortBy,
+        searchFilters,
+        searchText,
+      });
+  
       const orderBy = sortBy.length ? sortBy[0].id : columns[0].accessor;
       const orderDirection = sortBy.length
         ? sortBy[0].desc
@@ -92,20 +105,17 @@ const PaginatedTable = <T extends object>({
         orderDirection,
       };
   
-      // Conditionally add searchText if it has a value
       if (searchText) params.searchText = searchText;
-  
-      // Convert searchFilters array to comma-separated string if it exists and has elements
       if (searchFilters && searchFilters.length > 0) {
         params.searchFilters = searchFilters.join(',');
       }
   
-      getApiCall(`${pagedApiUrl}`, null, {
+      const response = await getApiCall(`${pagedApiUrl}`, null, {
         params,
-      }).then((res) => {
-        setPageData(res.data.data);
-        setPageCount(res.data.totalPages);
       });
+      console.log('Fetched data:', response.data);
+      setPageData(response.data.data);
+      setPageCount(response.data.totalPages);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -152,13 +162,81 @@ const PaginatedTable = <T extends object>({
     );
   };
 
+
+  const DeleteConfirmation = () => {
+    const handleConfirmDelete = () => {
+      // Call the delete handler from actions with the selected row ID
+      if (actions?.handleDelete && selectedRowId) {
+        actions.handleDelete(selectedRowId);
+        setShowDeleteConfirmation(false);
+        setSelectedRowId(null);
+      }
+    };
+
+    const handleCancelDelete = () => {
+      setShowDeleteConfirmation(false);
+      setSelectedRowId(null);
+    };
+
+    // Add click outside handler
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        // Check if the click is outside the delete confirmation modal
+        if (
+          deleteConfirmationRef.current && 
+          !deleteConfirmationRef.current.contains(event.target as Node)
+        ) {
+          handleCancelDelete();
+        }
+      };
+
+      // Add event listener when modal is open
+      document.addEventListener('mousedown', handleClickOutside);
+      
+      // Cleanup event listener
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-10">
+        <div 
+          ref={deleteConfirmationRef}
+          className="bg-white rounded-md shadow-lg p-8 w-full max-w-md"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Confirm Delete</h3>
+            <button 
+              className="text-gray-500 hover:text-gray-700" 
+              onClick={handleCancelDelete}
+            >
+              <IoCloseCircle size={24} />
+            </button>
+          </div>
+          <p className="mb-6">Are you sure you want to delete this item?</p>
+          <div className="flex justify-end">
+            <button
+              className="bg-primary text-white px-4 py-2 rounded-md mr-2 hover:bg-opacity-90"
+              onClick={handleConfirmDelete}
+            >
+              Yes
+            </button>
+            <button
+              className="text-gray-500 px-4 py-2 rounded-md hover:bg-gray-100"
+              onClick={handleCancelDelete}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
   
 
-  // const onSubmit = (formData: any) => {
-  //   setSearchFilters(formData);
-  //   let aa = methods.watch();
-  //   setSearchFilters({...aa});
-  // };
+  
 
   const resetFilters = () => {
     setSelectedFilters([]);
@@ -185,6 +263,11 @@ const PaginatedTable = <T extends object>({
     
 
   };
+
+  
+
+
+
   useEffect(() => {
     fetchData(pageIndex, pageSize, sortBy, selectedFilters, searchText);
   }, [pageIndex, pageSize, sortBy, searchFilters]);
@@ -375,7 +458,7 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleView && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => { }}
+                          onClick={() => {actions.handleView && actions.handleView(row.original.id)}}
                         >
                           <svg
                             className="fill-current"
@@ -399,7 +482,7 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleEdit && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => console.log("h")}
+                          onClick={() => {actions.handleEdit && actions.handleEdit(row.original.id)}}
                         >
                           <svg
                             width="17"
@@ -418,7 +501,12 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleDelete && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => console.log("h")}
+                          onClick={() => {
+                            // Set the selected row ID and show delete confirmation
+                            console.log(row.original.id)
+                            setSelectedRowId(row.original.id);
+                            setShowDeleteConfirmation(true);
+                          }}
                         >
                           <svg
                             className="fill-current"
@@ -447,6 +535,9 @@ const PaginatedTable = <T extends object>({
                           </svg>
                         </button>
                       )}
+                      {showDeleteConfirmation && (
+    <DeleteConfirmation />
+  )}
                     </div>
                   </td>
                 </tr>

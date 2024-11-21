@@ -1,15 +1,19 @@
-import {Request,Response} from 'express'
+import type { NextFunction, Request, Response } from "express";
 import prismaClient from '../config/prisma'
 import type {
    Material
 }from '../interface/interface'
+import { PrismaClient } from '@prisma/client';
+import HttpStatus from "http-status";
 import { searchFilters } from "../utils/searchFilters";
 
 
 
 export const handleCreateMaterial = async (req: Request, res: Response) => {
   try {
-    
+    // Extract company_id from authenticated user's token
+    const company_id = req.user?.company_id;
+    console.log(company_id)    
     const company_id = req.user?.company_id;
     if (!company_id) {
       return res.status(403).json({ error: 'Unauthorized: company id not found user  is unauthorized' });
@@ -52,22 +56,53 @@ export const handleCreateMaterial = async (req: Request, res: Response) => {
 
 
 export const handleGetAllMaterials = async (req: Request, res: Response) => {
-
-    try {
-
-      const company_id = req.user?.company_id;
-  
-      // Check if company_id is present
-      if (!company_id) {
-        return res.status(403).json({ error: 'Unauthorized: company id not found user  is unauthorized' });
-      }
-  
-       
-      const materials = await prismaClient.tbl_materials.findMany({
-        where: { company_id },
-      });
-  
+  try {
+    // Extract company_id from authenticated user's token
+    const company_id = req.user?.company_id;
     
+    // Check if company_id is present
+    if (!company_id) {
+      return res.status(403).json({ error: 'Unauthorized: company ID not found' });
+    }
+
+    // Default values for pagination and sorting
+    const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const orderBy = (req.query.orderBy as string) || "id";
+    const orderDirection = (req.query.orderDirection as string) || "asc";
+
+    // Calculate skip for pagination
+    const skip = (pageIndex - 1) * pageSize;
+
+    // Query to get paginated materials
+    const [materials, total] = await Promise.all([
+      prismaClient.tbl_materials.findMany({
+        where: { company_id },
+        skip,
+        take: pageSize,
+        orderBy: {
+          [orderBy]: orderDirection,
+        },
+      }),
+      prismaClient.tbl_materials.count({
+        where: { company_id }
+      })
+    ]);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / pageSize);
+
+    // If no materials found, return appropriate response
+    if (total === 0) {
+      return res.status(200).json({ 
+        message: 'No materials found for this company',
+        data: [],
+        total: 0,
+        pageIndex,
+        pageSize,
+        totalPages: 0 
+      });
+
       if (materials.length === 0) {
         return res.status(200).json({ message: 'No materials found for this company' });
       }
@@ -80,7 +115,31 @@ export const handleGetAllMaterials = async (req: Request, res: Response) => {
       console.error('Error fetching materials:', error);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-  };
+    // Respond with paginated materials
+    return res.status(200).json({
+      message: 'Materials fetched successfully',
+      data: materials,
+      total,
+      pageIndex,
+      pageSize,
+      totalPages,
+    });
+
+  } catch (error) {
+    console.error('Error fetching materials:', error);
+    
+    // More detailed error handling
+    if (error instanceof Error) {
+      return res.status(500).json({ 
+        error: 'Internal Server Error', 
+        details: error.message 
+      });
+    }
+
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+// Controller function to get a material by its ID for a specific company
 
   export const handleGetPagedAllMaterials = async (req: Request, res: Response) => {
     try {
@@ -145,9 +204,6 @@ export const handleGetAllMaterials = async (req: Request, res: Response) => {
       });
     }
   };
-
-
-
 
 export const handleGetMaterialById = async (req: Request, res: Response) => {
     try {
@@ -253,7 +309,6 @@ export const handleUpdateMaterial = async (req: Request, res: Response) => {
     }
   }; 
 
-
 export const handleDeleteMaterial = async (req: Request, res: Response) => {
     try {
     
@@ -294,9 +349,7 @@ export const handleDeleteMaterial = async (req: Request, res: Response) => {
       console.error('Error deleting material:', error);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-  };
 
-  
 export const handleDeleteAllMaterials = async (req: Request, res: Response) => {
     try {
      

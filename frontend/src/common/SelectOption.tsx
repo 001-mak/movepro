@@ -6,7 +6,8 @@ interface ISelectOption {
   label: string;
   value: SelectOptionValue[];
   required:boolean;
-  errMsg?:string
+  errMsg?:string,
+  disabled?: boolean;
 }
 
 export function SelectOption(props: ISelectOption) {
