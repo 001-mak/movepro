@@ -1,9 +1,10 @@
-import {Request,Response} from 'express'
+import type { NextFunction, Request, Response } from "express";
 import prismaClient from '../config/prisma'
 import type {
    Material
 }from '../interface/interface'
 import { PrismaClient } from '@prisma/client';
+import HttpStatus from "http-status";
 
 
 // Controller function to handle creating a new material
@@ -59,37 +60,78 @@ export const handleCreateMaterial = async (req: Request, res: Response) => {
 
 // Controller function to get all materials for a specific company
 export const handleGetAllMaterials = async (req: Request, res: Response) => {
-    try {
-      // Extract company_id from authenticated user's token
-      const company_id = req.user?.company_id;
-  
-      // Check if company_id is present
-      if (!company_id) {
-        return res.status(403).json({ error: 'Unauthorized: company ID not found' });
-      }
-  
-      // Fetch all materials that belong to the company
-      const materials = await prismaClient.tbl_materials.findMany({
-        where: { company_id },
-      });
-  
-      // If no materials found, return a message
-      if (materials.length === 0) {
-        return res.status(200).json({ message: 'No materials found for this company' });
-      }
-  
-      // Respond with the list of materials
-      return res.status(200).json({
-        message: 'Materials fetched successfully',
-        materials,
-      });
-    } catch (error) {
-      console.error('Error fetching materials:', error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    // Extract company_id from authenticated user's token
+    const company_id = req.user?.company_id;
+    
+    // Check if company_id is present
+    if (!company_id) {
+      return res.status(403).json({ error: 'Unauthorized: company ID not found' });
     }
-  };
 
+    // Default values for pagination and sorting
+    const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    const orderBy = (req.query.orderBy as string) || "id";
+    const orderDirection = (req.query.orderDirection as string) || "asc";
 
+    // Calculate skip for pagination
+    const skip = (pageIndex - 1) * pageSize;
+
+    // Query to get paginated materials
+    const [materials, total] = await Promise.all([
+      prismaClient.tbl_materials.findMany({
+        where: { company_id },
+        skip,
+        take: pageSize,
+        orderBy: {
+          [orderBy]: orderDirection,
+        },
+      }),
+      prismaClient.tbl_materials.count({
+        where: { company_id }
+      })
+    ]);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / pageSize);
+
+    // If no materials found, return appropriate response
+    if (total === 0) {
+      return res.status(200).json({ 
+        message: 'No materials found for this company',
+        data: [],
+        total: 0,
+        pageIndex,
+        pageSize,
+        totalPages: 0 
+      });
+    }
+
+    // Respond with paginated materials
+    return res.status(200).json({
+      message: 'Materials fetched successfully',
+      data: materials,
+      total,
+      pageIndex,
+      pageSize,
+      totalPages,
+    });
+
+  } catch (error) {
+    console.error('Error fetching materials:', error);
+    
+    // More detailed error handling
+    if (error instanceof Error) {
+      return res.status(500).json({ 
+        error: 'Internal Server Error', 
+        details: error.message 
+      });
+    }
+
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 // Controller function to get a material by its ID for a specific company
 export const handleGetMaterialById = async (req: Request, res: Response) => {
     try {
@@ -197,49 +239,50 @@ export const handleUpdateMaterial = async (req: Request, res: Response) => {
   }; 
 
 // Controller function to delete a material by its ID for a specific company
-export const handleDeleteMaterial = async (req: Request, res: Response) => {
-    try {
-      // Extract company_id from authenticated user's token
-      const company_id = req.user?.company_id;
+export const handleDeleteMaterial = async (
+  req: Request, 
+  res: Response, 
+  next: NextFunction
+) => {
+  const { id } = req.params;
   
-      // Check if company_id is present
-      if (!company_id) {
-        return res.status(403).json({ error: 'Unauthorized: company ID not found' });
-      }
-  
-      // Extract material id from request parameters
-      const { id } = req.params;
-  
-      // Validate that the id is a number
-      if (isNaN(Number(id))) {
-        return res.status(400).json({ error: 'Bad Request: Invalid material ID' });
-      }
-  
-      // Fetch the material to check if it exists and belongs to the company
-      const material = await prismaClient.tbl_materials.findFirst({
-        where: {
-          id: Number(id),
-          company_id, // Ensure the material belongs to the correct company
-        },
-      });
-  
-      if (!material) {
-        return res.status(200).json({ message: 'Material not found or unauthorized' });
-      }
-  
-      // Delete the material from the database
-      await prismaClient.tbl_materials.delete({
-        where: { id: Number(id) },
-      });
-  
-      // Respond with success message
-      return res.status(200).json({ message: 'Material deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting material:', error);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+  try {
+    // Extract company_id from authenticated user's token
+    const company_id = req.user?.company_id;
 
+    // Check if company_id is present
+    if (!company_id) {
+      return res.status(HttpStatus.FORBIDDEN).json({ 
+        message: 'Unauthorized: company ID not found' 
+      });
+    }
+
+    // Validate that the id is a number
+    if (isNaN(Number(id))) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ 
+        message: 'Bad Request: Invalid material ID' 
+      });
+    }
+
+    // Delete the material from the database
+    await prismaClient.tbl_materials.delete({ 
+      where: { 
+        id: Number(id),
+        company_id // Ensure the material belongs to the correct company
+      } 
+    });
+
+    return res.status(HttpStatus.OK).json({ 
+      message: "Material successfully deleted" 
+    });
+
+  } catch (error) {
+    console.error("Error deleting material:", error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+      message: "Internal server error" 
+    });
+  }
+};
   // Controller function to delete all materials for a specific company
 export const handleDeleteAllMaterials = async (req: Request, res: Response) => {
     try {

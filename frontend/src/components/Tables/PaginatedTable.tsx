@@ -503,6 +503,7 @@ const PaginatedTable = <T extends object>({
                           className="hover:text-primary px-1"
                           onClick={() => {
                             // Set the selected row ID and show delete confirmation
+                            console.log(row.original.id)
                             setSelectedRowId(row.original.id);
                             setShowDeleteConfirmation(true);
                           }}

@@ -13,9 +13,9 @@ function MaterialsLV() {
     handleEdit: (row: any) => {
       navigate(`/edit-material/${row.id}`);
     },
-    handleDelete: async (row: any) => {
+    handleDelete: async (id: any) => {
       try {
-        await deleteApiCall(`/materials/${row.id}`)
+        await deleteApiCall(`/materials/${id}`)
         toast.success("Record Deleted Successfully");
         navigate(0)
       } catch (error) {
@@ -51,7 +51,7 @@ function MaterialsLV() {
     <div>
       <Breadcrumb pageName="Material Management" />
       <PaginatedTable
-        pagedApiUrl="/materials/paged"
+        pagedApiUrl="/materials"
         columns={columns}
         actions={actions}
         customButton={{ buttonLabel: 'Add New', handleButton }}
