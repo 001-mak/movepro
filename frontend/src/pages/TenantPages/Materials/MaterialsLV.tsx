@@ -10,8 +10,8 @@ import { Material } from '../../../interface/interfaces';
 function MaterialsLV() {
   const navigate = useNavigate();
   const actions = {
-    handleEdit: (row: any) => {
-      navigate(`/edit-material/${row.id}`);
+    handleEdit: (id: any) => {
+      navigate(`/edit-material/${id}`);
     },
     handleDelete: async (id: any) => {
       try {

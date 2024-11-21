@@ -482,7 +482,9 @@ const PaginatedTable = <T extends object>({
                       {actions && actions?.handleEdit && (
                         <button
                           className="hover:text-primary px-1"
-                          onClick={() => {actions.handleEdit && actions.handleEdit(row.original.id)}}
+                          onClick={() => 
+                            {actions.handleEdit && actions.handleEdit(row.original.id)
+                            }}
                         >
                           <svg
                             width="17"

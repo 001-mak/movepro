@@ -30,18 +30,30 @@ function AEMaterial() {
   }, [id]);
 
   const loadData = async (id: string) => {
-    await getApiCall(`/materials/${id}`)
-      .then((res) => {
-        methods.reset(res.data);
-      })
-      .catch((err: any) => {
-        console.error('Error loading data:', err);
+    try {
+      const res = await getApiCall(`/materials/${id}`);
+      console.log("Materials" , res.data);
+      
+      // Use reset instead of setValue for comprehensive form population
+      methods.reset({
+        material_name: res.data.material.material_name,
+        material_description: res.data.material.material_description,
+        material_price: res.data.material.material_price
       });
+    } catch (err) {
+      console.error('Error loading data:', err);
+      toast.error(ERROR_MESSAGE);
+    }
   };
 
   const onSubmit = (formData: any) => {
     const data = filterNullValues(formData);
-console.log("AAAAA" , data);
+    
+    // Convert material_price to a number
+    if (data.material_price) {
+      data.material_price = Number(data.material_price);
+    }
+  
     if (isEditMode) {
       putApiCall(`/materials/${id}`, data)
         .then((_res) => {
@@ -53,7 +65,6 @@ console.log("AAAAA" , data);
           toast.error(ERROR_MESSAGE);
         });
     } else {
-      console.log(data)
       postApiCall('/materials', data)
         .then((_res) => {
           toast.success(RECORD_UPDATED_SUCCESS);
