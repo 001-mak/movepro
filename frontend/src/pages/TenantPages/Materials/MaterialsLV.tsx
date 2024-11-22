@@ -47,6 +47,13 @@ function MaterialsLV() {
     }
   ];
 
+  const filterFields = [
+    { id: 'email_id', label: 'Email' },
+    { id: 'first_name', label: 'First Name' },
+    { id: 'last_name', label: 'Last Name' },
+    { id: 'phone_no', label: 'Phone Number' }
+  ];
+
   return (
     <div>
       <Breadcrumb pageName="Material Management" />
@@ -54,6 +61,7 @@ function MaterialsLV() {
         pagedApiUrl="/materials"
         columns={columns}
         actions={actions}
+        filterFields={filterFields}
         customButton={{ buttonLabel: 'Add New', handleButton }}
       ></PaginatedTable>
     </div>

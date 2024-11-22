@@ -4,6 +4,9 @@ import { getApiCall } from '../../services/api-service';
 import { MdSearch } from 'react-icons/md';
 import { FormProvider, useForm } from 'react-hook-form';
 import { IoFilter, IoCloseCircle } from "react-icons/io5";
+import { BiRefresh } from 'react-icons/bi';
+import { RxCross2 } from 'react-icons/rx';
+import { toast } from 'react-toastify'; 
 
 interface PaginatedTableProps<T extends object> {
   columns: Column<T>[];
@@ -75,51 +78,6 @@ const PaginatedTable = <T extends object>({
     usePagination,
   );
 
-  const fetchData = async (
-    pageIndex: number,
-    pageSize: number,
-    sortBy: any[],
-    searchFilters?: any[],
-    searchText?: string,
-  ) => {
-    try {
-      console.log('Fetching data with:', {
-        pageIndex,
-        pageSize,
-        sortBy,
-        searchFilters,
-        searchText,
-      });
-  
-      const orderBy = sortBy.length ? sortBy[0].id : columns[0].accessor;
-      const orderDirection = sortBy.length
-        ? sortBy[0].desc
-          ? 'desc'
-          : 'asc'
-        : 'desc';
-  
-      const params: Record<string, any> = {
-        pageIndex: pageIndex + 1,
-        pageSize,
-        orderBy,
-        orderDirection,
-      };
-  
-      if (searchText) params.searchText = searchText;
-      if (searchFilters && searchFilters.length > 0) {
-        params.searchFilters = searchFilters.join(',');
-      }
-  
-      const response = await getApiCall(`${pagedApiUrl}`, null, {
-        params,
-      });
-      console.log('Fetched data:', response.data);
-      setPageData(response.data.data);
-      setPageCount(response.data.totalPages);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
   
   
   const CustomCheckbox = ({ id, label, checked, onChange }: { id: string; label: string; checked: boolean; onChange: () => void }) => {
@@ -234,7 +192,97 @@ const PaginatedTable = <T extends object>({
     );
   };
   
+  const handleClearSearch = () => {
+    setSearchText(''); // Clear search text
+    // Call fetchData with cleared search text
+    fetchData(pageIndex, pageSize, sortBy, selectedFilters, '');
+  };
+
+  const fetchData = async (
+    pageIndex: number,
+    pageSize: number,
+    sortBy: any[],
+    searchFilters?: any[],
+    searchText?: string,
+  ) => {
+    try {
+      console.log('Fetching data with:', {
+        pageIndex,
+        pageSize,
+        sortBy,
+        searchFilters,
+        searchText,
+      });
   
+      const orderBy = sortBy.length ? sortBy[0].id : columns[0].accessor;
+      const orderDirection = sortBy.length
+        ? sortBy[0].desc
+          ? 'desc'
+          : 'asc'
+        : 'desc';
+  
+      const params: Record<string, any> = {
+        pageIndex: pageIndex + 1,
+        pageSize,
+        orderBy,
+        orderDirection,
+      };
+  
+      if (searchText) params.searchText = searchText;
+      if (searchFilters && searchFilters.length > 0) {
+        params.searchFilters = searchFilters.join(',');
+      }
+  
+      const response = await getApiCall(`${pagedApiUrl}`, null, {
+        params,
+      });
+      console.log('Fetched data:', response.data);
+      setPageData(response.data.data);
+      setPageCount(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
+  const refreshData = async () => {
+    setSearchText('');
+    try {
+      const orderBy = sortBy.length ? sortBy[0].id : columns[0].accessor;
+      const orderDirection = sortBy.length
+        ? sortBy[0].desc
+          ? 'desc'
+          : 'asc'
+        : 'desc';
+  
+      const params: Record<string, any> = {
+        pageIndex: pageIndex + 1,
+        pageSize,
+        orderBy,
+        orderDirection,
+      };
+      
+      const response = await getApiCall(`${pagedApiUrl}`, null, {
+        params,
+      });
+      
+      setPageData(response.data.data);
+      setPageCount(response.data.totalPages);
+      
+      // Show success message using toastify
+      toast.success('Refreshed successfully', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      toast.error('Failed to refresh data');
+    }
+  };
+
 
   
 
@@ -304,25 +352,43 @@ const PaginatedTable = <T extends object>({
   });
   return (
     <section className="data-table-common data-table-two rounded-sm border border-stroke bg-white py-4 shadow-default dark:border-strokedark dark:bg-boxdark">
-      <div className="flex justify-between border-b border-stroke px-4 pb-4 dark:border-strokedark">
+      <div className="sm:flex justify-between border-b border-stroke px-2 sm:px-4 pb-4 dark:border-strokedark">
+        <div className='flex justify-between sm:justify-start gap-x-2'>
         {customButton ? (
           <button
-            className="flex justify-center rounded bg-primary pt-2.5 px-5 font-medium text-gray hover:bg-opacity-90"
+            className="flex justify-center rounded bg-primary pt-2.5 pb-2.5 mb:pb-0 px-5 font-medium text-gray hover:bg-opacity-90"
             onClick={customButton.handleButton}
           >
             {customButton.buttonLabel}
           </button>
         ) : (
-          <div></div>
+          <div className='hidden'></div>
         )}
-        <div className="w-80 flex items-center">
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="inline w-80 rounded-md border border-stroke px-5 py-2.5 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary dark:text-white"
-            placeholder="Search..."
-          />
+         <button
+            className="rounded bg-primary px-3 font-medium text-gray hover:bg-opacity-90"
+            onClick={refreshData}
+          >
+            <BiRefresh className="text-3xl" />
+          </button>
+          </div>
+        <div className="w-80 flex items-center  mt-5 md:mt-0">
+        <div className="relative flex-1">
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="inline w-full rounded-md border border-stroke px-5 py-2.5 pr-10 outline-none focus:border-primary dark:border-strokedark dark:bg-meta-4 dark:focus:border-primary dark:text-white"
+              placeholder="Search..."
+            />
+            {searchText && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <RxCross2 className="h-5 w-5" />
+              </button>
+            )}
+          </div>
           <div className="relative flex ml-1">
             {filterFields && filterFields.length > 0 && (
               <>
@@ -336,7 +402,7 @@ const PaginatedTable = <T extends object>({
 
                 <div
                   ref={dropdown}
-                  className={`absolute right-0 top-10 z-40 w-70 space-y-1 rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen ? 'block' : 'hidden'
+                  className={`absolute -right-10 sm:right-0 top-10 z-40 w-70 space-y-1 rounded-sm border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen ? 'block' : 'hidden'
                     }`}
                 >
                   <div className="space-y-4">
@@ -438,7 +504,8 @@ const PaginatedTable = <T extends object>({
             ))}
           </thead>
           <tbody {...getTableBodyProps()}>
-            {page.map((row: any, key: any) => {
+          {page.length > 0 ? (
+            page.map((row: any, key: any) => {
               prepareRow(row);
               return (
                 <tr {...row.getRowProps()} key={key}>
@@ -544,7 +611,37 @@ const PaginatedTable = <T extends object>({
                   </td>
                 </tr>
               );
-            })}
+            })
+          ) : (
+            <tr>
+              <td 
+                colSpan={actions ? columns.length + 1 : columns.length}
+                className="px-4 py-8 text-center"
+              >
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <svg 
+                    className="w-12 h-12 text-gray-400"
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth="2" 
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                    />
+                  </svg>
+                  <span className="text-gray-500 dark:text-gray-400 text-lg font-medium">
+                    No data found
+                  </span>
+                  <p className="text-gray-400 dark:text-gray-500 text-sm">
+                  {searchText ? 'Try adjusting your search or filter to find what you\'re looking for.' : 'There are no records to display.'}
+                  </p>
+                </div>
+              </td>
+            </tr>
+          )}
           </tbody>
         </table>
       </div>
