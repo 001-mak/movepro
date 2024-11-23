@@ -8,7 +8,7 @@ import validate from '../middleware/validate';
 const inventoryRouter=Router();
 
 inventoryRouter.get('/inventory-group/paged', isAuth, isRoleAllowed(["tenant_admin"]),inventoryController.handleGetPagedInventoryGroup );
-inventoryRouter.post('/inventory-group',validate({ body: inventoryGroupSchema }),isRoleAllowed(["tenant_admin"]), isAuth, inventoryController.handleCreateInventoryGroup);
+inventoryRouter.post('/inventory-group',validate({ body: inventoryGroupSchema }), isAuth,isRoleAllowed(["tenant_admin"]), inventoryController.handleCreateInventoryGroup);
 inventoryRouter.get('/inventory-group', isAuth,isRoleAllowed(["tenant_admin"]), inventoryController.handleGetAllInventoryGroups);
 inventoryRouter.get('/inventory-group/:id', isAuth,isRoleAllowed(["tenant_admin"]), inventoryController.handleGetInventoryGroupById);
 inventoryRouter.put('/inventory-group/:id', validate({ body: inventoryGroupSchema }),isAuth, isRoleAllowed(["tenant_admin"]),inventoryController.handleUpdateInventoryGroup);

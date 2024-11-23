@@ -1,0 +1,548 @@
+import React, { useState, useEffect , useRef } from 'react';
+import axios from 'axios';
+import { putApiCall, getApiCall, postApiCall, deleteApiCall } from '../../../services/api-service';
+import {
+    FaBox,
+    FaTimes,
+    FaEdit,
+    FaExclamationTriangle
+} from 'react-icons/fa';
+import { MdDeleteOutline } from "react-icons/md";
+import { toast } from 'react-toastify';
+
+interface InventoryItem {
+    id?: number;
+    item_name: string;
+    item_size: string;
+    group_id?: number;
+}
+
+interface InventoryGroup {
+    id?: number;
+    group_name: string;
+    company_id?: number;
+}
+
+const InventoryManagement = () => {
+    const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+    const [newItemName, setNewItemName] = useState('');
+    const [newItemSize, setNewItemSize] = useState('');
+    const [showAddGroupModal, setShowAddGroupModal] = useState(false);
+    const [newGroupName, setNewGroupName] = useState('');
+    const [inventoryGroups, setInventoryGroups] = useState<InventoryGroup[]>([]);
+    const [currentGroupItems, setCurrentGroupItems] = useState<InventoryItem[]>([]);
+    // state for edit functionality
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editItem, setEditItem] = useState<InventoryItem | null>(null);
+    const [editItemName, setEditItemName] = useState('');
+    const [editItemSize, setEditItemSize] = useState('');
+    // states for delete confirmation modals
+    const [showDeleteGroupModal, setShowDeleteGroupModal] = useState(false);
+    const [showDeleteItemModal, setShowDeleteItemModal] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
+
+    // Create refs for the modal content
+    const addModalRef = useRef<HTMLDivElement>(null);
+    const editModalRef = useRef<HTMLDivElement>(null);
+    const deleteGroupModalRef = useRef<HTMLDivElement>(null);
+    const deleteItemModalRef = useRef<HTMLDivElement>(null);
+
+
+
+    // Fetch inventory groups on component mount
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const response = await getApiCall(`/inventory/inventory-group`);
+                setInventoryGroups(response.data);
+
+                if (response.data.length > 0) {
+                    const firstGroupId = response.data[0].id;
+                    setSelectedGroup(firstGroupId);
+                    await fetchGroupItems(firstGroupId);
+                }
+            } catch (error) {
+                console.error('Error fetching inventory groups:', error);
+            }
+        };
+
+        fetchInitialData();
+    }, []);
+
+    // Handle click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (showAddGroupModal && 
+                addModalRef.current && 
+                !addModalRef.current.contains(event.target as Node)) {
+                setShowAddGroupModal(false);
+            }
+            
+            if (showEditModal && 
+                editModalRef.current && 
+                !editModalRef.current.contains(event.target as Node)) {
+                setShowEditModal(false);
+            }
+
+            if (showDeleteGroupModal && 
+                deleteGroupModalRef.current && 
+                !deleteGroupModalRef.current.contains(event.target as Node)) {
+                setShowDeleteGroupModal(false);
+            }
+
+            if (showDeleteItemModal && 
+                deleteItemModalRef.current && 
+                !deleteItemModalRef.current.contains(event.target as Node)) {
+                setShowDeleteItemModal(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showAddGroupModal, showEditModal, showDeleteGroupModal, showDeleteItemModal]);
+
+
+
+    const fetchGroupItems = async (groupId: number) => {
+        try {
+            const response = await getApiCall(`/inventory/inventory-group-item/sub-items/${groupId}`);
+            setCurrentGroupItems(response.data);
+        } catch (error) {
+            console.error('Error fetching group items:', error);
+            setCurrentGroupItems([]);
+        }
+    };
+
+    const handleGroupSelect = (groupId: number) => {
+        setSelectedGroup(groupId);
+        fetchGroupItems(groupId);
+    };
+
+    const handleAddGroup = async () => {
+        if (newGroupName) {
+            try {
+                const response = await postApiCall('/inventory/inventory-group', {
+                    group_name: newGroupName
+                });
+
+                setInventoryGroups([...inventoryGroups, response.data]);
+                setNewGroupName('');
+                setShowAddGroupModal(false);
+            } catch (error) {
+                console.error('Error adding inventory group:', error);
+            }
+        }
+    };
+
+    const handleDeleteGroupClick = () => {
+        setShowDeleteGroupModal(true);
+    };
+
+    const handleDeleteGroupConfirm = async () => {
+        if (selectedGroup) {
+            try {
+                await deleteApiCall(`/inventory/inventory-group/${selectedGroup}`);
+                const updatedGroups = inventoryGroups.filter(group => group.id !== selectedGroup);
+                setInventoryGroups(updatedGroups);
+                toast.success('Group deleted successfully');
+
+                if (updatedGroups.length > 0) {
+                    const firstGroupId = updatedGroups[0].id!;
+                    setSelectedGroup(firstGroupId);
+                    fetchGroupItems(firstGroupId);
+                } else {
+                    setSelectedGroup(null);
+                    setCurrentGroupItems([]);
+                }
+                setShowDeleteGroupModal(false);
+            } catch (error) {
+                console.error('Error deleting group:', error);
+                toast.error('Error in group deleting, Please try again');
+            }
+        }
+    };
+
+
+
+
+    const handleDeleteItemClick = (item: InventoryItem) => {
+        setItemToDelete(item);
+        setShowDeleteItemModal(true);
+    };
+
+
+    const handleAddItem = async () => {
+        if (newItemName && newItemSize && selectedGroup) {
+            try {
+                const newItem = {
+                    item_name: newItemName,
+                    item_size: `${newItemSize} cu Ft`,
+                    group_id: selectedGroup
+                };
+
+                const response = await postApiCall('/inventory/inventory-group-item', newItem);
+
+                // Update the currentGroupItems state with the new item from the response
+                const addedItem = response.data;
+                setCurrentGroupItems(prevItems => [...prevItems, addedItem]);
+
+                // Reset input fields
+                setNewItemName('');
+                setNewItemSize('');
+                toast.success('Item added successfully');
+            } catch (error) {
+                console.error('Error adding item:', error);
+                toast.success('Error in adding item , Please try again');
+            }
+        }
+    };
+
+    const handleDeleteItemConfirm = async () => {
+        if (itemToDelete?.id) {
+            try {
+                await deleteApiCall(`/inventory/inventory-group-item/${itemToDelete.id}`);
+                setCurrentGroupItems(prevItems => prevItems.filter(item => item.id !== itemToDelete.id));
+                toast.success('Item deleted successfully');
+                setShowDeleteItemModal(false);
+                setItemToDelete(null);
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                toast.error('Error in item deleting, Please try again');
+            }
+        }
+    };
+
+    
+    const handleEditClick = (item: InventoryItem) => {
+        setEditItem(item);
+        setEditItemName(item.item_name);
+        // Extract the numeric value from the size string (remove "cu Ft")
+        setEditItemSize(item.item_size.replace(' cu Ft', ''));
+        setShowEditModal(true);
+    };
+
+    const handleEditSave = async () => {
+        if (editItem?.id && editItemName && editItemSize) {
+            try {
+                const updatedItem = {
+                    item_name: editItemName,
+                    item_size: `${editItemSize} cu Ft`,
+                    group_id: selectedGroup
+                };
+
+                const response = await putApiCall(`/inventory/inventory-group-item/${editItem.id}`, updatedItem);
+
+                // Update the item in the current items list
+                setCurrentGroupItems(prevItems =>
+                    prevItems.map(item =>
+                        item.id === editItem.id ? response.data : item
+                    )
+                );
+
+                setShowEditModal(false);
+                setEditItem(null);
+                setEditItemName('');
+                setEditItemSize('');
+                toast.success('Item updated successfully');
+            } catch (error) {
+                console.error('Error updating item:', error);
+                toast.error('Error in updating item, Please try again');
+            }
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-white dark:bg-boxdark">
+            {/* Header */}
+            <div className="border-b border-stroke dark:border-strokedark">
+                <div className="container mx-auto px-4 py-4">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">Inventory</div>
+                            <h1 className="text-xl text-gray-800 dark:text-white">Inventory Groups</h1>
+                        </div>
+                        <button
+                            onClick={() => setShowAddGroupModal(true)}
+                            className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors"
+                        >
+                            Add Inventory Group
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="container mx-auto px-4 py-6">
+                <div className="flex gap-6">
+                    {/* Sidebar */}
+                    <div className="w-64 flex-shrink-0">
+                        <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark overflow-hidden">
+                            {inventoryGroups.map(group => (
+                                <button
+                                    key={group.id}
+                                    onClick={() => handleGroupSelect(group.id!)}
+                                    className={`w-full flex items-center px-4 py-3 text-left border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-boxdark-2 
+                                    ${selectedGroup === group.id ? 'bg-teal-50 dark:bg-boxdark-2 text-teal-500 dark:text-teal-400' : 'text-gray-700 dark:text-gray'}`}
+                                >
+                                    <span className="mr-3"><FaBox /></span>
+                                    {group.group_name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="flex-1">
+                        {selectedGroup && (
+                            <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark p-6">
+                                <div className="mb-6 flex justify-between items-center">
+                                    <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                                        {inventoryGroups.find(g => g.id === selectedGroup)?.group_name}
+                                    </h2>
+                                    <button
+                                       onClick={handleDeleteGroupClick}
+                                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                    >
+                                        Delete Group
+                                    </button>
+                                </div>
+
+                                {/* Items Table */}
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50 dark:bg-boxdark-2">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-gray-700 dark:text-gray">Item Name</th>
+                                                <th className="px-6 py-3 text-left text-gray-700 dark:text-gray">Size</th>
+                                                <th className="px-6 py-3 text-left text-gray-700 dark:text-gray">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200 dark:divide-strokedark">
+                                            {currentGroupItems.length > 0 ? (
+                                                currentGroupItems.map((item) => (
+                                                    <tr key={item.id} className="text-gray-700 dark:text-gray">
+                                                        <td className="px-6 py-4">{item.item_name}</td>
+                                                        <td className="px-6 py-4">{item.item_size}</td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex gap-4">
+                                                                <button
+                                                                    onClick={() => handleEditClick(item)}
+                                                                    className="text-blue-500 hover:text-blue-700"
+                                                                >
+                                                                    <FaEdit className="text-xl" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteItemClick(item)}
+                                                                    className="text-red-500 hover:text-red-700"
+                                                                >
+                                                                    <MdDeleteOutline className="text-xl" />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={3} className="text-center py-4 text-gray-500">
+                                                        No data available.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Add New Item Form */}
+                                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-strokedark">
+                                    <h3 className="text-lg font-medium mb-4 text-gray-800 dark:text-white">
+                                        Add New Item
+                                    </h3>
+                                    <div className="flex gap-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Item Name"
+                                            value={newItemName}
+                                            onChange={(e) => setNewItemName(e.target.value)}
+                                            className="flex-1 px-4 py-2 border border-gray-300 dark:border-strokedark rounded-md bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300"
+                                        />
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                placeholder="Size"
+                                                value={newItemSize}
+                                                onChange={(e) => setNewItemSize(e.target.value)}
+                                                className="w-24 px-4 py-2 border border-gray-300 dark:border-strokedark rounded-md bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300"
+                                            />
+                                            <span className="text-gray-600 dark:text-gray-400">cuFt</span>
+                                            <button
+                                                onClick={handleAddItem}
+                                                className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors"
+                                            >
+                                                Add Item
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Add Group Modal */}
+            {showAddGroupModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" >
+                    <div className="bg-white dark:bg-boxdark rounded-lg p-6 w-96" ref={addModalRef}>
+                    <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-medium text-gray-800 dark:text-white">
+                                Add New Inventory Group
+                            </h3>
+                            <button
+                                onClick={() => setShowAddGroupModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Group Name"
+                            value={newGroupName}
+                            onChange={(e) => setNewGroupName(e.target.value)}
+                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary mb-5"
+                        />
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setShowAddGroupModal(false)}
+                                className="px-4 py-2 text-gray hover:text-gray-800 dark:hover:text-gray-200 bg-red-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAddGroup}
+                                className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors"
+                            >
+                                Add Group
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" >
+                    <div className="bg-white dark:bg-boxdark rounded-lg p-6 w-96" ref={editModalRef}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-medium text-gray-800 dark:text-white">
+                                Edit Item
+                            </h3>
+                            <button
+                                onClick={() => setShowEditModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Item Name"
+                            value={editItemName}
+                            onChange={(e) => setEditItemName(e.target.value)}
+                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary mb-4"
+                        />
+                        <div className="flex items-center gap-2 mb-6">
+                            <input
+                                type="number"
+                                placeholder="Size"
+                                value={editItemSize}
+                                onChange={(e) => setEditItemSize(e.target.value)}
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                            />
+                            <span className="text-gray-600 dark:text-gray">cuFt</span>
+                        </div>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setShowEditModal(false)}
+                                className="px-4 py-2  bg-red-500 text-gray hover:text-gray-800 dark:hover:text-gray"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleEditSave}
+                                className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showDeleteGroupModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div ref={deleteGroupModalRef} className="bg-white dark:bg-boxdark rounded-lg p-6 w-96">
+                        <div className="flex items-center mb-4 text-red-500">
+                            <FaExclamationTriangle className="text-2xl mr-2" />
+                            <h3 className="text-lg font-medium">Confirm Deletion</h3>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
+                            Are you sure you want to delete the group "
+                            {inventoryGroups.find(g => g.id === selectedGroup)?.group_name}"?
+                            This action cannot be undone.
+                        </p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setShowDeleteGroupModal(false)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDeleteGroupConfirm}
+                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                            >
+                                Yes, Delete Group
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* New Delete Item Confirmation Modal */}
+            {showDeleteItemModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div ref={deleteItemModalRef} className="bg-white dark:bg-boxdark rounded-lg p-6 w-96">
+                        <div className="flex items-center mb-4 text-red-500">
+                            <FaExclamationTriangle className="text-2xl mr-2" />
+                            <h3 className="text-lg font-medium">Confirm Deletion</h3>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
+                            Are you sure you want to delete the item "
+                            {itemToDelete?.item_name}"?
+                            This action cannot be undone.
+                        </p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => {
+                                    setShowDeleteItemModal(false);
+                                    setItemToDelete(null);
+                                }}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDeleteItemConfirm}
+                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                            >
+                                Yes, Delete Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default InventoryManagement;
