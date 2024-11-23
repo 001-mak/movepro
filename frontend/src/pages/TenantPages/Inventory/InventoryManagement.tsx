@@ -116,15 +116,17 @@ const InventoryManagement = () => {
     const fetchGroupItems = async (groupId: number) => {
         try {
             const response = await getApiCall(`/inventory/inventory-group-item/sub-items/${groupId}`);
-            setCurrentGroupItems(response.data);
+            // Ensure we always set an array, even if empty
+            setCurrentGroupItems(response.data || []);
         } catch (error) {
             console.error('Error fetching group items:', error);
-            setCurrentGroupItems([]);
+            setCurrentGroupItems([]); // Set empty array on error
         }
     };
 
     const handleGroupSelect = (groupId: number) => {
         setSelectedGroup(groupId);
+        setCurrentGroupItems([]); // Reset before fetching new items
         fetchGroupItems(groupId);
     };
 
@@ -135,11 +137,16 @@ const InventoryManagement = () => {
                     group_name: newGroupName
                 });
 
-                setInventoryGroups([...inventoryGroups, response.data]);
+                const newGroup = response.data;
+                setInventoryGroups(prev => [...prev, newGroup]);
+                setSelectedGroup(newGroup.id);
+                setCurrentGroupItems([]); // Initialize empty array for new group
                 setNewGroupName('');
                 setShowAddGroupModal(false);
+                toast.success('Group added successfully');
             } catch (error) {
                 console.error('Error adding inventory group:', error);
+                toast.error('Error adding group, please try again');
             }
         }
     };
@@ -192,9 +199,11 @@ const InventoryManagement = () => {
 
                 const response = await postApiCall('/inventory/inventory-group-item', newItem);
 
-                // Update the currentGroupItems state with the new item from the response
-                const addedItem = response.data;
-                setCurrentGroupItems(prevItems => [...prevItems, addedItem]);
+                // Ensure currentGroupItems is always an array before updating
+                setCurrentGroupItems(prevItems => {
+                    const items = Array.isArray(prevItems) ? prevItems : [];
+                    return [...items, response.data];
+                });
 
                 // Reset input fields
                 setNewItemName('');
@@ -202,7 +211,7 @@ const InventoryManagement = () => {
                 toast.success('Item added successfully');
             } catch (error) {
                 console.error('Error adding item:', error);
-                toast.success('Error in adding item , Please try again');
+                toast.error('Error in adding item, Please try again');
             }
         }
     };
