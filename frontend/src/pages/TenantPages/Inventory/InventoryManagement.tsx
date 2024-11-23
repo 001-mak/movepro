@@ -5,7 +5,7 @@ import {
     FaBox,
     FaTimes,
     FaEdit,
-    FaExclamationTriangle
+    FaExclamationTriangle, FaChevronDown
 } from 'react-icons/fa';
 import { MdDeleteOutline } from "react-icons/md";
 import { toast } from 'react-toastify';
@@ -31,6 +31,7 @@ const InventoryManagement = () => {
     const [newGroupName, setNewGroupName] = useState('');
     const [inventoryGroups, setInventoryGroups] = useState<InventoryGroup[]>([]);
     const [currentGroupItems, setCurrentGroupItems] = useState<InventoryItem[]>([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     // state for edit functionality
     const [showEditModal, setShowEditModal] = useState(false);
     const [editItem, setEditItem] = useState<InventoryItem | null>(null);
@@ -46,6 +47,7 @@ const InventoryManagement = () => {
     const editModalRef = useRef<HTMLDivElement>(null);
     const deleteGroupModalRef = useRef<HTMLDivElement>(null);
     const deleteItemModalRef = useRef<HTMLDivElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
 
 
@@ -72,6 +74,12 @@ const InventoryManagement = () => {
     // Handle click outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            if (isDropdownOpen && 
+                dropdownRef.current && 
+                !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+            // ... existing modal click outside handlers ...
             if (showAddGroupModal && 
                 addModalRef.current && 
                 !addModalRef.current.contains(event.target as Node)) {
@@ -101,7 +109,7 @@ const InventoryManagement = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showAddGroupModal, showEditModal, showDeleteGroupModal, showDeleteItemModal]);
+    }, [isDropdownOpen, showAddGroupModal, showEditModal, showDeleteGroupModal, showDeleteItemModal]);
 
 
 
@@ -275,9 +283,42 @@ const InventoryManagement = () => {
 
             {/* Main Content */}
             <div className="container mx-auto px-4 py-6">
-                <div className="flex gap-6">
-                    {/* Sidebar */}
-                    <div className="w-64 flex-shrink-0">
+                {/* Mobile Dropdown for Groups */}
+                <div className="block lg:hidden mb-6" ref={dropdownRef}>
+                    <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="w-full p-3 bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark flex justify-between items-center"
+                    >
+                        <span className="flex items-center">
+                            <FaBox className="mr-2" />
+                            {inventoryGroups.find(g => g.id === selectedGroup)?.group_name || 'Select Group'}
+                        </span>
+                        <FaChevronDown className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {isDropdownOpen && (
+                        <div className="absolute z-10 w-full max-w-[calc(100%-2rem)] mt-1 bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-lg">
+                            {inventoryGroups.map(group => (
+                                <button
+                                    key={group.id}
+                                    onClick={() => {
+                                        handleGroupSelect(group.id!);
+                                        setIsDropdownOpen(false);
+                                    }}
+                                    className={`w-full flex items-center px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-boxdark-2 
+                                    ${selectedGroup === group.id ? 'bg-teal-50 dark:bg-boxdark-2 text-teal-500 dark:text-teal-400' : 'text-gray-700 dark:text-gray'}`}
+                                >
+                                    <FaBox className="mr-3" />
+                                    {group.group_name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Sidebar - Hidden on mobile */}
+                    <div className="hidden lg:block w-64 flex-shrink-0">
                         <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark overflow-hidden">
                             {inventoryGroups.map(group => (
                                 <button
@@ -296,62 +337,64 @@ const InventoryManagement = () => {
                     {/* Content Area */}
                     <div className="flex-1">
                         {selectedGroup && (
-                            <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark p-6">
-                                <div className="mb-6 flex justify-between items-center">
+                            <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark p-4 sm:p-6">
+                                <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                                         {inventoryGroups.find(g => g.id === selectedGroup)?.group_name}
                                     </h2>
                                     <button
-                                       onClick={handleDeleteGroupClick}
-                                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                        onClick={handleDeleteGroupClick}
+                                        className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
                                     >
                                         Delete Group
                                     </button>
                                 </div>
 
-                                {/* Items Table */}
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead className="bg-gray-50 dark:bg-boxdark-2">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-gray-700 dark:text-gray">Item Name</th>
-                                                <th className="px-6 py-3 text-left text-gray-700 dark:text-gray">Size</th>
-                                                <th className="px-6 py-3 text-left text-gray-700 dark:text-gray">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200 dark:divide-strokedark">
-                                            {currentGroupItems.length > 0 ? (
-                                                currentGroupItems.map((item) => (
-                                                    <tr key={item.id} className="text-gray-700 dark:text-gray">
-                                                        <td className="px-6 py-4">{item.item_name}</td>
-                                                        <td className="px-6 py-4">{item.item_size}</td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex gap-4">
-                                                                <button
-                                                                    onClick={() => handleEditClick(item)}
-                                                                    className="text-blue-500 hover:text-blue-700"
-                                                                >
-                                                                    <FaEdit className="text-xl" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteItemClick(item)}
-                                                                    className="text-red-500 hover:text-red-700"
-                                                                >
-                                                                    <MdDeleteOutline className="text-xl" />
-                                                                </button>
-                                                            </div>
+                                {/* Scrollable Table Container */}
+                                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                                    <div className="inline-block min-w-full align-middle">
+                                        <table className="min-w-full">
+                                            <thead className="bg-gray-50 dark:bg-boxdark-2">
+                                                <tr>
+                                                    <th className="px-6 py-3 text-left text-gray-700 dark:text-gray whitespace-nowrap">Item Name</th>
+                                                    <th className="px-6 py-3 text-left text-gray-700 dark:text-gray whitespace-nowrap">Size</th>
+                                                    <th className="px-6 py-3 text-left text-gray-700 dark:text-gray whitespace-nowrap">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200 dark:divide-strokedark">
+                                                {currentGroupItems.length > 0 ? (
+                                                    currentGroupItems.map((item) => (
+                                                        <tr key={item.id} className="text-gray-700 dark:text-gray">
+                                                            <td className="px-6 py-4 whitespace-nowrap">{item.item_name}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">{item.item_size}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <div className="flex gap-4">
+                                                                    <button
+                                                                        onClick={() => handleEditClick(item)}
+                                                                        className="text-blue-500 hover:text-blue-700"
+                                                                    >
+                                                                        <FaEdit className="text-xl" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteItemClick(item)}
+                                                                        className="text-red-500 hover:text-red-700"
+                                                                    >
+                                                                        <MdDeleteOutline className="text-xl" />
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={3} className="text-center py-4 text-gray-500">
+                                                            No data available.
                                                         </td>
                                                     </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={3} className="text-center py-4 text-gray-500">
-                                                        No data available.
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
                                 {/* Add New Item Form */}
@@ -359,7 +402,7 @@ const InventoryManagement = () => {
                                     <h3 className="text-lg font-medium mb-4 text-gray-800 dark:text-white">
                                         Add New Item
                                     </h3>
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-col sm:flex-row gap-4">
                                         <input
                                             type="text"
                                             placeholder="Item Name"
@@ -367,18 +410,21 @@ const InventoryManagement = () => {
                                             onChange={(e) => setNewItemName(e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 dark:border-strokedark rounded-md bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300"
                                         />
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                            <div className='flex pb-2 sm:pb-0'>
                                             <input
                                                 type="number"
                                                 placeholder="Size"
                                                 value={newItemSize}
                                                 onChange={(e) => setNewItemSize(e.target.value)}
-                                                className="w-24 px-4 py-2 border border-gray-300 dark:border-strokedark rounded-md bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300"
+                                                className="w-full sm:w-24 px-4 py-2 border border-gray-300 dark:border-strokedark rounded-md bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300"
                                             />
-                                            <span className="text-gray-600 dark:text-gray-400">cuFt</span>
+                                            <span className="text-gray-600 dark:text-gray-400 flex flex-col justify-center pl-2">cuFt</span>
+                                            </div>
+                                            
                                             <button
                                                 onClick={handleAddItem}
-                                                className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors"
+                                                className="w-full sm:w-auto px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors"
                                             >
                                                 Add Item
                                             </button>
@@ -390,7 +436,6 @@ const InventoryManagement = () => {
                     </div>
                 </div>
             </div>
-
             {/* Add Group Modal */}
             {showAddGroupModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" >
