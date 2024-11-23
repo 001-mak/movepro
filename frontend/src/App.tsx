@@ -48,6 +48,7 @@ import AEValuation from './pages/TenantPages/Valuations/AEValuation';
 import ValuationsLV from './pages/TenantPages/Valuations/ValuationsLV';
 import ComapnyProfile from './pages/TenantPages/Profile/CompanyProfile';
 import AddLead from './pages/TenantPages/Leads/AddLead';
+import InventoryManagement from './pages/TenantPages/Inventory/InventoryManagement';
 
 // const publicUrls = [
 //   '/auth/signin',
@@ -366,6 +367,15 @@ function App() {
               <>
                 <PageTitle title="Materials | Best Moving CRM Software" />
                 <MaterialsLV />
+              </>
+            }
+          />
+          <Route
+            path="/inventory"
+            element={
+              <>
+                <PageTitle title="Materials | Best Moving CRM Software" />
+                <InventoryManagement/>
               </>
             }
           />
