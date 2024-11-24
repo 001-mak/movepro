@@ -191,3 +191,41 @@ export const createAdminSchema = Joi.object({
         "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     }),
 }).unknown(false);
+
+
+export const changePasswordSchema = Joi.object({
+
+  currentPassword: Joi.string()
+    .min(8)
+    .max(128)
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.empty": "Current Password is required",
+      "string.min": "Password should have at least 8 characters",
+      "string.max": "Password can have a maximum length of 128 characters",
+      "string.pattern.base":
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+    }),
+
+    newPassword: Joi.string()
+    .min(8)
+    .max(128)
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.empty": "New Password is required",
+      "string.min": "Password should have at least 8 characters",
+      "string.max": "Password can have a maximum length of 128 characters",
+      "string.pattern.base":
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+    }),
+}).unknown(false);
