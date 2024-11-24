@@ -106,11 +106,11 @@ export const handleUpdateCompany = async (req: Request, res: Response) => {
   const data = req.body as Partial<
     Omit<ICompany, "user_id" | "subscription_plan_id" | "company_email">
   >;
-  const id = req.user.id as number;
+  const id = req.params;
   try {
     const company = await prismaClient.tbl_company.update({
       where: {
-        id: id,
+        id: Number(id),
       },
       data: data,
     });

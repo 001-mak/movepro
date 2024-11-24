@@ -1,6 +1,7 @@
 import Joi from 'joi';
 
 export const updateCompanySchema = Joi.object({
+  company_email: Joi.string().email().max(250).optional(),
   company_name: Joi.string().max(250).optional(),
   street: Joi.string().max(500).optional(),
   city: Joi.string().max(50).optional(),
