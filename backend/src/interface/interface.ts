@@ -184,32 +184,33 @@ export interface Material {
   company_id: number;
 }
 export interface ITruck {
-  company_id: number;
-  rented: boolean; 
-  make: string;
-  model: string;
-  year_of_manufacture: number;
-  vin: string; // Unique
-  license_plate_number: string;
-  license_plate_state_province: string;
-  truck_type: string;
-  truck_capacity?: string;
-  owner_name: string;
-  lease_details?: string;
-  insurance_provider?: string;
-  insurance_policy_number?: string;
-  fuel_efficiency?: string;
-  tare_weight?: string; // Empty truck weight
-  payload_capacity?: string;
-  volume: string;
-  last_maintenance_date?: Date;
-  next_maintenance_date?: Date;
-  dot_compliance_number?: string; // USA-specific
-  cvor_number?: string; // Canada-specific
-  cargo_restrictions?: string;
-  vehicle_notes?: string;
-  special_permits?: string;
+  rented: boolean | null; // Represents BIT(1), can be true, false, or null
+  make: string; // Required
+  model: string; // Required
+  year_of_manufacture: number; // Required
+  vin: string; // Unique, Required
+  license_plate_number: string; // Required
+  license_plate_state_province: string; // Required
+  truck_type: string; // Required
+  truck_capacity?: string | null; // Optional
+  owner_name: string; // Required
+  lease_details?: string | null; // Optional (TEXT)
+  insurance_provider?: string | null; // Optional
+  insurance_policy_number?: string | null; // Optional
+  fuel_efficiency?: string | null; // Optional
+  tare_weight?: string | null; // Optional
+  payload_capacity?: string | null; // Optional
+  volume: string; // Required
+  last_maintenance_date?: Date | null; // Optional
+  next_maintenance_date?: Date | null; // Optional
+  dot_compliance_number?: string | null; // Optional
+  cvor_number?: string | null; // Optional
+  cargo_restrictions?: string | null; // Optional (TEXT)
+  vehicle_notes?: string | null; // Optional (TEXT)
+  special_permits?: string | null; // Optional (TEXT)
+  driver_id?: number | null; // Foreign Key, Optional
 }
+
 
 export interface ICompany {
   company_name: string;

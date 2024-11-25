@@ -1,120 +1,103 @@
-import type { Request, Response,NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import prismaClient from "../config/prisma";
 import httpStatus from "http-status";
 import { ITruck } from "../interface/interface";
+import { searchFilters } from "../utils/searchFilters";
 
 // Create a Truck
 export const handleCreateTruck = async (req: Request, res: Response) => {
-    const {
-      rented,
-      make,
-      model,
-      year_of_manufacture,
-      vin,
-      license_plate_number,
-      license_plate_state_province,
-      truck_type,
-      truck_capacity,
-      owner_name,
-      lease_details,
-      insurance_provider,
-      insurance_policy_number,
-      fuel_efficiency,
-      tare_weight,
-      payload_capacity,
-      volume,
-      last_maintenance_date,
-      next_maintenance_date,
-      dot_compliance_number,
-      cvor_number,
-      cargo_restrictions,
-      vehicle_notes,
-      special_permits,
-    } = req.body as Omit<ITruck,'company_id'>;
-  
-    try {
-      const newTruck = await prismaClient.tbl_truck.create({
-        data: {
-          company_id:1,
-          rented,
-          make,
-          model,
-          year_of_manufacture,
-          vin,
-          license_plate_number,
-          license_plate_state_province,
-          truck_type,
-          truck_capacity,
-          owner_name,
-          lease_details,
-          insurance_provider,
-          insurance_policy_number,
-          fuel_efficiency,
-          tare_weight,
-          payload_capacity,
-          volume,
-          last_maintenance_date,
-          next_maintenance_date,
-          dot_compliance_number,
-          cvor_number,
-          cargo_restrictions,
-          vehicle_notes,
-          special_permits,
-        },
-      });
-      return res.status(httpStatus.CREATED).json(newTruck);
-    } catch (error) {
-      console.error(error);
-      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-        message: "Internal server error while creating truck",
-      });
-    }
-  };
+  const data = req.body as ITruck;
+  try {
+    const newTruck = await prismaClient.tbl_truck.create({
+      data: {
+        ...data,
+        last_maintenance_date: data.last_maintenance_date
+          ? new Date(data.last_maintenance_date)
+          : null,
+        next_maintenance_date: data.next_maintenance_date
+          ? new Date(data.next_maintenance_date)
+          : null,
+        company_id: req.user.company_id,
+      },
+    });
+    return res.status(httpStatus.CREATED).json(newTruck);
+  } catch (error) {
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: "Internal server error while creating truck",
+    });
+  }
+};
 
-export const handleGetTrucks = async(req: Request, res: Response)=>{
-    try {
-        const trucks = prismaClient.tbl_truck.findMany({
-            select:{
-              id: true,
-              rented: true,
-              make: true,
-              model: true,
-              truck_type: true,
-              truck_capacity: true,
-              payload_capacity:true,
-              volume:true,
-            },
-            where:{
-              company_id: req.user.company_id? req.user.company_id : undefined
-            }
-        })
-        return res.status(httpStatus.OK).json(trucks)
-    } catch (error) {
-        console.log(error)
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message: "Server Error"})
-    }
-}
+export const handleGetTrucks = async (req: Request, res: Response) => {
+  // Default values for pagination and sorting
+  const pageIndex = parseInt(req.query.pageIndex as string) || 1;
+  const pageSize = parseInt(req.query.pageSize as string) || 10;
+  const orderBy = (req.query.orderBy as string) || "id";
+  const orderDirection = (req.query.orderDirection as string) || "asc";
+  const skip = (pageIndex - 1) * pageSize;
+
+  let orCondition = undefined;
+  if (req.query.searchText) {
+    orCondition = searchFilters(["volume"], req.query);
+  }
+
+  try {
+    const trucks = await prismaClient.tbl_truck.findMany({
+      skip,
+      take: pageSize,
+      orderBy: {
+        [orderBy]: orderDirection,
+      },
+      where: {
+        company_id: req.user.company_id ? req.user.company_id : undefined,
+        OR: orCondition,
+      },
+    });
+    const total = await prismaClient.tbl_truck.count({
+      where: {
+        company_id: req.user.company_id ? req.user.company_id : undefined,
+        OR: orCondition,
+      },
+    });
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return res
+      .status(httpStatus.OK)
+      .json({ data: trucks, total, pageIndex, pageSize, totalPages });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: "Internal Server Error" });
+  }
+};
 
 // Get Truck by ID
 export const handleGetTruckById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  
+
   try {
     const truck = await prismaClient.tbl_truck.findUnique({
-      where: { id: Number(id) },
+      include: {
+        tbl_user: true,
+      },
+      where: {
+        id: Number(id),
+      },
     });
-    
     if (!truck) {
       return res.status(httpStatus.NOT_FOUND).json({
         message: "Truck not found",
       });
     }
-    
+
     return res.status(httpStatus.OK).json(truck);
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: "Internal server error while fetching truck",
+      message: "Internal server error while fetching truck Data",
     });
   }
 };
@@ -122,7 +105,7 @@ export const handleGetTruckById = async (req: Request, res: Response) => {
 // Update Truck by ID
 export const handleUpdateTruck = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const data = req.body;
+  const data = req.body as Partial<ITruck>;
 
   try {
     const existingTruck = await prismaClient.tbl_truck.findUnique({
@@ -170,4 +153,3 @@ export const handleDeleteTruck = async (req: Request, res: Response) => {
     });
   }
 };
-

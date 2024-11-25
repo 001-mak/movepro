@@ -13,7 +13,7 @@ const isRoleAllowed = (roles: string[]) => {
       return next();
     }
 
-    return res.status(403).json({ message: 'Forbidden: Insufficient role' });
+    return res.status(403).json({ message: 'Forbidden: Unauthorized role' });
   };
 };
 
