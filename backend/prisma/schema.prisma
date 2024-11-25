@@ -13,20 +13,20 @@ model tbl_company {
   company_email                             String                 @db.VarChar(250)
   street                                    String                 @db.MediumText
   city                                      String                 @db.VarChar(50)
-  state                                     String                 @db.VarChar(50)
-  zip                                       String                 @db.VarChar(10)
+  state                                     String?                @db.VarChar(50)
+  zip                                       String?                @db.VarChar(10)
   country                                   String                 @db.VarChar(50)
-  company_logo                              String                 @db.VarChar(250)
-  website                                   String                 @db.VarChar(250)
-  social_fb                                 String                 @db.MediumText
-  social_tw                                 String                 @db.MediumText
-  social_in                                 String                 @db.MediumText
-  social_insta                              String                 @db.MediumText
-  social_tube                               String                 @db.MediumText
+  company_logo                              String?                @db.VarChar(250)
+  website                                   String?                @db.VarChar(250)
+  social_fb                                 String?                @db.MediumText
+  social_tw                                 String?                @db.MediumText
+  social_in                                 String?                @db.MediumText
+  social_insta                              String?                @db.MediumText
+  social_tube                               String?                @db.MediumText
   user_id                                   Int
   subscription_plan_id                      Int?                   @default(1)
   subscription_plan                         tbl_subscription_plan? @relation(fields: [subscription_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subscription_plan")
-  company_owner                             tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_company_user")
+  company_owner                             tbl_user               @relation("tbl_company_user_idTotbl_user", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_user")
   tbl_inventory_groups                      tbl_inventory_groups[]
   tbl_leads                                 tbl_leads[]
   tbl_materials                             tbl_materials[]
@@ -38,13 +38,13 @@ model tbl_company {
 }
 
 model tbl_driver {
-  id             Int       @id @default(autoincrement())
-  user_id        Int       @unique(map: "unique_user_id")
-  license_number String    @unique(map: "unique_license_number") @db.VarChar(100)
-  license_expiry DateTime  @db.Date
-  created_at     DateTime? @default(now()) @db.Timestamp(0)
-  updated_at     DateTime? @default(now()) @db.Timestamp(0)
-  tbl_user       tbl_user  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tbl_driver_ibfk_1")
+  id             Int      @id @default(autoincrement())
+  user_id        Int      @unique(map: "user_id")
+  license_number String   @unique(map: "license_number") @db.VarChar(100)
+  license_expiry String   @db.VarChar(100)
+  tbl_user       tbl_user @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tbl_driver_ibfk_1")
+
+  @@index([user_id], map: "fk_driver_user")
 }
 
 model tbl_inventory_group_items {
@@ -68,106 +68,91 @@ model tbl_inventory_groups {
 }
 
 model tbl_leads {
-  id                         Int             @id @default(autoincrement())
-  first_name                 String          @db.VarChar(100)
-  last_name                  String          @db.VarChar(100)
-  phone                      String          @db.VarChar(15)
-  email                      String          @db.VarChar(150)
-  comments                   String?         @db.MediumText
-  JobType                    String          @db.VarChar(50)
-  ServiceType                String?         @db.VarChar(50)
-  MoveDate                   String          @db.VarChar(20)
-  MoveTime                   String          @db.VarChar(20)
-  EstimatedDate              String?         @db.VarChar(20)
-  EstimatedTime              String?         @db.VarChar(20)
-  LoadingDwellingSize        String?         @db.VarChar(20)
-  LoadingPlaceName           String?         @db.VarChar(20)
-  LeadLoadingApartment       String?         @db.VarChar(200)
-  LeadLoadingNotes           String?         @db.MediumText
-  LoadingAddress             String?         @db.VarChar(50)
-  LoadingZip                 String?         @db.VarChar(10)
-  LoadingLat                 String?         @db.VarChar(10)
-  LoadingLong                String?         @db.VarChar(10)
-  LoadingCity                String          @db.VarChar(20)
-  LoadingState               String?         @db.VarChar(20)
-  LoadingStairs              String?         @db.VarChar(5)
-  LoadingNeedHelpPacking     String?         @db.VarChar(1)
-  LoadingPackingDate         String?         @db.VarChar(20)
-  LoadingPackingTime         String?         @db.VarChar(20)
-  LoadingElevator            String?         @db.VarChar(1)
-  LoadingGarage              String?         @db.VarChar(1)
-  UnloadingDwellingSize      String?         @db.VarChar(20)
-  UnloadingPlaceName         String?         @db.VarChar(20)
-  UnloadingAddress           String?         @db.VarChar(50)
-  LeadUnloadingApartment     String?         @db.VarChar(200)
-  LeadUnloadingNotes         String?         @db.MediumText
-  UnloadingZip               String?         @db.VarChar(10)
-  UnloadingLat               String?         @db.VarChar(10)
-  UnloadingLong              String?         @db.VarChar(10)
-  UnloadingCity              String          @db.VarChar(20)
-  UnloadingState             String?         @db.VarChar(20)
-  UnloadingStairs            String?         @db.VarChar(20)
-  UnloadingNeedHelpPacking   String?         @db.VarChar(1)
-  UnloadingElevator          String?         @db.VarChar(1)
-  ndLoadingDwellingSize      String?         @map("2ndLoadingDwellingSize") @db.VarChar(20)
-  ndLoadingPlaceName         String?         @map("2ndLoadingPlaceName") @db.VarChar(100)
-  ndLoadingApartment         String?         @map("2ndLoadingApartment") @db.VarChar(200)
-  ndLoadingAddress           String?         @map("2ndLoadingAddress") @db.VarChar(50)
-  ndLoadingZip               String?         @map("2ndLoadingZip") @db.VarChar(10)
-  ndLoadingLat               String?         @map("2ndLoadingLat") @db.VarChar(10)
-  ndLoadingLong              String?         @map("2ndLoadingLong") @db.VarChar(10)
-  ndLoadingCity              String?         @map("2ndLoadingCity") @db.VarChar(10)
-  ndLoadingState             String?         @map("2ndLoadingState") @db.VarChar(20)
-  ndLoadingStairs            String?         @map("2ndLoadingStairs") @db.VarChar(5)
-  ndLoadingNeedHelpPacking   String?         @map("2ndLoadingNeedHelpPacking") @db.VarChar(1)
-  ndLoadingPackingDate       String?         @map("2ndLoadingPackingDate") @db.VarChar(20)
-  ndLoadingPackingTime       String?         @map("2ndLoadingPackingTime") @db.VarChar(20)
-  ndLoadingElevator          String?         @map("2ndLoadingElevator") @db.VarChar(1)
-  ndLoadingGarage            String?         @map("2ndLoadingGarage") @db.VarChar(1)
-  ndLoadingNotes             String?         @map("2ndLoadingNotes") @db.MediumText
-  ndUnloadingDwellingSize    String?         @map("2ndUnloadingDwellingSize") @db.VarChar(20)
-  ndUnloadingPlaceName       String?         @map("2ndUnloadingPlaceName") @db.VarChar(20)
-  ndUnloadingApartment       String?         @map("2ndUnloadingApartment") @db.VarChar(100)
-  ndUnloadingAddress         String?         @map("2ndUnloadingAddress") @db.VarChar(50)
-  ndUnloadingZip             String?         @map("2ndUnloadingZip") @db.VarChar(10)
-  ndUnloadingLat             String?         @map("2ndUnloadingLat") @db.VarChar(10)
-  ndUnloadingLong            String?         @map("2ndUnloadingLong") @db.VarChar(10)
-  ndUnloadingCity            String?         @map("2ndUnloadingCity") @db.VarChar(10)
-  ndUnloadingState           String?         @map("2ndUnloadingState") @db.VarChar(20)
-  ndUnloadingStairs          String?         @map("2ndUnloadingStairs") @db.VarChar(5)
-  ndUnloadingNeedHelpPacking String?         @map("2ndUnloadingNeedHelpPacking") @db.VarChar(1)
-  ndUnloadingElevator        String?         @map("2ndUnloadingElevator") @db.VarChar(1)
-  ndLeadUnloadingNotes       String?         @map("2ndLeadUnloadingNotes") @db.MediumText
-  insert_time                DateTime        @default(now()) @db.Timestamp(0)
-  distance                   String?         @db.VarChar(250)
-  lead_status                String          @default("1") @db.VarChar(1)
-  book_date                  String?         @db.VarChar(20)
-  complete_date              String?         @db.VarChar(20)
-  accept_status              Int?            @default(0)
-  reject_reason              String?         @db.VarChar(50)
+  id                         Int          @id @default(autoincrement())
+  first_name                 String       @db.VarChar(100)
+  last_name                  String       @db.VarChar(100)
+  phone                      String       @db.VarChar(15)
+  email                      String       @db.VarChar(150)
+  comments                   String?      @db.MediumText
+  JobType                    String       @db.VarChar(50)
+  ServiceType                String?      @db.VarChar(50)
+  MoveDate                   String       @db.VarChar(20)
+  MoveTime                   String       @db.VarChar(20)
+  EstimatedDate              String?      @db.VarChar(20)
+  EstimatedTime              String?      @db.VarChar(20)
+  LoadingDwellingSize        String?      @db.VarChar(20)
+  LoadingPlaceName           String?      @db.VarChar(20)
+  LeadLoadingApartment       String?      @db.VarChar(200)
+  LeadLoadingNotes           String?      @db.MediumText
+  LoadingAddress             String?      @db.VarChar(50)
+  LoadingZip                 String?      @db.VarChar(10)
+  LoadingLat                 String?      @db.VarChar(10)
+  LoadingLong                String?      @db.VarChar(10)
+  LoadingCity                String       @db.VarChar(20)
+  LoadingState               String?      @db.VarChar(20)
+  LoadingStairs              String?      @db.VarChar(5)
+  LoadingNeedHelpPacking     String?      @db.VarChar(1)
+  LoadingPackingDate         String?      @db.VarChar(20)
+  LoadingPackingTime         String?      @db.VarChar(20)
+  LoadingElevator            String?      @db.VarChar(1)
+  LoadingGarage              String?      @db.VarChar(1)
+  UnloadingDwellingSize      String?      @db.VarChar(20)
+  UnloadingPlaceName         String?      @db.VarChar(20)
+  UnloadingAddress           String?      @db.VarChar(50)
+  LeadUnloadingApartment     String?      @db.VarChar(200)
+  LeadUnloadingNotes         String?      @db.MediumText
+  UnloadingZip               String?      @db.VarChar(10)
+  UnloadingLat               String?      @db.VarChar(10)
+  UnloadingLong              String?      @db.VarChar(10)
+  UnloadingCity              String?      @db.VarChar(20)
+  UnloadingState             String?      @db.VarChar(20)
+  UnloadingStairs            String?      @db.VarChar(20)
+  UnloadingNeedHelpPacking   String?      @db.VarChar(1)
+  UnloadingElevator          String?      @db.VarChar(1)
+  ndLoadingDwellingSize      String?      @map("2ndLoadingDwellingSize") @db.VarChar(20)
+  ndLoadingPlaceName         String?      @map("2ndLoadingPlaceName") @db.VarChar(100)
+  ndLoadingApartment         String?      @map("2ndLoadingApartment") @db.VarChar(200)
+  ndLoadingAddress           String?      @map("2ndLoadingAddress") @db.VarChar(50)
+  ndLoadingZip               String?      @map("2ndLoadingZip") @db.VarChar(10)
+  ndLoadingLat               String?      @map("2ndLoadingLat") @db.VarChar(10)
+  ndLoadingLong              String?      @map("2ndLoadingLong") @db.VarChar(10)
+  ndLoadingCity              String?      @map("2ndLoadingCity") @db.VarChar(10)
+  ndLoadingState             String?      @map("2ndLoadingState") @db.VarChar(20)
+  ndLoadingStairs            String?      @map("2ndLoadingStairs") @db.VarChar(5)
+  ndLoadingNeedHelpPacking   String?      @map("2ndLoadingNeedHelpPacking") @db.VarChar(1)
+  ndLoadingPackingDate       String?      @map("2ndLoadingPackingDate") @db.VarChar(20)
+  ndLoadingPackingTime       String?      @map("2ndLoadingPackingTime") @db.VarChar(20)
+  ndLoadingElevator          String?      @map("2ndLoadingElevator") @db.VarChar(1)
+  ndLoadingGarage            String?      @map("2ndLoadingGarage") @db.VarChar(1)
+  ndLoadingNotes             String?      @map("2ndLoadingNotes") @db.MediumText
+  ndUnloadingDwellingSize    String?      @map("2ndUnloadingDwellingSize") @db.VarChar(20)
+  ndUnloadingPlaceName       String?      @map("2ndUnloadingPlaceName") @db.VarChar(20)
+  ndUnloadingApartment       String?      @map("2ndUnloadingApartment") @db.VarChar(100)
+  ndUnloadingAddress         String?      @map("2ndUnloadingAddress") @db.VarChar(50)
+  ndUnloadingZip             String?      @map("2ndUnloadingZip") @db.VarChar(10)
+  ndUnloadingLat             String?      @map("2ndUnloadingLat") @db.VarChar(10)
+  ndUnloadingLong            String?      @map("2ndUnloadingLong") @db.VarChar(10)
+  ndUnloadingCity            String?      @map("2ndUnloadingCity") @db.VarChar(10)
+  ndUnloadingState           String?      @map("2ndUnloadingState") @db.VarChar(20)
+  ndUnloadingStairs          String?      @map("2ndUnloadingStairs") @db.VarChar(5)
+  ndUnloadingNeedHelpPacking String?      @map("2ndUnloadingNeedHelpPacking") @db.VarChar(1)
+  ndUnloadingElevator        String?      @map("2ndUnloadingElevator") @db.VarChar(1)
+  ndLeadUnloadingNotes       String?      @map("2ndLeadUnloadingNotes") @db.MediumText
+  insert_time                DateTime     @default(now()) @db.Timestamp(0)
+  distance                   String?      @db.VarChar(250)
+  lead_status                String       @default("1") @db.VarChar(1)
+  book_date                  String?      @db.VarChar(20)
+  complete_date              String?      @db.VarChar(20)
+  accept_status              Int?         @default(0)
+  reject_reason              String?      @db.VarChar(50)
   company_id                 Int?
-  created_at                 DateTime        @default(now()) @db.Timestamp(0)
-  updated_at                 DateTime        @default(now()) @db.Timestamp(0)
-  tbl_company                tbl_company?    @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_id")
-  tbl_quotation              tbl_quotation[]
+  tbl_company                tbl_company? @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_company_id")
 
   @@index([company_id], map: "fk_company_id")
 }
 
-model tbl_materials {
-  id                   Int         @id @default(autoincrement())
-  material_name        String      @db.VarChar(100)
-  material_description String?     @db.VarChar(500)
-  material_price       Float       @db.Float
-  company_id           Int
-  tbl_company          tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_materials_company")
-
-  @@index([company_id], map: "fk_tbl_materials_company")
-}
-
 model tbl_role {
-  id       Int        @id @default(autoincrement())
-  role     String     @db.VarChar(50)
+  role     String     @id @db.VarChar(50)
   tbl_user tbl_user[]
 }
 
@@ -179,7 +164,6 @@ model tbl_subscription_plan {
 }
 
 model tbl_truck {
-  truck_id                     Int         @id @default(autoincrement())
   company_id                   Int
   rented                       Boolean?    @db.Bit(1)
   make                         String      @db.VarChar(255)
@@ -205,9 +189,13 @@ model tbl_truck {
   cargo_restrictions           String?     @db.Text
   vehicle_notes                String?     @db.Text
   special_permits              String?     @db.Text
+  driver_id                    Int?
+  id                           Int         @id @default(autoincrement())
+  tbl_user                     tbl_user?   @relation(fields: [driver_id], references: [id], onUpdate: NoAction, map: "fk_truck_driver")
   tbl_company                  tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, map: "tbl_truck_ibfk_1")
 
   @@index([company_id], map: "company_id")
+  @@index([driver_id], map: "fk_truck_driver")
 }
 
 model tbl_user {
@@ -218,7 +206,7 @@ model tbl_user {
   password                                     String        @db.VarChar(255)
   salt                                         String        @db.VarChar(255)
   phone_no                                     String        @db.VarChar(20)
-  picture                                      String?       @db.Text
+  picture                                      String?       @db.VarChar(500)
   bio                                          String?       @db.MediumText
   cover_photo                                  String?       @db.VarChar(500)
   street                                       String?       @db.VarChar(255)
@@ -230,41 +218,26 @@ model tbl_user {
   hire_date                                    String?       @db.VarChar(20)
   current_pay                                  String?       @db.VarChar(10)
   company_id                                   Int?
-  role_id                                      Int           @default(2)
   reset_key                                    String?       @db.VarChar(255)
   reset_key_expiry                             DateTime?     @db.DateTime(0)
   user_role                                    String?       @db.VarChar(50)
   tbl_company_tbl_company_user_idTotbl_user    tbl_company[] @relation("tbl_company_user_idTotbl_user")
   tbl_driver                                   tbl_driver?
-  tbl_company_tbl_user_company_idTotbl_company tbl_company?  @relation("tbl_user_company_idTotbl_company", fields: [company_id], references: [id], onUpdate: NoAction, map: "fk_user_company")
-  tbl_role                                     tbl_role      @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role")
+  tbl_truck                                    tbl_truck[]
+  tbl_company_tbl_user_company_idTotbl_company tbl_company?  @relation("tbl_user_company_idTotbl_company", fields: [company_id], references: [id], onDelete: Cascade, map: "fk_user_company")
+  tbl_role                                     tbl_role?     @relation(fields: [user_role], references: [role], onDelete: Cascade, onUpdate: NoAction, map: "fk_user_role")
 
   @@index([company_id], map: "fk_company_user")
-  @@index([role_id], map: "fk_user_role")
+  @@index([user_role], map: "fk_user_role")
 }
 
-model tbl_quotation {
-  id             Int                   @id @default(autoincrement())
-  lead_id        Int
-  datas          Json
-  inventoryArr   Json
-  materialsArr   Json
-  trucksArr      Json
-  crewArr        Json
-  start_time     String?               @db.VarChar(55)
-  end_time       String?               @db.VarChar(55)
-  hourly_rate    Decimal?              @db.Decimal(10, 2)
-  travel_charges Decimal?              @db.Decimal(10, 2)
-  status         tbl_quotation_status? @default(pending)
-  created_at     DateTime?             @default(now()) @db.Timestamp(0)
-  updated_at     DateTime?             @default(now()) @db.Timestamp(0)
-  tbl_leads      tbl_leads             @relation(fields: [lead_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_quotation_lead")
+model tbl_materials {
+  id                   Int         @id @default(autoincrement())
+  material_name        String      @db.VarChar(100)
+  material_description String?     @db.VarChar(500)
+  material_price       Float       @db.Float
+  company_id           Int
+  tbl_company          tbl_company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tbl_materials_company")
 
-  @@index([lead_id], map: "fk_quotation_lead")
-}
-
-enum tbl_quotation_status {
-  pending
-  accepted
-  rejected
+  @@index([company_id], map: "fk_tbl_materials_company")
 }
